@@ -14,7 +14,9 @@ import {
   Search,
   Filter,
   Download,
-  Calendar
+  Calendar,
+  Sparkles,
+  Zap
 } from "lucide-react";
 import { 
   AreaChart, 
@@ -322,6 +324,34 @@ export default function AnalyticsPage() {
           </button>
         </div>
       </div>
+
+      {/* AI Insights Banner */}
+      {!isLoading && (
+        <motion.div 
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="relative overflow-hidden rounded-3xl p-6 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white shadow-lg shadow-indigo-500/20"
+        >
+          <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 blur-3xl rounded-full -translate-y-1/2 translate-x-1/2" />
+          <div className="relative z-10 flex flex-col md:flex-row gap-6 items-start md:items-center">
+            <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center shrink-0 backdrop-blur-md border border-white/20">
+              <Sparkles className="w-6 h-6 text-white" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-lg font-bold mb-1 flex items-center gap-2">
+                AI Performance Insight <span className="px-2 py-0.5 rounded-full bg-white/20 text-[10px] uppercase tracking-widest font-black">Beta</span>
+              </h3>
+              <p className="text-white/90 text-sm leading-relaxed font-medium">
+                Your channel is experiencing a <strong className="text-white font-black">+12.5% surge</strong> in views this week! The <strong className="text-white font-black">"Setup Tour 2024"</strong> video is driving the most traffic. Consider creating a follow-up video focusing on budget accessories to capitalize on this minimalist setup trend.
+              </p>
+            </div>
+            <button className="px-5 py-2.5 bg-white text-indigo-600 hover:bg-neutral-50 rounded-xl text-sm font-bold shadow-sm transition-colors flex items-center gap-2 shrink-0">
+              <Zap className="w-4 h-4" />
+              Generate Strategy
+            </button>
+          </div>
+        </motion.div>
+      )}
 
       {/* Section 1: Stat Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

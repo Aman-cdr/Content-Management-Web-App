@@ -552,7 +552,7 @@ function SeriesCard({ series: s, onEdit, onDuplicate, onArchive, onDelete }) {
       </Link>
 
       {/* Indigo Progress Bar beneath thumbnail */}
-      <div className="w-full h-[3px] bg-neutral-100">
+      <div className="w-full h-[4px] bg-neutral-100">
         <motion.div 
           initial={{ width: 0 }} 
           animate={{ width: `${progress}%` }} 
@@ -620,8 +620,7 @@ function SeriesCard({ series: s, onEdit, onDuplicate, onArchive, onDelete }) {
         {/* Footer row with completion % and "View all episodes" link */}
         <div className="pt-4 border-t border-[#F4F5F8] flex items-center justify-between">
           <div className="flex items-center gap-1.5">
-            <div className="w-1.5 h-1.5 rounded-full bg-indigo-600 animate-pulse" />
-            <span className="text-xs font-bold text-indigo-600">{progress}% <span className="text-neutral-300 font-medium">Done</span></span>
+            <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">{s.completed}/{s.episodes} EPISODES</span>
           </div>
           <Link href={`/series/${s.id}`} className="text-[11px] font-bold text-neutral-400 hover:text-indigo-600 flex items-center gap-1 transition-colors uppercase tracking-wider">
             View All <ArrowRight className="w-3 h-3" />

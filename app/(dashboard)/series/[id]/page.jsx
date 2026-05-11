@@ -465,10 +465,10 @@ export default function SeriesDetailPage() {
                 onDragStart={(e) => handleDragStart(e, episodes.indexOf(ep))}
                 onDragOver={(e) => e.preventDefault()}
                 onDrop={(e) => handleDrop(e, episodes.indexOf(ep))}
-                className={`group relative flex items-center gap-4 bg-white border border-[#E2E4E9] p-3 rounded-2xl hover:shadow-md transition-all ${editingId === ep.id ? 'border-indigo-500 bg-indigo-50/10' : ''}`}
+                className={`group relative flex items-center gap-3 bg-white border border-[#E2E4E9] p-2 rounded-xl hover:shadow-md transition-all ${editingId === ep.id ? 'border-indigo-500 bg-indigo-50/10' : ''}`}
               >
                 {/* 1. Selection & Index */}
-                <div className="flex items-center gap-6 px-2 shrink-0">
+                <div className="flex items-center gap-4 px-2 shrink-0">
                   <div className="relative flex items-center justify-center">
                     <input 
                       type="checkbox" 
@@ -488,7 +488,7 @@ export default function SeriesDetailPage() {
                 {/* 2. Enhanced Thumbnail Container (Trigger for Preview) */}
                 <div 
                   onClick={() => setEpisodeToPreview(ep)}
-                  className="relative shrink-0 w-44 aspect-video rounded-xl overflow-hidden bg-[#F4F5F8] border border-black/[0.03] cursor-pointer group/thumb"
+                  className="relative shrink-0 w-28 aspect-video rounded-lg overflow-hidden bg-[#F4F5F8] border border-black/[0.03] cursor-pointer group/thumb"
                 >
                   <img 
                     src={`/thumbnails/thumb${(idx % 3) + 1}.png`} 

@@ -23,6 +23,8 @@ import {
   Loader2
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import api from "@/lib/api";
+import { ENDPOINTS } from "@/config/endpoints";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -78,20 +80,14 @@ export default function LoginPage() {
           return;
         }
 
-        const res = await fetch("/api/auth/register", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
+        try {
+          const data = await api.post('/auth/register', {
             name: formData.name,
             email: formData.email,
             password: formData.password
-          })
-        });
-
-        const data = await res.json();
-
-        if (!res.ok) {
-          setError(data.message || "Something went wrong");
+          });
+        } catch (error) {
+          setError(error?.response?.data?.message || "Something went wrong");
           setIsLoading(false);
           return;
         }

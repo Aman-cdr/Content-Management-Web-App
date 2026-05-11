@@ -15,14 +15,30 @@ import {
   Settings2,
   Bell,
   Search,
-  ChevronDown
+  ChevronDown,
+  AlertTriangle,
+  X,
+  Wrench
 } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { useState, useRef, useEffect } from "react";
 import UserDropdown from "@/app/components/UserDropdown";
 import { SERIES_LOOKUP } from "@/lib/mock-data";
 
 export default function DashboardLayout({ children }) {
   const pathname = usePathname();
+  const [issuesOpen, setIssuesOpen] = useState(false);
+  const issuesRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (issuesRef.current && !issuesRef.current.contains(e.target)) {
+        setIssuesOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const sections = [
     {
@@ -189,6 +205,53 @@ export default function DashboardLayout({ children }) {
           </div>
           
           <div className="flex items-center gap-6">
+            <div className="relative" ref={issuesRef}>
+              <button 
+                onClick={() => setIssuesOpen(!issuesOpen)}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 text-amber-600 rounded-full border border-amber-200/50 hover:bg-amber-100 transition-colors shadow-sm"
+              >
+                <AlertTriangle className="w-3.5 h-3.5" />
+                <span className="text-xs font-bold">3 Issues</span>
+              </button>
+
+              <AnimatePresence>
+                {issuesOpen && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute top-full mt-3 right-0 w-80 bg-white border border-black/[0.08] shadow-[0_10px_40px_rgba(0,0,0,0.12)] rounded-2xl overflow-hidden z-50"
+                  >
+                    <div className="p-4 border-b border-black/[0.04] bg-[#F9FAFB]">
+                      <h4 className="text-sm font-bold text-[#0A0A0F]">Action Required</h4>
+                      <p className="text-xs text-[#8A91A8] mt-0.5">Please resolve these issues to maintain optimal performance.</p>
+                    </div>
+                    <div className="divide-y divide-black/[0.04]">
+                      {[
+                        { id: 1, title: "YouTube API Token Expired", desc: "Reconnect your account to resume publishing." },
+                        { id: 2, title: "Missing Thumbnail", desc: "Episode 4 requires a thumbnail before tomorrow." },
+                        { id: 3, title: "Storage Almost Full", desc: "You have used 9.8GB of your 10GB limit." }
+                      ].map(issue => (
+                        <div key={issue.id} className="p-4 hover:bg-neutral-50 transition-colors">
+                          <h5 className="text-xs font-bold text-[#111318] mb-1">{issue.title}</h5>
+                          <p className="text-[11px] text-[#8A91A8] mb-3 leading-relaxed">{issue.desc}</p>
+                          <div className="flex items-center gap-2">
+                            <button className="flex items-center gap-1 px-3 py-1.5 bg-[#4F46E5] text-white rounded-lg text-[10px] font-bold hover:bg-[#4338CA] transition-colors flex-1 justify-center">
+                              <Wrench className="w-3 h-3" /> Fix Issue
+                            </button>
+                            <button className="px-3 py-1.5 text-[10px] font-bold text-neutral-500 hover:bg-neutral-200 rounded-lg transition-colors flex-1 border border-neutral-200">
+                              Dismiss
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
             <button className="relative p-2 text-neutral-500 hover:text-[#0F0F0F] transition-colors">
               <Bell className="w-5 h-5" />
               <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>

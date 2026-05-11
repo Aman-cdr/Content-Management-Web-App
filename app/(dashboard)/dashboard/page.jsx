@@ -115,19 +115,36 @@ function ErrorBanner({ message, onRetry }) {
 }
 
 // ---------- Live Indicator ----------
-function LiveIndicator({ lastUpdated }) {
-  const timeAgo = lastUpdated
-    ? `Updated ${Math.round((Date.now() - lastUpdated.getTime()) / 1000)}s ago`
-    : "";
+function LiveIndicator({ lastUpdated, error, onReconnect }) {
+  if (error) {
+    return (
+      <div className="flex items-center gap-2 text-xs text-red-500 bg-red-50 px-3 py-1.5 rounded-lg border border-red-100">
+        <AlertCircle className="w-3.5 h-3.5" />
+        <span className="font-semibold">Sync Failed</span>
+        <button onClick={onReconnect} className="ml-1 text-[#4F46E5] hover:underline font-bold">Reconnect</button>
+      </div>
+    );
+  }
+
+  if (!lastUpdated) {
+    return (
+      <div className="flex items-center gap-2 text-xs text-neutral-500 bg-white px-3 py-1.5 rounded-lg border border-black/[0.04] shadow-sm">
+        <div className="w-2 h-2 rounded-full bg-neutral-200 animate-pulse" />
+        <div className="h-3 w-24 bg-neutral-200 rounded animate-pulse" />
+      </div>
+    );
+  }
+
+  const timeAgo = `Updated ${Math.round((Date.now() - lastUpdated.getTime()) / 1000)}s ago`;
 
   return (
-    <div className="flex items-center gap-2 text-xs text-neutral-500">
+    <div className="flex items-center gap-2 text-xs text-neutral-500 bg-white px-3 py-1.5 rounded-lg border border-black/[0.04] shadow-sm">
       <span className="relative flex h-2 w-2">
         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
         <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
       </span>
-      <Wifi className="w-3 h-3" />
-      <span>{timeAgo || "Connecting..."}</span>
+      <span className="font-semibold text-[#4B5264]">4 platforms connected</span>
+      <span className="text-neutral-400 ml-1">({timeAgo})</span>
     </div>
   );
 }
@@ -201,7 +218,7 @@ export default function DashboardPage() {
                 <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                 <p className="text-[11px] font-bold text-[#4B5264] uppercase tracking-wider">Strategy: Focus on YouTube Shorts this week</p>
               </div>
-              <LiveIndicator lastUpdated={lastUpdated} />
+              <LiveIndicator lastUpdated={lastUpdated} error={error} onReconnect={refetch} />
             </div>
           </motion.div>
           <motion.button 
@@ -349,23 +366,32 @@ export default function DashboardPage() {
             {loading ? (
               <RoadmapSkeleton />
             ) : (
-              <div className="space-y-4">
-                {roadmapItems.map((roadmap, i) => (
+              <div className="relative pl-3 space-y-6 before:absolute before:inset-0 before:ml-4 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-neutral-200 before:to-transparent">
+                {roadmapItems.slice(0, 4).map((roadmap, i) => {
+                  const colorClass = roadmap.color || 'bg-indigo-500';
+                  const textClass = colorClass.replace('bg-', 'text-').replace('-500', '-600');
+                  return (
                   <motion.div 
                     key={i} 
                     whileHover={{ x: 4 }}
-                    className="flex items-center gap-4 p-4 rounded-xl hover:bg-[#F9FAFB] transition-all group"
+                    className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active"
                   >
-                    <div className={`w-3 h-3 rounded-full ${roadmap.color} shadow-sm group-hover:scale-125 transition-transform`}></div>
-                    <div className="flex-1">
-                      <p className="font-semibold text-[#111318]">{roadmap.title}</p>
-                      <p className="text-xs text-[#8A91A8] mt-0.5">{roadmap.due}</p>
+                    <div className={`absolute left-0 md:left-1/2 -translate-x-1/2 w-3 h-3 rounded-full ${colorClass} border-2 border-white shadow-sm ring-4 ring-white z-10`}></div>
+                    <div className="ml-8 md:ml-0 md:w-[calc(50%-1.5rem)] md:odd:text-right">
+                      <div className="p-4 bg-white rounded-xl shadow-sm border border-black/[0.04] group-hover:border-indigo-500/30 transition-colors">
+                        <div className="flex items-center justify-between md:hidden mb-2">
+                          <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">{roadmap.due}</span>
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${textClass} bg-neutral-50`}>{roadmap.status}</span>
+                        </div>
+                        <p className="font-semibold text-[#111318]">{roadmap.title}</p>
+                        <div className="hidden md:flex items-center justify-between md:justify-end md:group-odd:justify-start gap-2 mt-2">
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${textClass} bg-neutral-50`}>{roadmap.status}</span>
+                          <span className="text-xs text-[#8A91A8]">{roadmap.due}</span>
+                        </div>
+                      </div>
                     </div>
-                    <span className={`text-[10px] font-bold px-3 py-1.5 rounded-full ${roadmap.color.replace('bg-', 'text-').replace('-500', '-600')} bg-[#F4F5F8] border border-[#E2E4E9]`}>
-                      {roadmap.status}
-                    </span>
                   </motion.div>
-                ))}
+                )})}
               </div>
             )}
             <button className="w-full mt-6 py-2 text-sm text-[#8A91A8] hover:text-[#4B5264] font-medium transition-colors">
@@ -378,24 +404,21 @@ export default function DashboardPage() {
             {loading ? (
               <PlatformSkeleton />
             ) : (
-              <div className="space-y-8 pt-2">
-                {platformPerformance.map((p) => (
-                  <div key={p.platform}>
-                    <div className="flex justify-between items-end mb-3">
-                      <div className="flex items-center gap-2">
-                        <p className="font-semibold text-[#111318]">{p.platform}</p>
-                      </div>
-                      <span className="text-sm font-semibold text-[#8A91A8]">{p.growth}% Growth</span>
+              <div className="grid grid-cols-2 gap-4">
+                {[
+                  { label: "Total Views", value: "2.4M", change: "+12%", color: "text-blue-600", bg: "bg-blue-50" },
+                  { label: "Subscribers", value: "84.2K", change: "+840", color: "text-purple-600", bg: "bg-purple-50" },
+                  { label: "Engagement Rate", value: "6.8%", change: "+1.2%", color: "text-emerald-600", bg: "bg-emerald-50" },
+                  { label: "Posts This Month", value: "12", change: "On Track", color: "text-amber-600", bg: "bg-amber-50" }
+                ].map((metric, i) => (
+                  <div key={i} className="p-4 rounded-xl bg-[#F9FAFB] border border-black/[0.04]">
+                    <div className="flex justify-between items-start mb-2">
+                      <p className="text-xs font-semibold text-[#8A91A8]">{metric.label}</p>
+                      <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${metric.bg} ${metric.color}`}>
+                        {metric.change}
+                      </span>
                     </div>
-                    <div className="h-[6px] w-full bg-[#E2E4E9] rounded-[3px] overflow-hidden">
-                      <motion.div 
-                        initial={{ width: 0 }}
-                        animate={{ width: `${Math.min(p.growth, 100)}%` }}
-                        transition={{ duration: 1, delay: 0.5 }}
-                        className={`h-full rounded-[3px] shadow-sm`}
-                        style={{ background: 'linear-gradient(90deg, #6366F1, #8B5CF6)' }}
-                      ></motion.div>
-                    </div>
+                    <p className="text-2xl font-bold text-[#0A0A0F]">{metric.value}</p>
                   </div>
                 ))}
               </div>

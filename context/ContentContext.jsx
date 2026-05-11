@@ -1,6 +1,8 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, useCallback, useMemo } from "react";
+import api from "@/lib/api";
+import { ENDPOINTS } from "@/config/endpoints";
 
 const ContentContext = createContext(null);
 
@@ -8,15 +10,12 @@ export function ContentProvider({ children }) {
   const [contents, setContents] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch initial data from our JSON backend
+  // Fetch initial data
   useEffect(() => {
     const fetchContent = async () => {
       try {
-        const response = await fetch('/api/content');
-        if (response.ok) {
-          const data = await response.json();
-          setContents(data);
-        }
+        const data = await api.get(ENDPOINTS.CONTENT.GET_ALL);
+        setContents(data);
       } catch (error) {
         console.error("Failed to fetch content:", error);
       } finally {
@@ -39,17 +38,9 @@ export function ContentProvider({ children }) {
 
   const addContent = useCallback(async (item) => {
     try {
-      const response = await fetch('/api/content', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(item),
-      });
-      
-      if (response.ok) {
-        const newItem = await response.json();
-        setContents((prev) => [newItem, ...prev]);
-        return newItem;
-      }
+      const newItem = await api.post(ENDPOINTS.CONTENT.CREATE, item);
+      setContents((prev) => [newItem, ...prev]);
+      return newItem;
     } catch (error) {
       console.error("Failed to add content:", error);
     }
@@ -57,18 +48,10 @@ export function ContentProvider({ children }) {
 
   const updateContent = useCallback(async (id, updates) => {
     try {
-      const response = await fetch('/api/content', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, ...updates }),
-      });
-      
-      if (response.ok) {
-        const updatedItem = await response.json();
-        setContents((prev) =>
-          prev.map((c) => (c.id === id ? updatedItem : c))
-        );
-      }
+      const updatedItem = await api.put(ENDPOINTS.CONTENT.UPDATE(id), { id, ...updates });
+      setContents((prev) =>
+        prev.map((c) => (c.id === id ? updatedItem : c))
+      );
     } catch (error) {
       console.error("Failed to update content:", error);
     }
@@ -76,13 +59,8 @@ export function ContentProvider({ children }) {
 
   const deleteContent = useCallback(async (id) => {
     try {
-      const response = await fetch(`/api/content?id=${id}`, {
-        method: 'DELETE',
-      });
-      
-      if (response.ok) {
-        setContents((prev) => prev.filter((c) => c.id !== id));
-      }
+      await api.delete(ENDPOINTS.CONTENT.DELETE(id));
+      setContents((prev) => prev.filter((c) => c.id !== id));
     } catch (error) {
       console.error("Failed to delete content:", error);
     }
@@ -90,18 +68,10 @@ export function ContentProvider({ children }) {
 
   const publishContent = useCallback(async (id) => {
     try {
-      const response = await fetch('/api/content', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, status: "published" }),
-      });
-      
-      if (response.ok) {
-        const updatedItem = await response.json();
-        setContents((prev) =>
-          prev.map((c) => (c.id === id ? updatedItem : c))
-        );
-      }
+      const updatedItem = await api.put(ENDPOINTS.CONTENT.UPDATE(id), { id, status: "published" });
+      setContents((prev) =>
+        prev.map((c) => (c.id === id ? updatedItem : c))
+      );
     } catch (error) {
       console.error("Failed to publish content:", error);
     }
@@ -114,15 +84,8 @@ export function ContentProvider({ children }) {
 
   const bulkDelete = useCallback(async (ids) => {
     try {
-      const response = await fetch('/api/content/bulk', {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ids }),
-      });
-      
-      if (response.ok) {
-        setContents((prev) => prev.filter((c) => !ids.includes(c.id)));
-      }
+      await api.delete(ENDPOINTS.CONTENT.BULK_DELETE, { data: { ids } });
+      setContents((prev) => prev.filter((c) => !ids.includes(c.id)));
     } catch (error) {
       console.error("Failed to bulk delete content:", error);
     }
@@ -130,21 +93,13 @@ export function ContentProvider({ children }) {
 
   const bulkUpdate = useCallback(async (ids, updates) => {
     try {
-      const response = await fetch('/api/content/bulk', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ids, updates }),
-      });
-      
-      if (response.ok) {
-        const updatedItems = await response.json();
-        setContents((prev) =>
-          prev.map((c) => {
-            const updated = updatedItems.find(u => u.id === c.id);
-            return updated || c;
-          })
-        );
-      }
+      const updatedItems = await api.patch(ENDPOINTS.CONTENT.BULK_UPDATE, { ids, updates });
+      setContents((prev) =>
+        prev.map((c) => {
+          const updated = updatedItems.find(u => u.id === c.id);
+          return updated || c;
+        })
+      );
     } catch (error) {
       console.error("Failed to bulk update content:", error);
     }

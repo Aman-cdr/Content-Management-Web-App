@@ -1,6 +1,8 @@
 "use client";
 import { useState } from "react";
 import { Sparkles, Loader2, ChevronDown } from "lucide-react";
+import api from "@/lib/api";
+import { ENDPOINTS } from "@/config/endpoints";
 
 export default function AISuggestButton({ type, context, onSelect, buttonClass, dropdownClass }) {
   const [loading, setLoading] = useState(false);
@@ -10,12 +12,7 @@ export default function AISuggestButton({ type, context, onSelect, buttonClass, 
   const generate = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type, prompt: context, isDefaultPrompt: !context }),
-      });
-      const data = await res.json();
+      const data = await api.post(ENDPOINTS.GENERATE, { type, prompt: context, isDefaultPrompt: !context });
       if (data.suggestions) {
         setSuggestions(data.suggestions);
         setOpen(true);

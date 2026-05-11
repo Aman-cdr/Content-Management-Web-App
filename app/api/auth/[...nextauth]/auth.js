@@ -1,12 +1,9 @@
 import GoogleProvider from "next-auth/providers/google";
 import GithubProvider from "next-auth/providers/github";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import { prisma } from "@/lib/prisma";
-import bcrypt from "bcryptjs";
+import api from "@/lib/api";
 
 export const authOptions = {
-  adapter: PrismaAdapter(prisma),
   debug: true,
   secret: process.env.NEXTAUTH_SECRET,
   providers: [
@@ -17,28 +14,18 @@ export const authOptions = {
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          throw new Error("Email and password are required");
+        // You will replace this with an actual API call to your external backend
+        // Example:
+        // try {
+        //   const user = await api.post('/auth/login', credentials);
+        //   if (user) return user;
+        // } catch (e) { throw new Error("Invalid credentials"); }
+        
+        // Mocking auth for now
+        if (credentials?.email && credentials?.password) {
+          return { id: "1", name: "Demo User", email: credentials.email };
         }
-
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email }
-        });
-
-        if (!user || !user.password) {
-          throw new Error("No user found with this email");
-        }
-
-        const isPasswordCorrect = await bcrypt.compare(
-          credentials.password,
-          user.password
-        );
-
-        if (!isPasswordCorrect) {
-          throw new Error("Invalid password");
-        }
-
-        return user;
+        return null;
       }
     }),
     GoogleProvider({

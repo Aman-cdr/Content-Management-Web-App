@@ -8,7 +8,9 @@ import {
   GripVertical
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ROADMAP_ITEMS, COLUMNS } from "@/lib/mock-data";
+import { COLUMNS } from "@/lib/mock-data";
+import api from "@/lib/api";
+import { ENDPOINTS } from "@/config/endpoints";
 
 const CustomSelect = ({ value, onChange, options, className = "" }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -70,8 +72,25 @@ const CustomSelect = ({ value, onChange, options, className = "" }) => {
 export default function RoadmapPage() {
   const [view, setView] = useState("board");
   const [searchQuery, setSearchQuery] = useState("");
-  const [ideas, setIdeas] = useState(ROADMAP_ITEMS);
+  const [ideas, setIdeas] = useState([]);
   const [isBrowser, setIsBrowser] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Fetch initial data
+  useEffect(() => {
+    setIsBrowser(true);
+    api.get(ENDPOINTS.ROADMAP.GET_ALL)
+      .then(data => {
+        if (Array.isArray(data)) {
+          setIdeas(data);
+        }
+        setIsLoading(false);
+      })
+      .catch(err => {
+        console.error("Failed to load roadmap:", err);
+        setIsLoading(false);
+      });
+  }, []);
 
   // Filters
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -99,7 +118,7 @@ export default function RoadmapPage() {
   const [sortField, setSortField] = useState("due");
   const [sortDir, setSortDir] = useState("asc");
 
-  useEffect(() => { setIsBrowser(true); }, []);
+  // Removed initial setIsBrowser to avoid duplication as it is in the fetch useEffect
 
   // Filtered Ideas
   const filteredIdeas = useMemo(() => {
@@ -144,40 +163,57 @@ export default function RoadmapPage() {
     setDragOverColumn(null);
   };
 
-  const handleDrop = (e, colName) => {
+  const handleDrop = async (e, colName) => {
     e.preventDefault();
     setDragOverColumn(null);
     if (!draggedItemId) return;
 
-    setIdeas(prev => {
-      const newIdeas = [...prev];
-      const itemIndex = newIdeas.findIndex(i => i.id.toString() === draggedItemId.toString());
-      if (itemIndex > -1) {
-        const item = { ...newIdeas[itemIndex] };
-        if (item.status !== colName) {
-          item.status = colName;
-          item.activity = [{ id: Date.now(), text: `Moved to ${colName}`, date: "Just now" }, ...(item.activity || [])];
-          newIdeas.splice(itemIndex, 1);
-          newIdeas.push(item);
-        }
-      }
-      return newIdeas;
-    });
+    const itemToUpdate = ideas.find(i => i.id.toString() === draggedItemId.toString());
+    if (!itemToUpdate || itemToUpdate.status === colName) {
+      setDraggedItemId(null);
+      return;
+    }
+
+    const newActivity = [{ id: Date.now().toString(), text: `Moved to ${colName}`, date: "Just now" }, ...(itemToUpdate.activity || [])];
+    const updatedItem = { ...itemToUpdate, status: colName, activity: newActivity };
+
+    // Optimistic UI Update
+    setIdeas(prev => prev.map(i => i.id.toString() === draggedItemId.toString() ? updatedItem : i));
     setDraggedItemId(null);
+
+    // Save to DB
+    try {
+      await api.put(ENDPOINTS.ROADMAP.UPDATE(draggedItemId), {
+        id: draggedItemId,
+        status: colName,
+        activity: newActivity
+      });
+    } catch (err) {
+      console.error("Failed to update status", err);
+    }
   };
 
   // Update item
-  const updateItem = (id, updates) => {
+  const updateItem = async (id, updates) => {
+    // Optimistic UI update
     setIdeas(prev => prev.map(item => item.id === id ? { ...item, ...updates } : item));
     if (activeItem && activeItem.id === id) {
       setActiveItem(prev => ({ ...prev, ...updates }));
     }
+
+    // Save to DB
+    try {
+      await api.put(ENDPOINTS.ROADMAP.UPDATE(id), { id, ...updates });
+    } catch (err) {
+      console.error("Failed to update item", err);
+    }
   };
 
-  const handleQuickAdd = () => {
+  const handleQuickAdd = async () => {
     if (!quickAddTitle.trim() || !quickAddColumn) return;
-    const newItem = {
-      id: Date.now(),
+    
+    const newItemTemp = {
+      id: "temp-" + Date.now(),
       title: quickAddTitle,
       status: quickAddColumn,
       tags: ["New"],
@@ -187,17 +223,29 @@ export default function RoadmapPage() {
       checklist: [],
       notes: "",
       platforms: [],
-      activity: [{ id: Date.now(), text: "Created via quick add", date: "Just now" }]
+      activity: [{ id: Date.now().toString(), text: "Created via quick add", date: "Just now" }]
     };
-    setIdeas([newItem, ...ideas]);
+    
+    // Optimistic
+    setIdeas([newItemTemp, ...ideas]);
     setQuickAddTitle("");
+    const targetCol = quickAddColumn;
     setQuickAddColumn(null);
+
+    // Save to DB
+    try {
+      const savedItem = await api.post(ENDPOINTS.ROADMAP.CREATE, newItemTemp);
+      setIdeas(prev => prev.map(i => i.id === newItemTemp.id ? savedItem : i));
+    } catch (err) {
+      console.error("Failed to add item", err);
+    }
   };
 
-  const handleCreateNewProject = () => {
+  const handleCreateNewProject = async () => {
     if (!newModalTitle.trim()) return;
-    const newItem = {
-      id: Date.now(),
+    
+    const newItemTemp = {
+      id: "temp-" + Date.now(),
       title: newModalTitle,
       status: newModalStage,
       tags: ["New"],
@@ -207,14 +255,24 @@ export default function RoadmapPage() {
       checklist: [],
       notes: "",
       platforms: [],
-      activity: [{ id: Date.now(), text: "Created project", date: "Just now" }]
+      activity: [{ id: Date.now().toString(), text: "Created project", date: "Just now" }]
     };
-    setIdeas([newItem, ...ideas]);
+    
+    // Optimistic
+    setIdeas([newItemTemp, ...ideas]);
     setIsNewModalOpen(false);
     setNewModalTitle("");
     setNewModalStage("Brainstorming");
     setNewModalPriority("Medium");
     setNewModalDue("");
+
+    // Save to DB
+    try {
+      const savedItem = await api.post(ENDPOINTS.ROADMAP.CREATE, newItemTemp);
+      setIdeas(prev => prev.map(i => i.id === newItemTemp.id ? savedItem : i));
+    } catch (err) {
+      console.error("Failed to create project", err);
+    }
   };
 
   const getPriorityColor = (priority) => {
@@ -451,7 +509,7 @@ export default function RoadmapPage() {
                   ))}
                   {colItems.length === 0 && !quickAddColumn && (
                     <div className="flex items-center justify-center h-24 border border-dashed border-black/[0.08] rounded-xl text-neutral-400 text-sm font-medium">
-                      Drop cards here
+                      {isLoading ? "Loading..." : "Drop cards here"}
                     </div>
                   )}
                 </div>

@@ -241,11 +241,18 @@ export default function AddContentPage() {
           {STEPS.map((s, i) => (
             <div key={i} className="flex items-center flex-1">
               <button
-                onClick={() => { if (i < step) setStep(i); }}
-                className={`flex items-center gap-2.5 px-4 py-2 transition-all text-left ${step === i ? "bg-[#00BFFF] text-white rounded-[10px] shadow-md shadow-blue-400/20" : "bg-transparent cursor-pointer"}`}
+                onClick={() => { if (i < step || (i > step && step0Valid && i === 1)) setStep(i); }}
+                disabled={i > step && (!step0Valid || i > 1)}
+                className={`flex items-center gap-2.5 px-4 py-2 transition-all text-left rounded-[10px] ${
+                  step === i 
+                    ? "bg-[#00BFFF] text-white shadow-md shadow-blue-400/20" 
+                    : i < step || (i === 1 && step0Valid)
+                      ? "bg-transparent cursor-pointer hover:bg-neutral-100 hover:scale-[1.02]" 
+                      : "bg-transparent opacity-50 cursor-not-allowed"
+                }`}
               >
                 {i < step ? (
-                  <div className="w-7 h-7 rounded-full flex items-center justify-center bg-[#10B981]">
+                  <div className="w-7 h-7 rounded-full flex items-center justify-center bg-[#10B981] group-hover:scale-110 transition-transform">
                     <Check className="w-4 h-4 text-white" />
                   </div>
                 ) : (
@@ -254,8 +261,8 @@ export default function AddContentPage() {
                   </div>
                 )}
                 <div>
-                  <div className={`text-sm font-bold leading-tight ${step === i ? "text-white" : i < step ? "text-neutral-400" : "text-[#9CA3AF]"}`}>{s.label}</div>
-                  <div className={`text-[10px] ${step === i ? "text-white/70" : "text-neutral-400"}`}>{s.sub}</div>
+                  <div className={`text-sm font-bold leading-tight ${step === i ? "text-white" : i < step ? "text-[#111318]" : "text-[#9CA3AF]"}`}>{s.label}</div>
+                  <div className={`text-[10px] ${step === i ? "text-white/70" : i < step ? "text-neutral-500" : "text-neutral-400"}`}>{s.sub}</div>
                 </div>
               </button>
               {i < STEPS.length - 1 && <div className={`flex-1 h-px mx-3 ${i < step ? "bg-[#10B981]" : "bg-[#E2E4E9]"}`} />}
@@ -275,24 +282,36 @@ export default function AddContentPage() {
 
                 {/* Title */}
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-[#111318] flex items-center gap-1.5"><Pen className="w-4 h-4 text-neutral-400" /> Title <span className="text-red-500">*</span></label>
+                  <label className="text-sm font-bold text-[#111318] flex items-center gap-1.5">
+                    <Pen className="w-4 h-4 text-neutral-400" /> Title <span className="text-red-500">*</span>
+                    <div className="relative ml-2">
+                      <AISuggestButton 
+                        type="title" 
+                        context={title} 
+                        onSelect={setTitle} 
+                        buttonClass="flex items-center gap-1 text-[10px] font-bold text-[#4F46E5] bg-indigo-50 hover:bg-indigo-100 px-2.5 py-1 rounded-full transition-colors"
+                        dropdownClass="absolute left-0 top-[calc(100%+8px)] w-[300px] bg-[#FFFFFF] border border-[#E2E4E9] rounded-[10px] shadow-[0_10px_40px_rgba(0,0,0,0.08)] z-50 overflow-hidden"
+                      />
+                    </div>
+                  </label>
                   <div className="relative w-full">
                     <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400 font-bold text-sm">#</span>
-                    <input value={title} onChange={(e) => setTitle(e.target.value.slice(0, 100))} placeholder="e.g., How to Master Tailwind CSS in 2026" className="w-full pl-8 pr-[130px] h-[48px] bg-[#F9FAFB] border border-[#E2E4E9] rounded-[10px] text-sm text-[#111318] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#00BFFF] focus:ring-0 transition-all" />
-                    <AISuggestButton 
-                      type="title" 
-                      context={title} 
-                      onSelect={setTitle} 
-                      buttonClass="absolute right-1.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-blue-500 to-cyan-400 text-white text-[11px] font-bold rounded-full hover:opacity-90 transition-all disabled:opacity-50 shadow-md shadow-blue-500/10"
-                      dropdownClass="absolute left-0 top-[calc(100%+8px)] w-full bg-[#FFFFFF] border border-[#E2E4E9] rounded-[10px] shadow-[0_10px_40px_rgba(0,0,0,0.08)] z-50 overflow-hidden"
-                    />
+                    <input value={title} onChange={(e) => setTitle(e.target.value.slice(0, 100))} placeholder="e.g., How to Master Tailwind CSS in 2026" className="w-full pl-8 pr-4 h-[48px] bg-[#F9FAFB] border border-[#E2E4E9] rounded-[10px] text-sm text-[#111318] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#00BFFF] focus:ring-0 transition-all" />
                   </div>
                   <div className="text-right text-[10px] text-neutral-400 font-medium">{title.length}/100</div>
                 </div>
 
                 {/* Content Type */}
                 <div className="space-y-3">
-                  <label className="text-sm font-bold text-[#0F0F0F] flex items-center gap-1.5"><Settings2 className="w-4 h-4 text-neutral-400" /> Content Type <span className="text-red-500">*</span></label>
+                  <label className="text-sm font-bold text-[#0F0F0F] flex items-center gap-1.5">
+                    <Settings2 className="w-4 h-4 text-neutral-400" /> Content Type <span className="text-red-500">*</span>
+                    <button 
+                      onClick={() => setType(TYPES[Math.floor(Math.random()*TYPES.length)].id)} 
+                      className="ml-2 flex items-center gap-1 text-[10px] font-bold text-[#4F46E5] bg-indigo-50 hover:bg-indigo-100 px-2.5 py-1 rounded-full transition-colors"
+                    >
+                      <Sparkles className="w-3 h-3"/> Auto-Select
+                    </button>
+                  </label>
                   <div className="grid grid-cols-4 gap-3">
                     {TYPES.map((t) => (
                       <button key={t.id} onClick={() => setType(t.id)} className={`relative min-w-[140px] p-[20px_16px] rounded-[14px] transition-all text-center group ${type === t.id ? "border-2 border-[#00BFFF] shadow-[0_0_0_4px_rgba(0,191,255,0.08)] bg-cyan-50/20" : "border border-[#E2E4E9] bg-white hover:border-[#00BFFF]"}`}>
@@ -503,54 +522,64 @@ export default function AddContentPage() {
         )}
       </div>
 
-      {/* Right Sidebar */}
-      <div className="w-72 space-y-6 hidden lg:block">
-        {/* Completion */}
-        <div className="bg-[#FFFFFF] border border-[#E2E4E9] rounded-[14px] p-5 text-center relative shadow-sm">
-          <div className="flex items-center gap-1.5 mb-4 justify-center">
-            <div className="w-2 h-2 rounded-full bg-[#00BFFF]" />
-            <Sparkles className="w-3.5 h-3.5 text-[#00BFFF]" />
-            <span className="text-[14px] font-bold text-[#111318]">Completion</span>
-          </div>
-          <CompletionRing pct={pct} />
-        </div>
-
-        {/* Content Summary */}
-        <div className="bg-[#FFFFFF] border border-[#E2E4E9] rounded-[14px] overflow-hidden shadow-sm">
-          <div className="p-5 border-b border-[#E2E4E9] flex items-center gap-2 bg-[#FFFFFF]">
-            <Layers className="w-4 h-4 text-[#00BFFF]" />
-            <span className="text-[14px] font-bold text-[#111318]">Content Summary</span>
-          </div>
-          <div className="flex flex-col">
-          {[
-            { label: "Title", value: title || "—", icon: Pen },
-            { label: "Type", value: type || "—", icon: Layers },
-            { label: "Platforms", value: platforms.length > 0 ? platforms.length + " selected" : "—", icon: Globe },
-            { label: "Thumbnails", value: `${Object.values(thumbnails).filter(Boolean).length}/3 added`, icon: Img },
-            { label: "Script", value: script ? `${wordCount} words` : "—", icon: FileText },
-          ].map((r, i) => (
-            <div key={r.label} className={`flex items-center justify-between p-[12px_20px] text-sm ${i % 2 === 0 ? "bg-[#FAFAFA]" : "bg-[#FFFFFF]"}`}>
-              <div className="flex items-center gap-2.5">
-                <r.icon className={`w-3.5 h-3.5 ${r.value === "—" ? "text-neutral-300" : "text-[#00BFFF]"}`} />
-                <span className="text-[#8A91A8] font-medium text-[13px]">{r.label}</span>
+      <AnimatePresence>
+        {pct > 0 && (
+          <motion.div 
+            initial={{ opacity: 0, width: 0, marginLeft: 0 }} 
+            animate={{ opacity: 1, width: 288, marginLeft: 32 }} 
+            exit={{ opacity: 0, width: 0, marginLeft: 0 }}
+            className="space-y-6 hidden lg:block overflow-hidden shrink-0"
+          >
+            <div className="w-72 space-y-6">
+              {/* Completion */}
+              <div className="bg-[#FFFFFF] border border-[#E2E4E9] rounded-[14px] p-5 text-center relative shadow-sm">
+                <div className="flex items-center gap-1.5 mb-4 justify-center">
+                  <div className="w-2 h-2 rounded-full bg-[#00BFFF]" />
+                  <Sparkles className="w-3.5 h-3.5 text-[#00BFFF]" />
+                  <span className="text-[14px] font-bold text-[#111318]">Completion</span>
+                </div>
+                <CompletionRing pct={pct} />
               </div>
-              <span className="text-[#111318] font-semibold text-xs truncate max-w-[120px]">{r.value}</span>
-            </div>
-          ))}
-          </div>
-        </div>
 
-        {/* Pro Tip */}
-        <div className="border border-[rgba(245,158,11,0.15)] bg-[rgba(245,158,11,0.05)] rounded-[14px] p-5 shadow-sm">
-          <div className="flex items-center gap-2 mb-3">
-            <div className="w-7 h-7 rounded-lg bg-[#FFD700] flex items-center justify-center text-[#111318] shadow-sm">
-              <Lightbulb className="w-4 h-4" />
+              {/* Content Summary */}
+              <div className="bg-[#FFFFFF] border border-[#E2E4E9] rounded-[14px] overflow-hidden shadow-sm">
+                <div className="p-5 border-b border-[#E2E4E9] flex items-center gap-2 bg-[#FFFFFF]">
+                  <Layers className="w-4 h-4 text-[#00BFFF]" />
+                  <span className="text-[14px] font-bold text-[#111318]">Content Summary</span>
+                </div>
+                <div className="flex flex-col">
+                {[
+                  { label: "Title", value: title || "—", icon: Pen },
+                  { label: "Type", value: type || "—", icon: Layers },
+                  { label: "Platforms", value: platforms.length > 0 ? platforms.length + " selected" : "—", icon: Globe },
+                  { label: "Thumbnails", value: `${Object.values(thumbnails).filter(Boolean).length}/3 added`, icon: Img },
+                  { label: "Script", value: script ? `${wordCount} words` : "—", icon: FileText },
+                ].map((r, i) => (
+                  <div key={r.label} className={`flex items-center justify-between p-[12px_20px] text-sm ${i % 2 === 0 ? "bg-[#FAFAFA]" : "bg-[#FFFFFF]"}`}>
+                    <div className="flex items-center gap-2.5">
+                      <r.icon className={`w-3.5 h-3.5 ${r.value === "—" ? "text-neutral-300" : "text-[#00BFFF]"}`} />
+                      <span className="text-[#8A91A8] font-medium text-[13px]">{r.label}</span>
+                    </div>
+                    <span className="text-[#111318] font-semibold text-xs truncate max-w-[120px]">{r.value}</span>
+                  </div>
+                ))}
+                </div>
+              </div>
+
+              {/* Pro Tip */}
+              <div className="border border-[rgba(245,158,11,0.15)] bg-[rgba(245,158,11,0.05)] rounded-[14px] p-5 shadow-sm">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-7 h-7 rounded-lg bg-[#FFD700] flex items-center justify-center text-[#111318] shadow-sm">
+                    <Lightbulb className="w-4 h-4" />
+                  </div>
+                  <span className="text-[14px] font-bold text-[#111318]">Pro Tip</span>
+                </div>
+                <p className="text-[13px] text-[#6B7280] leading-relaxed font-medium">{TIPS[tipIdx]}</p>
+              </div>
             </div>
-            <span className="text-[14px] font-bold text-[#111318]">Pro Tip</span>
-          </div>
-          <p className="text-[13px] text-[#6B7280] leading-relaxed font-medium">{TIPS[tipIdx]}</p>
-        </div>
-      </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
