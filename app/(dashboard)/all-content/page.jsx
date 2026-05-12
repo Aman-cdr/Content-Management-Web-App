@@ -84,11 +84,11 @@ function ContentCard({ item, index, view, onPreview, onEdit, onDelete, onPublish
         layout
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className={`group bg-white border ${isSelected ? "border-indigo-500 bg-indigo-50/10" : "border-[#E2E4E9]"} rounded-xl p-4 flex items-center gap-4 hover:border-indigo-200 hover:shadow-sm transition-all`}
+        className={`group bg-[#FFFFFF] border ${isSelected ? "border-[#6366F1] bg-[#6366F1]/[0.02]" : "border-[#E5E7EB]"} rounded-[16px] p-4 flex items-center gap-4 hover:border-[#6366F1]/[0.3] hover:shadow-[0_4px_20px_rgba(0,0,0,0.04)] transition-all`}
       >
         <button 
           onClick={() => onToggleSelect(item.id)}
-          className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all ${isSelected ? "bg-indigo-600 border-indigo-600 text-white" : "bg-white border-neutral-300"}`}
+          className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all ${isSelected ? "bg-[#6366F1] border-[#6366F1] text-white" : "bg-white border-[#D1D5DB]"}`}
         >
           {isSelected && <Check size={12} />}
         </button>
@@ -138,7 +138,7 @@ function ContentCard({ item, index, view, onPreview, onEdit, onDelete, onPublish
       layout
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`group bg-white border ${isSelected ? "border-indigo-500 ring-2 ring-indigo-500/10" : "border-[#E2E4E9]"} rounded-2xl overflow-hidden hover:shadow-[0_12px_24px_-8px_rgba(0,0,0,0.1)] hover:border-indigo-100 transition-all duration-300 flex flex-col h-full`}
+      className={`group bg-[#FFFFFF] border ${isSelected ? "border-[#6366F1] shadow-[0_0_0_3px_rgba(99,102,241,0.08)]" : "border-[#E5E7EB]"} rounded-[16px] overflow-hidden hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] hover:border-[#6366F1]/[0.3] transition-all duration-300 flex flex-col h-full`}
     >
       {/* Card Header / Thumbnail */}
       <div className={`relative ${isShortForm ? "aspect-[9/16]" : "aspect-video"} overflow-hidden cursor-pointer`} onClick={() => onPreview(item)}>
@@ -155,7 +155,7 @@ function ContentCard({ item, index, view, onPreview, onEdit, onDelete, onPublish
         <div className="absolute top-3 left-3 z-30">
           <button 
             onClick={(e) => { e.stopPropagation(); onToggleSelect(item.id); }}
-            className={`w-6 h-6 rounded-lg border flex items-center justify-center transition-all shadow-lg ${isSelected ? "bg-indigo-600 border-indigo-600 text-white" : "bg-white/80 backdrop-blur-sm border-white/20 text-transparent"}`}
+            className={`w-6 h-6 rounded-lg border flex items-center justify-center transition-all shadow-lg ${isSelected ? "bg-[#6366F1] border-[#6366F1] text-white" : "bg-white/80 backdrop-blur-sm border-white/20 text-transparent"}`}
           >
             <Check size={14} />
           </button>
@@ -177,7 +177,7 @@ function ContentCard({ item, index, view, onPreview, onEdit, onDelete, onPublish
 
         {/* Status Pill */}
         <div className="absolute bottom-3 right-3 z-20">
-          <div className={`px-2 py-1 rounded-lg backdrop-blur-md border border-white/20 text-[9px] font-black uppercase tracking-widest ${item.status === "published" ? "bg-emerald-500/80 text-white" : "bg-amber-500/80 text-white"}`}>
+          <div className={`px-2 py-1 rounded-lg backdrop-blur-md border border-white/20 text-[9px] font-black uppercase tracking-widest ${item.status?.toLowerCase() === "published" ? "bg-emerald-500/80 text-white" : "bg-amber-500/80 text-white"}`}>
             {item.status}
           </div>
         </div>
@@ -187,7 +187,7 @@ function ContentCard({ item, index, view, onPreview, onEdit, onDelete, onPublish
       <div className={`${isShortForm ? "p-3.5" : "p-5"} flex flex-col flex-1`}>
         <div className="flex justify-between items-start gap-2 mb-1.5">
           <div className="min-w-0">
-            <h4 className={`${isShortForm ? "text-[13px]" : "text-[15px]"} font-bold text-[#0F0F0F] leading-tight line-clamp-2 group-hover:text-indigo-600 transition-colors`}>{item.title}</h4>
+            <h4 className={`${isShortForm ? "text-[13px]" : "text-[15px]"} font-bold text-[#0F0F0F] leading-tight line-clamp-2 group-hover:text-[#6366F1] transition-colors`}>{item.title}</h4>
           </div>
           <div className="relative shrink-0">
             <button 
@@ -206,7 +206,7 @@ function ContentCard({ item, index, view, onPreview, onEdit, onDelete, onPublish
                     exit={{ opacity: 0, scale: 0.95, y: 10 }}
                     className="absolute right-0 top-full mt-2 w-40 bg-white border border-[#E2E4E9] rounded-xl shadow-2xl z-50 p-1"
                   >
-                    <button onClick={() => { setMenuOpen(false); onEdit(item); }} className="w-full flex items-center gap-2 px-2.5 py-1.5 text-[10px] font-bold text-neutral-600 hover:bg-neutral-50 hover:text-indigo-600 rounded-lg transition-all uppercase tracking-wider"><Edit2 size={12} /> Edit</button>
+                    <button onClick={() => { setMenuOpen(false); onEdit(item); }} className="w-full flex items-center gap-2 px-2.5 py-1.5 text-[10px] font-bold text-neutral-600 hover:bg-neutral-50 hover:text-[#6366F1] rounded-lg transition-all uppercase tracking-wider"><Edit2 size={12} /> Edit</button>
                     {item.status === "draft" && (
                       <button onClick={() => { setMenuOpen(false); onPublish(item.id); }} className="w-full flex items-center gap-2 px-2.5 py-1.5 text-[10px] font-bold text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all uppercase tracking-wider"><Rocket size={12} /> Publish</button>
                     )}
@@ -271,8 +271,8 @@ export default function AllContentPage() {
 
   const stats = useMemo(() => ({
     total: contents.length,
-    published: contents.filter(c => c.status === "published").length,
-    drafts: contents.filter(c => c.status === "draft").length
+    published: contents.filter(c => c.status?.toLowerCase() === "published").length,
+    drafts: contents.filter(c => c.status?.toLowerCase() === "draft").length
   }), [contents]);
 
   const allTags = useMemo(() => {
@@ -351,29 +351,29 @@ export default function AllContentPage() {
       {/* ── HEADER ── */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="w-2 h-6 bg-indigo-600 rounded-full" />
-            <h2 className="text-3xl font-black text-[#0F0F0F] tracking-tight">Content Library</h2>
+          <div className="flex items-center gap-3 mb-1">
+            <span className="w-[3px] h-7 bg-gradient-to-b from-[#6366F1] to-[#8B5CF6] rounded-full" />
+            <h2 className="text-[28px] font-[800] text-[#0F0F0F] tracking-tight">Content Library</h2>
           </div>
-          <p className="text-neutral-500 text-sm font-medium">Create, manage, and distribute content across your ecosystem.</p>
+          <p className="text-neutral-500 text-[14px] font-[400] mt-0.5">Create, manage, and distribute content across your ecosystem.</p>
         </div>
 
-        <div className="flex items-center gap-3">
-          <div className="bg-white border border-[#E2E4E9] rounded-2xl p-4 flex items-center gap-6 shadow-sm">
+        <div className="flex items-center gap-4">
+          <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-[16px] p-[12px_24px] flex items-center gap-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
             {[
-              { label: "Total", val: stats.total, color: "text-indigo-600" },
-              { label: "Published", val: stats.published, color: "text-emerald-600" },
-              { label: "Drafts", val: stats.drafts, color: "text-amber-600" }
+              { label: "Total", val: stats.total, color: "text-[#6366F1]" },
+              { label: "Published", val: stats.published, color: "text-[#10B981]" },
+              { label: "Drafts", val: stats.drafts, color: "text-[#F59E0B]" }
             ].map(s => (
               <div key={s.label} className="text-center">
-                <p className="text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-0.5">{s.label}</p>
-                <p className={`text-lg font-black ${s.color}`}>{s.val}</p>
+                <p className="text-[10px] font-[700] uppercase tracking-widest text-[#9CA3AF] mb-0.5">{s.label}</p>
+                <p className={`text-[18px] font-[800] ${s.color}`}>{s.val}</p>
               </div>
             ))}
           </div>
           <button 
             onClick={() => router.push("/add-content")} 
-            className="flex items-center gap-2 px-6 py-4 bg-[#0F0F0F] hover:bg-neutral-800 text-white rounded-2xl text-sm font-black uppercase tracking-widest transition-all shadow-xl shadow-black/10 active:scale-95"
+            className="flex items-center gap-2 px-[24px] py-[14px] bg-gradient-to-br from-[#6366F1] to-[#8B5CF6] text-white rounded-[14px] text-[14px] font-[600] transition-all shadow-[0_4px_14px_rgba(99,102,241,0.3)] hover:brightness-110 active:scale-95"
           >
             <Plus size={18} /> New Asset
           </button>
@@ -381,7 +381,7 @@ export default function AllContentPage() {
       </div>
 
       {/* ── STICKY FILTER BAR ── */}
-      <div className="sticky top-4 z-40 bg-white/90 backdrop-blur-xl border border-[#E2E4E9] rounded-[24px] p-3 flex flex-col items-stretch gap-3 shadow-lg shadow-black/[0.02]">
+      <div className="sticky top-4 z-40 bg-white/80 backdrop-blur-xl border border-[#E5E7EB] rounded-[24px] p-2.5 flex flex-col items-stretch gap-3 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
         <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2 overflow-x-auto no-scrollbar w-full lg:w-auto">
             <button 
@@ -396,7 +396,7 @@ export default function AllContentPage() {
               <button 
                 key={t.id} 
                 onClick={() => setFilter(t.id)} 
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${filter === t.id ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/20" : "bg-transparent text-neutral-500 hover:bg-neutral-50"}`}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-[600] whitespace-nowrap transition-all ${filter === t.id ? "bg-[#6366F1] text-white shadow-[0_4px_12px_rgba(99,102,241,0.2)]" : "bg-transparent text-[#6B7280] hover:bg-[#F9FAFB]"}`}
               >
                 <t.icon size={14} />
                 {t.label}
@@ -623,15 +623,15 @@ export default function AllContentPage() {
           ))}
         </div>
       ) : filtered.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-32 bg-white border border-dashed border-[#E2E4E9] rounded-[40px] text-center">
-          <div className="w-24 h-24 bg-[#F4F5F8] rounded-full flex items-center justify-center mb-6">
-            <Files size={40} className="text-neutral-300" />
+        <div className="flex flex-col items-center justify-center py-24 bg-[#FFFFFF] border border-[#E5E7EB] rounded-[32px] text-center shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+          <div className="w-20 h-20 bg-[#F9FAFB] rounded-full flex items-center justify-center mb-6 border border-[#E5E7EB]">
+            <Files size={32} className="text-[#D1D5DB]" />
           </div>
-          <h3 className="text-2xl font-black text-[#0F0F0F] mb-2">No matching content</h3>
-          <p className="text-neutral-400 font-medium mb-8 max-w-sm">We couldn't find any content matching your search or filters. Try adjusting your settings.</p>
-          <div className="flex gap-4">
-            <button onClick={() => { setSearch(""); setFilter("longform"); }} className="px-6 py-3 border border-[#E2E4E9] rounded-2xl text-xs font-black uppercase tracking-widest text-[#4B5264] hover:bg-neutral-50 transition-all">Clear Filters</button>
-            <button onClick={() => router.push("/add-content")} className="px-6 py-3 bg-indigo-600 text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-indigo-500 shadow-lg shadow-indigo-600/20 transition-all">Create New Asset</button>
+          <h3 className="text-[22px] font-[800] text-[#111318] mb-2">No matching content</h3>
+          <p className="text-[#6B7280] text-[14px] font-[400] mb-8 max-w-sm">We couldn't find any content matching your search or filters. Try adjusting your settings.</p>
+          <div className="flex gap-3">
+            <button onClick={() => { setSearch(""); setFilter("longform"); }} className="px-[24px] py-[12px] bg-transparent border border-[#E5E7EB] rounded-[12px] text-[14px] font-[600] text-[#374151] hover:bg-[#F9FAFB] transition-all">Clear Filters</button>
+            <button onClick={() => router.push("/add-content")} className="px-[24px] py-[12px] bg-gradient-to-br from-[#6366F1] to-[#8B5CF6] text-white rounded-[12px] text-[14px] font-[600] hover:brightness-110 shadow-[0_4px_14px_rgba(99,102,241,0.25)] transition-all">Create New Asset</button>
           </div>
         </div>
       ) : (

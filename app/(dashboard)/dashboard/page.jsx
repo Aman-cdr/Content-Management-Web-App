@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Sparkles, TrendingUp, Users, Play, Clock, ChevronRight, Zap, Loader2, RefreshCw, AlertCircle, Wifi, PlusSquare } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -30,7 +31,7 @@ const STAT_COLORS = {
 // ---------- Skeleton Loaders ----------
 function StatSkeleton() {
   return (
-    <div className="glass-card p-6 relative overflow-hidden animate-pulse">
+    <div className="glass-card bg-white p-6 relative overflow-hidden animate-pulse">
       <div className="flex items-center justify-between mb-4">
         <div className="w-10 h-10 rounded-xl bg-black/5" />
         <div className="w-14 h-6 rounded-lg bg-black/5" />
@@ -43,7 +44,7 @@ function StatSkeleton() {
 
 function SuggestionSkeleton() {
   return (
-    <div className="card p-6 flex flex-col border-none ring-1 ring-black/5 animate-pulse">
+    <div className="card bg-white p-6 flex flex-col border-none ring-1 ring-black/5 animate-pulse">
       <div className="flex items-center justify-between mb-4">
         <div className="w-16 h-4 rounded bg-black/5" />
         <div className="w-12 h-4 rounded bg-black/5" />
@@ -154,6 +155,7 @@ function LiveIndicator({ lastUpdated, error, onReconnect }) {
 // ==========================================================
 export default function DashboardPage() {
   const { data: session } = useSession();
+  const router = useRouter();
   const { data, loading, error, lastUpdated, refetch } = useDashboardData(60_000);
   
   const userName = session?.user?.name || "Creator";
@@ -208,24 +210,25 @@ export default function DashboardPage() {
         animate="show"
         className="space-y-8 pb-12"
       >
-        <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <motion.div variants={item} className="flex-1">
-            <h2 className="text-4xl font-bold tracking-tight mb-2 text-[#0A0A0F]">
-              Welcome back, <span className="gradient-text">{firstName}</span>
+            <h2 className="text-[36px] font-[800] tracking-tight mb-2 text-[#0A0A0F]">
+              Welcome back, <span className="text-[#6366F1]">{firstName}</span>
             </h2>
             <div className="flex flex-col md:flex-row md:items-center gap-4">
-              <div className="flex items-center gap-2 px-3 py-1 bg-white rounded-full border border-[#E2E4E9] shadow-sm">
-                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                <p className="text-[11px] font-bold text-[#4B5264] uppercase tracking-wider">Strategy: Focus on YouTube Shorts this week</p>
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-[#FFFFFF] rounded-full border border-[#E5E7EB] shadow-sm">
+                <div className="w-1.5 h-1.5 rounded-full bg-[#10B981]" />
+                <p className="text-[11px] font-[700] text-[#6B7280] uppercase tracking-wider">Strategy: Focus on YouTube Shorts this week</p>
               </div>
               <LiveIndicator lastUpdated={lastUpdated} error={error} onReconnect={refetch} />
             </div>
           </motion.div>
           <motion.button 
             variants={item}
-            whileHover={{ scale: 1.02, boxShadow: "0 10px 25px -5px rgba(79,70,229,0.4)" }}
+            whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            className="px-6 py-3 bg-gradient-to-r from-[#4F46E5] to-[#7C3AED] text-white rounded-xl font-bold shadow-lg shadow-indigo-100 transition-all flex items-center gap-2"
+            onClick={() => router.push("/add-content")}
+            className="px-6 py-3.5 bg-gradient-to-br from-[#6366F1] to-[#8B5CF6] text-white rounded-[14px] text-[14px] font-[600] transition-all shadow-[0_4px_14px_rgba(99,102,241,0.3)] hover:brightness-110 flex items-center gap-2"
           >
             <PlusSquare className="w-5 h-5" />
             Create New Content
@@ -245,8 +248,8 @@ export default function DashboardPage() {
                 return (
                   <motion.div 
                     key={stat.name} 
-                    className="card relative overflow-hidden group"
-                    style={{ borderTop: `3px solid ${statColor.color}` }}
+                    className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-[24px] p-6 relative overflow-hidden group shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all"
+                    style={{ borderTop: `4px solid ${statColor.color}` }}
                   >
                     <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-[0.07] transition-opacity pointer-events-none">
                       <IconComp size={80} className="text-black" />
@@ -285,18 +288,18 @@ export default function DashboardPage() {
         <section className="space-y-6 mt-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg shadow-indigo-200">
+              <div className="p-2.5 rounded-[12px] bg-gradient-to-br from-[#6366F1] to-[#8B5CF6] shadow-[0_4px_12px_rgba(99,102,241,0.3)]">
                 <Sparkles className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h3 className="text-[22px] font-bold text-[#0A0A0F] tracking-tight">AI Strategy Center</h3>
-                <p className="text-xs text-[#8A91A8] font-medium">Real-time optimization based on your latest performance data</p>
+                <h3 className="text-[24px] font-[800] text-[#0A0A0F] tracking-tight">AI Strategy Center</h3>
+                <p className="text-[13px] text-[#6B7280] font-[400]">Real-time optimization based on your latest performance data</p>
               </div>
             </div>
             <div className="flex items-center gap-4">
-              <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-white border border-[#E2E4E9] rounded-lg">
-                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="text-[10px] font-bold text-[#4B5264] uppercase tracking-wider">AI Engine Active</span>
+              <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-[#FFFFFF] border border-[#E5E7EB] rounded-lg">
+                <div className="w-2 h-2 rounded-full bg-[#10B981] animate-pulse" />
+                <span className="text-[10px] font-[700] text-[#4B5264] uppercase tracking-wider">AI Engine Active</span>
               </div>
               <button className="text-sm text-[#4F46E5] hover:text-[#4338CA] font-bold flex items-center gap-1 transition-colors">
                 View All <ChevronRight className="w-4 h-4" />
@@ -315,11 +318,10 @@ export default function DashboardPage() {
                     <motion.div 
                       key={suggestion.id} 
                       variants={item}
-                      whileHover={{ y: -4, shadow: "0 12px 24px -10px rgba(0,0,0,0.1)" }}
-                      className="card flex flex-col relative overflow-hidden group border-none ring-1 ring-[#E2E4E9] hover:ring-[#6366F1]/30 transition-all duration-300"
+                      className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-[24px] p-6 flex flex-col relative overflow-hidden group hover:border-[#6366F1]/[0.3] shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all duration-300"
                     >
                       <div className="absolute top-0 right-0 p-6 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity pointer-events-none -rotate-12 translate-x-4 -translate-y-4">
-                        <IconComp size={100} className="text-indigo-600" />
+                        <IconComp size={100} className="text-[#6366F1]" />
                       </div>
 
                       <div className="flex items-center justify-between mb-4">
@@ -361,8 +363,8 @@ export default function DashboardPage() {
 
         {/* Recent Activity / Roadmap Preview */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
-          <motion.div variants={item} className="card">
-            <h3 className="text-[20px] font-semibold mb-6 text-[#0A0A0F]">Upcoming Roadmap</h3>
+          <motion.div variants={item} className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-[24px] p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+            <h3 className="text-[20px] font-[800] mb-8 text-[#0A0A0F]">Upcoming Roadmap</h3>
             {loading ? (
               <RoadmapSkeleton />
             ) : (
@@ -399,8 +401,8 @@ export default function DashboardPage() {
             </button>
           </motion.div>
 
-          <motion.div variants={item} className="card">
-            <h3 className="text-[20px] font-semibold mb-6 text-[#0A0A0F]">Platform Performance</h3>
+          <motion.div variants={item} className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-[24px] p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+            <h3 className="text-[20px] font-[800] mb-8 text-[#0A0A0F]">Platform Performance</h3>
             {loading ? (
               <PlatformSkeleton />
             ) : (

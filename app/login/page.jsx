@@ -26,6 +26,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import api from "@/lib/api";
 import { ENDPOINTS } from "@/config/endpoints";
 
+import { registerDevice } from "@/lib/device";
+
 export default function LoginPage() {
   const router = useRouter();
   const [isSignUp, setIsSignUp] = useState(false);
@@ -46,6 +48,8 @@ export default function LoginPage() {
 
   useEffect(() => {
     setMounted(true);
+    // Auto-register device to get Bearer token for login/register
+    registerDevice();
   }, []);
 
   useEffect(() => {
@@ -81,8 +85,9 @@ export default function LoginPage() {
         }
 
         try {
-          const data = await api.post('/auth/register', {
-            name: formData.name,
+          const data = await api.post(ENDPOINTS.USER.REGISTER, {
+            firstName: formData.name.split(' ')[0],
+            lastName: formData.name.split(' ').slice(1).join(' ') || 'User',
             email: formData.email,
             password: formData.password
           });

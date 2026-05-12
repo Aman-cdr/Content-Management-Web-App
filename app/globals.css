@@ -50,7 +50,7 @@ body {
 
 /* ─── Glass Card ─── */
 .glass-card {
-  background: var(--card);
+  background: #FFFFFF;
   border: 1px solid var(--card-border);
   border-radius: 14px;
   transition: all 0.2s ease;
@@ -98,7 +98,7 @@ body {
 
 /* ─── Card ─── */
 .card {
-  background: var(--card);
+  background: #FFFFFF;
   border: 1px solid var(--card-border);
   border-radius: 14px;
   padding: 1.5rem;

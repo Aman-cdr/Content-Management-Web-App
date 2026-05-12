@@ -1,5 +1,6 @@
 import axios from 'axios';
-import { API_BASE_URL } from '@/config/endpoints';
+import { API_BASE_URL, ENDPOINTS } from '@/config/endpoints';
+import { getSession } from 'next-auth/react';
 
 // Create the axios instance
 const apiClient = axios.create({
@@ -7,97 +8,60 @@ const apiClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  // timeout: 10000,
 });
 
-// Request Interceptor (e.g., attach auth tokens)
+/**
+ * Request Interceptor
+ * Handles the dual-token system of the backend:
+ * 1. Login/Register: Requires 'Bearer <deviceToken>'
+ * 2. Protected Routes: Requires 'Access <accessToken>'
+ */
 apiClient.interceptors.request.use(
-  (config) => {
-    // Example: retrieve the token from localStorage or NextAuth session
-    // const token = localStorage.getItem('token');
-    // if (token) config.headers.Authorization = `Bearer ${token}`;
+  async (config) => {
+    if (typeof window === 'undefined') return config;
+
+    const url = config.url || '';
+
+    // Case 1: Initial Login or Registration
+    // These endpoints require the Bearer token obtained from device registration
+    if (url.includes(ENDPOINTS.USER.LOGIN) || url.includes(ENDPOINTS.USER.REGISTER)) {
+      const deviceToken = localStorage.getItem('device_bearer_token');
+      if (deviceToken) {
+        config.headers.Authorization = `Bearer ${deviceToken}`;
+      }
+    } 
+    // Case 2: Standard API calls
+    // These require the Access token obtained after a successful login
+    else {
+      const session = await getSession();
+      if (session?.user?.accessToken) {
+        config.headers.Authorization = `Access ${session.user.accessToken}`;
+      }
+    }
+    
     return config;
   },
   (error) => Promise.reject(error)
 );
 
-// Response Interceptor (e.g., handle global errors, 401s, etc.)
+// Response Interceptor
 apiClient.interceptors.response.use(
-  (response) => response.data,
+  (response) => {
+    // Unwrap the backend's ApiResponse format
+    return response.data?.data || response.data;
+  },
   (error) => {
-    // Suppress console.error here to avoid clutter during local mock development
-    return Promise.reject(error);
+    return Promise.reject(error.response?.data || error);
   }
 );
 
-import { CONTENT_ITEMS, ROADMAP_ITEMS } from '@/lib/mock-data';
-
-// Common API Methods with built-in Mock fallback
+// Clean API Methods
 const api = {
-  get: async (url: string, config = {}) => {
-    if (url === '/content') return [...CONTENT_ITEMS];
-    if (url === '/roadmap') return [...ROADMAP_ITEMS];
-    if (url === '/analytics') {
-      return {
-        stats: [
-          { name: "Total Views", value: "2.4M", change: "+12%", iconKey: "Play" },
-          { name: "Subscribers", value: "84.2K", change: "+840", iconKey: "Users" },
-          { name: "Avg Watch Time", value: "4m 12s", change: "+15s", iconKey: "Clock" },
-          { name: "Revenue", value: "$4,240", change: "+8%", iconKey: "TrendingUp" }
-        ],
-        aiSuggestions: [
-          { id: 1, title: "Optimize latest video title", description: "Change to 'I Built a Next.js CMS' for better CTR.", impact: "High", confidence: 92, action: "Apply", iconKey: "Sparkles" },
-          { id: 2, title: "Reschedule pending post", description: "Audience is active later today.", impact: "Medium", confidence: 85, action: "Reschedule", iconKey: "Clock" }
-        ],
-        roadmap: [...ROADMAP_ITEMS],
-        platformPerformance: []
-      };
-    }
-    try {
-      return await apiClient.get(url, config);
-    } catch (error) {
-      console.warn("Mocking get request for", url);
-      return [];
-    }
-  },
-  post: async (url: string, data: any, config = {}) => {
-    if (url === '/content' || url === '/roadmap') {
-      return { id: Date.now(), ...data };
-    }
-    if (url === '/generate-script' || url === '/reschedule' || url === '/generate-thumbnail') {
-      return { success: true, message: "Mock success" };
-    }
-    try {
-      return await apiClient.post(url, data, config);
-    } catch (error) {
-      console.warn("Mocking post request for", url);
-      return { id: Date.now(), ...data };
-    }
-  },
-  put: async (url: string, data: any, config = {}) => {
-    try {
-      return await apiClient.put(url, data, config);
-    } catch (error) {
-      console.warn("Mocking put request for", url);
-      return data;
-    }
-  },
-  patch: async (url: string, data: any, config = {}) => {
-    try {
-      return await apiClient.patch(url, data, config);
-    } catch (error) {
-      console.warn("Mocking patch request for", url);
-      return data;
-    }
-  },
-  delete: async (url: string, config = {}) => {
-    try {
-      return await apiClient.delete(url, config);
-    } catch (error) {
-      console.warn("Mocking delete request for", url);
-      return { success: true };
-    }
-  },
+  get: (url: string, config = {}) => apiClient.get(url, config),
+  post: (url: string, data: any, config = {}) => apiClient.post(url, data, config),
+  put: (url: string, data: any, config = {}) => apiClient.put(url, data, config),
+  patch: (url: string, data: any, config = {}) => apiClient.patch(url, data, config),
+  delete: (url: string, config = {}) => apiClient.delete(url, config),
 };
 
 export default api;

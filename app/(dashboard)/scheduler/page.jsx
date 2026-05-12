@@ -56,12 +56,12 @@ function PlatformIcon({ platform, size = 16 }) {
 
 function StatusBadge({ status }) {
   const styles = {
-    Published: "bg-emerald-400/10 text-emerald-400",
-    Scheduled: "bg-blue-400/10 text-blue-400",
-    Draft: "bg-neutral-500/10 text-neutral-400"
+    Published: "bg-[#10B981]/10 text-[#10B981]",
+    Scheduled: "bg-[#6366F1]/10 text-[#6366F1]",
+    Draft: "bg-[#F59E0B]/10 text-[#F59E0B]"
   };
   return (
-    <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded ${styles[status]}`}>
+    <span className={`text-[10px] font-[700] uppercase tracking-widest px-2.5 py-0.5 rounded-full ${styles[status]}`}>
       {status}
     </span>
   );
@@ -249,16 +249,19 @@ export default function SchedulerPage() {
   };
 
   return (
-    <div className="space-y-8 pb-12">
+    <div className="max-w-[1200px] mx-auto space-y-6 pb-12">
       {/* Top Bar */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h2 className="text-4xl font-black tracking-tight mb-2 text-[#0F0F0F]">Scheduler</h2>
-          <p className="text-neutral-500">Plan and schedule your content pipeline</p>
+          <div className="flex items-center gap-3 mb-1">
+            <span className="w-[3px] h-8 bg-gradient-to-b from-[#6366F1] to-[#8B5CF6] rounded-full" />
+            <h2 className="text-[32px] font-[800] text-[#0F0F0F] tracking-tight">Scheduler</h2>
+          </div>
+          <p className="text-neutral-500 text-[14px] font-[400] mt-0.5">Plan and schedule your content pipeline</p>
         </div>
         <button 
           onClick={() => setIsModalOpen(true)}
-          className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2.5 rounded-2xl text-sm font-black uppercase tracking-widest transition-all shadow-lg shadow-blue-600/20 flex items-center gap-2 group"
+          className="bg-gradient-to-br from-[#6366F1] to-[#8B5CF6] text-white px-[24px] py-[14px] rounded-[14px] text-[14px] font-[600] transition-all shadow-[0_4px_14px_rgba(99,102,241,0.3)] hover:brightness-110 active:scale-95 flex items-center gap-2 group"
         >
           <Plus className="w-5 h-5 transition-transform group-hover:rotate-90" />
           New Post
@@ -268,28 +271,28 @@ export default function SchedulerPage() {
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-8">
         {/* Section 1: Calendar View */}
         <div className="space-y-6">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4 bg-white border border-black/[0.06] p-4 rounded-3xl shadow-sm">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4 bg-[#FFFFFF]/80 backdrop-blur-xl border border-[#E5E7EB] p-3 rounded-[20px] shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
             <div className="flex items-center gap-4">
-              <h3 className="text-xl font-bold min-w-[150px] text-[#0F0F0F]">{format(currentDate, "MMMM yyyy")}</h3>
-              <div className="flex gap-2">
-                <button onClick={handlePrevMonth} className="p-2 hover:bg-neutral-100 rounded-xl transition-colors text-neutral-600">
-                  <ChevronLeft className="w-5 h-5" />
+              <h3 className="text-[18px] font-[700] min-w-[150px] text-[#0F0F0F]">{format(currentDate, "MMMM yyyy")}</h3>
+              <div className="flex gap-1.5">
+                <button onClick={handlePrevMonth} className="p-2 hover:bg-[#F9FAFB] rounded-xl transition-colors text-[#6B7280] border border-[#E5E7EB]">
+                  <ChevronLeft className="w-4 h-4" />
                 </button>
-                <button onClick={handleNextMonth} className="p-2 hover:bg-neutral-100 rounded-xl transition-colors text-neutral-600">
-                  <ChevronRight className="w-5 h-5" />
+                <button onClick={handleNextMonth} className="p-2 hover:bg-[#F9FAFB] rounded-xl transition-colors text-[#6B7280] border border-[#E5E7EB]">
+                  <ChevronRight className="w-4 h-4" />
                 </button>
               </div>
             </div>
             
-            <div className="flex gap-1 p-1 bg-[#F3F4F6] border border-black/[0.06] rounded-2xl">
+            <div className="flex gap-1 p-1 bg-[#F3F4F6] border border-[#E5E7EB] rounded-[16px]">
               {["All", ...Object.keys(PLATFORMS)].map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setFilter(tab)}
-                  className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                  className={`px-4 py-1.5 rounded-xl text-[12px] font-[600] transition-all ${
                     filter === tab 
-                    ? "bg-white text-[#0F0F0F] shadow-sm border border-black/[0.04]" 
-                    : "text-neutral-500 hover:text-[#0F0F0F]"
+                    ? "bg-[#FFFFFF] text-[#0F0F0F] shadow-sm border border-[#E5E7EB]" 
+                    : "text-[#6B7280] hover:text-[#0F0F0F]"
                   }`}
                 >
                   {tab}
@@ -298,8 +301,8 @@ export default function SchedulerPage() {
             </div>
           </div>
 
-          <div className="card p-0 overflow-hidden border-black/[0.06] bg-white shadow-sm">
-            <div className="grid grid-cols-7 gap-px bg-black/[0.06] rounded-2xl overflow-hidden border border-black/[0.06]">
+          <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-[24px] overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] h-fit">
+            <div className="grid grid-cols-7 gap-px bg-[#E5E7EB]">
               {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(day => (
                 <div key={day} className="bg-[#FAFAFA] py-4 text-center text-[10px] font-black uppercase tracking-widest text-neutral-500">
                   {day}
@@ -314,9 +317,9 @@ export default function SchedulerPage() {
                   <div 
                     key={idx}
                     onClick={() => setSelectedDate(day)}
-                    className={`min-h-[120px] bg-white p-2 transition-all cursor-pointer hover:bg-neutral-50 relative group ${
-                      !isCurrentMonth ? "bg-neutral-50/50 opacity-40" : ""
-                    } ${isSelected ? "ring-2 ring-purple-500 ring-inset z-10" : ""} ${isToday(day) ? "bg-purple-600/[0.04]" : ""}`}
+                    className={`min-h-[90px] bg-white p-2 transition-all cursor-pointer hover:bg-[#F9FAFB] relative group ${
+                      !isCurrentMonth ? "bg-neutral-50/30 opacity-40" : ""
+                    } ${isSelected ? "ring-2 ring-[#6366F1] ring-inset z-10" : ""} ${isToday(day) ? "bg-[#6366F1]/[0.02]" : ""}`}
                   >
                     <span className={`text-xs font-bold ${isToday(day) ? "text-purple-600 bg-purple-100/50 px-2 py-1 rounded-lg" : "text-[#374151]"}`}>
                       {format(day, "d")}
@@ -354,12 +357,12 @@ export default function SchedulerPage() {
         <motion.div 
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="flex flex-col h-full"
+          className="flex flex-col h-full lg:h-[600px]"
         >
-          <div className="card p-8 flex flex-col h-full border-black/[0.06] bg-white shadow-sm">
+          <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-[24px] p-8 flex flex-col h-full shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
             <div className="mb-8">
-              <p className="text-[10px] font-black text-purple-600 uppercase tracking-[0.2em] mb-2">Schedule for</p>
-              <h3 className="text-3xl font-black text-[#0F0F0F]">{format(selectedDate, "EEEE, MMM do")}</h3>
+              <p className="text-[10px] font-[700] text-[#6366F1] uppercase tracking-[0.2em] mb-2">Schedule for</p>
+              <h3 className="text-[26px] font-[800] text-[#0F0F0F] tracking-tight">{format(selectedDate, "EEEE, MMM do")}</h3>
             </div>
 
             <div className="flex-1 space-y-4 overflow-y-auto pr-2 scrollbar-hide">
@@ -368,7 +371,7 @@ export default function SchedulerPage() {
                   <motion.div 
                     key={post.id}
                     whileHover={{ scale: 1.02 }}
-                    className="p-5 rounded-3xl bg-[#F9FAFB] border border-black/[0.04] hover:border-black/[0.08] transition-all relative overflow-hidden group"
+                    className="p-5 rounded-[20px] bg-[#F9FAFB] border border-[#E5E7EB] hover:border-[#6366F1]/[0.3] transition-all relative overflow-hidden group shadow-sm hover:shadow-md"
                   >
                     <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
                       <PlatformIcon platform={post.platform} size={40} />
@@ -402,7 +405,7 @@ export default function SchedulerPage() {
                 setNewPost({...newPost, date: format(selectedDate, "yyyy-MM-dd")});
                 setIsModalOpen(true);
               }}
-              className="mt-8 w-full py-4 rounded-2xl bg-[#F3F4F6] hover:bg-[#E5E7EB] border border-black/[0.06] transition-all text-sm font-black uppercase tracking-widest text-[#374151]"
+              className="mt-8 w-full py-4 rounded-[14px] bg-[#F3F4F6] hover:bg-[#E5E7EB] border border-[#E5E7EB] transition-all text-[13px] font-[600] uppercase tracking-widest text-[#374151]"
             >
               Add to this day
             </button>
@@ -539,7 +542,7 @@ export default function SchedulerPage() {
 
                 <button 
                   type="submit"
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black uppercase tracking-widest text-xs px-6 py-3.5 rounded-xl transition-colors shadow-lg shadow-blue-600/20"
+                  className="w-full bg-gradient-to-br from-[#6366F1] to-[#8B5CF6] text-white font-[600] uppercase tracking-widest text-[11px] px-6 py-4 rounded-xl transition-all shadow-lg shadow-indigo-600/20 hover:brightness-110 active:scale-95"
                 >
                   Schedule Post
                 </button>

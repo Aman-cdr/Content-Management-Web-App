@@ -168,7 +168,7 @@ function StatCard({ stat, isLoading }) {
   return (
     <motion.div 
       whileHover={{ y: -5 }}
-      className="glass-card p-6 relative overflow-hidden group bg-white border-black/[0.06]"
+      className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-[24px] p-6 relative overflow-hidden group shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all"
     >
       <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-[0.07] transition-opacity">
         <stat.icon size={80} className="text-black" />
@@ -265,8 +265,11 @@ export default function AnalyticsPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h2 className="text-4xl font-black tracking-tight mb-2 text-[#0F0F0F]">Analytics</h2>
-          <p className="text-neutral-500">Your channel performance at a glance.</p>
+          <div className="flex items-center gap-3 mb-1">
+            <span className="w-[3px] h-8 bg-gradient-to-b from-[#6366F1] to-[#8B5CF6] rounded-full" />
+            <h2 className="text-[32px] font-[800] text-[#0F0F0F] tracking-tight">Analytics</h2>
+          </div>
+          <p className="text-neutral-500 text-[14px] font-[400] mt-0.5">Your channel performance at a glance</p>
         </div>
         <div className="flex gap-3 relative">
           <div className="relative">
@@ -318,7 +321,7 @@ export default function AnalyticsPage() {
             </AnimatePresence>
           </div>
           
-          <button className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2.5 rounded-2xl text-sm font-black uppercase tracking-widest transition-all shadow-lg shadow-blue-600/20 flex items-center gap-2">
+          <button className="bg-gradient-to-br from-[#6366F1] to-[#8B5CF6] text-white px-6 py-2.5 rounded-[14px] text-sm font-[600] transition-all shadow-[0_4px_14px_rgba(99,102,241,0.3)] hover:brightness-110 active:scale-95 flex items-center gap-2">
             <Download className="w-4 h-4" />
             Export
           </button>
@@ -330,7 +333,7 @@ export default function AnalyticsPage() {
         <motion.div 
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative overflow-hidden rounded-3xl p-6 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white shadow-lg shadow-indigo-500/20"
+          className="relative overflow-hidden rounded-[24px] p-8 bg-gradient-to-br from-[#6366F1] to-[#8B5CF6] text-white shadow-[0_10px_40px_rgba(99,102,241,0.2)]"
         >
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 blur-3xl rounded-full -translate-y-1/2 translate-x-1/2" />
           <div className="relative z-10 flex flex-col md:flex-row gap-6 items-start md:items-center">
@@ -367,17 +370,17 @@ export default function AnalyticsPage() {
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="card p-8 bg-white border-black/[0.06] shadow-sm"
+          className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-[24px] p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)]"
         >
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-6">
-            <div className="flex gap-1 p-1 bg-[#F3F4F6] border border-black/[0.06] rounded-2xl">
+            <div className="flex gap-1 p-1 bg-[#F3F4F6] border border-[#E5E7EB] rounded-2xl">
               {Object.keys(MAIN_CHART_DATA).map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`px-6 py-2 rounded-xl text-sm font-bold transition-all ${
+                  className={`px-6 py-2 rounded-xl text-sm font-[600] transition-all ${
                     activeTab === tab 
-                    ? "bg-white text-[#0F0F0F] shadow-sm border border-black/[0.04]" 
+                    ? "bg-white text-[#0F0F0F] shadow-sm border border-[#E5E7EB]" 
                     : "text-neutral-500 hover:text-[#0F0F0F]"
                   }`}
                 >
@@ -432,7 +435,7 @@ export default function AnalyticsPage() {
                 <Area 
                   type="monotone" 
                   dataKey="value" 
-                  stroke="#7c3aed" 
+                  stroke="#6366F1" 
                   strokeWidth={3}
                   fillOpacity={1} 
                   fill="url(#colorPurple)" 
@@ -452,9 +455,9 @@ export default function AnalyticsPage() {
           <motion.div 
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="card p-8 bg-white border-black/[0.06] shadow-sm"
+            className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-[24px] p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)]"
           >
-            <h3 className="text-xl font-bold mb-8 text-[#0F0F0F]">Platform Breakdown</h3>
+            <h3 className="text-[20px] font-[800] mb-8 text-[#0F0F0F]">Platform Breakdown</h3>
             <div className="flex flex-col md:flex-row items-center gap-8">
               <div className="h-[250px] w-[250px] relative">
                 <ResponsiveContainer width="100%" height="100%">
@@ -507,10 +510,10 @@ export default function AnalyticsPage() {
           <motion.div 
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="card p-8 flex flex-col bg-white border-black/[0.06] shadow-sm"
+            className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-[24px] p-8 flex flex-col shadow-[0_8px_30px_rgb(0,0,0,0.04)]"
           >
             <div className="flex items-center justify-between mb-8">
-              <h3 className="text-xl font-bold text-[#0F0F0F]">Top Performing Content</h3>
+              <h3 className="text-[20px] font-[800] text-[#0F0F0F]">Top Performing Content</h3>
               <button className="text-sm text-blue-600 hover:text-blue-700 font-bold">See All</button>
             </div>
             <div className="overflow-x-auto flex-1">
@@ -558,9 +561,9 @@ export default function AnalyticsPage() {
         ) : (
           <motion.div 
             whileHover={{ y: -5 }}
-            className="card p-8 bg-white border-black/[0.06] shadow-sm"
+            className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-[24px] p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)]"
           >
-            <h3 className="text-xl font-bold mb-8 text-[#0F0F0F]">Top Geographies</h3>
+            <h3 className="text-[20px] font-[800] mb-8 text-[#0F0F0F]">Top Geographies</h3>
             <div className="h-[250px] w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={GEOGRAPHY_DATA} layout="vertical" barSize={12}>
@@ -587,9 +590,9 @@ export default function AnalyticsPage() {
         ) : (
           <motion.div 
             whileHover={{ y: -5 }}
-            className="card p-8 bg-white border-black/[0.06] shadow-sm"
+            className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-[24px] p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)]"
           >
-            <h3 className="text-xl font-bold mb-8 text-[#0F0F0F]">Device Breakdown</h3>
+            <h3 className="text-[20px] font-[800] mb-8 text-[#0F0F0F]">Device Breakdown</h3>
             <div className="h-[250px] w-full relative">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -631,9 +634,9 @@ export default function AnalyticsPage() {
         ) : (
           <motion.div 
             whileHover={{ y: -5 }}
-            className="card p-8 bg-white border-black/[0.06] shadow-sm"
+            className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-[24px] p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)]"
           >
-            <h3 className="text-xl font-bold mb-6 text-[#0F0F0F]">Peak Active Hours</h3>
+            <h3 className="text-[20px] font-[800] mb-6 text-[#0F0F0F]">Peak Active Hours</h3>
             <div className="flex flex-col h-[250px]">
               <div className="grid grid-cols-[30px_1fr] flex-1 gap-2">
                 <div className="flex flex-col justify-between py-2">
