@@ -14,13 +14,17 @@
   --color-card-hover: var(--t-surface, #FFFFFF);
 }
 
-/* ─── Indigo defaults so the page renders correctly before JS hydrates ─── */
+/* ─── Layout variables — NEVER overridden by theme selector ─── */
+/* Sidebar, background, surface, text are fixed. Only accent colors change. */
 :root {
+  /* Accent (changes with theme) */
   --t-primary:       #6366F1;
   --t-primary-dark:  #4F46E5;
   --t-primary-light: rgba(99,102,241,0.09);
   --t-primary-glow:  rgba(99,102,241,0.25);
   --t-secondary:     #8B5CF6;
+
+  /* Layout (fixed — never changed by ThemeContext) */
   --t-bg:            #EEEEF0;
   --t-surface:       #FFFFFF;
   --t-sidebar:       #0C0C14;

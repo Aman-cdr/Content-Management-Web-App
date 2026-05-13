@@ -7,10 +7,14 @@ const ThemeContext = createContext(null);
 
 const CUSTOM_COLOR_KEY = "creator-cms-custom-color";
 
-// ─── Apply CSS vars to <html> ─────────────────────────────────────────────────
+// ─── Only accent vars are allowed to change — layout vars are locked in CSS ───
+const ACCENT_VARS = ["--t-primary", "--t-primary-dark", "--t-primary-light", "--t-primary-glow", "--t-secondary"];
+
 function applyVarsToRoot(vars) {
   const root = document.documentElement;
-  Object.entries(vars).forEach(([k, v]) => root.style.setProperty(k, v));
+  Object.entries(vars).forEach(([k, v]) => {
+    if (ACCENT_VARS.includes(k)) root.style.setProperty(k, v);
+  });
 }
 
 // ─── Inject a <style> tag that overrides ALL hardcoded indigo values ──────────
