@@ -177,28 +177,850 @@
   ],
   "series": [
     {
-      "id": 1,
+      "id": "1",
       "name": "Next.js Masterclass",
       "episodes": 12,
       "completed": 4,
       "type": "Course",
-      "createdAt": "2026-04-30T06:36:06.144Z"
+      "description": "Deep dive into Next.js 16 App Router, Server Actions, and Auth. Build real-world apps from scratch.",
+      "platforms": [
+        "YouTube"
+      ],
+      "estCompletion": "2026-06-15",
+      "lastUpdated": "2026-04-28T10:00:00Z",
+      "archived": false
     },
     {
-      "id": 2,
+      "id": "2",
       "name": "Daily Tech News",
       "episodes": 30,
       "completed": 18,
       "type": "Shorts",
-      "createdAt": "2026-04-30T06:36:06.144Z"
+      "description": "Daily bite-sized tech updates for TikTok and Reels. Covering AI, dev tools, and startup news.",
+      "platforms": [
+        "TikTok",
+        "Instagram"
+      ],
+      "estCompletion": "2026-05-30",
+      "lastUpdated": "2026-04-29T15:30:00Z",
+      "archived": false
     },
     {
-      "id": 3,
+      "id": "3",
       "name": "Build a CMS with AI",
       "episodes": 5,
       "completed": 1,
       "type": "Project",
-      "createdAt": "2026-04-30T06:36:06.144Z"
+      "description": "Step-by-step guide to building a modern CMS using AI tools and Next.js.",
+      "platforms": [
+        "YouTube",
+        "Twitter"
+      ],
+      "estCompletion": "2026-05-10",
+      "lastUpdated": "2026-04-25T09:15:00Z",
+      "archived": false
+    },
+    {
+      "name": "Javascript | React js Series",
+      "type": "Course",
+      "platforms": [],
+      "description": "In this series we will teach java script and react js from scratch with real world projects",
+      "episodes": 28,
+      "estCompletion": "2026-06-30",
+      "theme": "Course",
+      "completed": 0,
+      "lastUpdated": "2026-05-13T11:29:02.751Z",
+      "archived": false,
+      "id": "6eZP96d"
+    },
+    {
+      "name": "Basics of Photography ",
+      "type": "Course",
+      "platforms": [],
+      "description": "This is about fundamentals of photography , camera and lighting techniques ",
+      "episodes": 10,
+      "estCompletion": "2026-06-15",
+      "theme": "Course",
+      "completed": 0,
+      "lastUpdated": "2026-05-13T11:31:58.041Z",
+      "archived": false,
+      "id": "ATEvuQc"
+    }
+  ],
+  "episodes": [
+    {
+      "id": "ep-1-1",
+      "seriesId": "1",
+      "number": 1,
+      "title": "Introduction & Setup",
+      "status": "Published",
+      "duration": "10:00",
+      "dueDate": "2026-04-01"
+    },
+    {
+      "id": "ep-1-2",
+      "seriesId": "1",
+      "number": 2,
+      "title": "App Router Deep Dive",
+      "status": "Published",
+      "duration": "6:00",
+      "dueDate": "2026-04-02"
+    },
+    {
+      "id": "ep-1-3",
+      "seriesId": "1",
+      "number": 3,
+      "title": "Server Components vs Client",
+      "status": "Published",
+      "duration": "24:00",
+      "dueDate": "2026-04-03"
+    },
+    {
+      "id": "ep-1-4",
+      "seriesId": "1",
+      "number": 4,
+      "title": "Server Actions & Forms",
+      "status": "Published",
+      "duration": "14:00",
+      "dueDate": "2026-04-04"
+    },
+    {
+      "id": "ep-1-5",
+      "seriesId": "1",
+      "number": 5,
+      "title": "Authentication with NextAuth",
+      "status": "Edited",
+      "duration": "5:00",
+      "dueDate": "2026-04-05"
+    },
+    {
+      "id": "ep-1-6",
+      "seriesId": "1",
+      "number": 6,
+      "title": "Database with Prisma",
+      "status": "Draft",
+      "duration": "10:00",
+      "dueDate": "2026-04-06"
+    },
+    {
+      "id": "ep-1-7",
+      "seriesId": "1",
+      "number": 7,
+      "title": "API Routes & Middleware",
+      "status": "Draft",
+      "duration": "14:00",
+      "dueDate": "2026-04-07"
+    },
+    {
+      "id": "ep-1-8",
+      "seriesId": "1",
+      "number": 8,
+      "title": "Caching Strategies",
+      "status": "Draft",
+      "duration": "12:00",
+      "dueDate": "2026-04-08"
+    },
+    {
+      "id": "ep-1-9",
+      "seriesId": "1",
+      "number": 9,
+      "title": "Optimistic UI & Loading States",
+      "status": "Draft",
+      "duration": "18:00",
+      "dueDate": "2026-04-09"
+    },
+    {
+      "id": "ep-1-10",
+      "seriesId": "1",
+      "number": 10,
+      "title": "Error Boundaries & Error.tsx",
+      "status": "Draft",
+      "duration": "11:00",
+      "dueDate": "2026-04-10"
+    },
+    {
+      "id": "ep-1-11",
+      "seriesId": "1",
+      "number": 11,
+      "title": "Deployment to Vercel",
+      "status": "Draft",
+      "duration": "16:00",
+      "dueDate": "2026-04-11"
+    },
+    {
+      "id": "ep-1-12",
+      "seriesId": "1",
+      "number": 12,
+      "title": "Performance Optimization",
+      "status": "Draft",
+      "duration": "20:00",
+      "dueDate": "2026-04-12"
+    },
+    {
+      "id": "ep-2-1",
+      "seriesId": "2",
+      "number": 1,
+      "title": "Tech News #1",
+      "status": "Published",
+      "duration": "0:58",
+      "dueDate": "2026-04-01"
+    },
+    {
+      "id": "ep-2-2",
+      "seriesId": "2",
+      "number": 2,
+      "title": "Tech News #2",
+      "status": "Published",
+      "duration": "0:58",
+      "dueDate": "2026-04-02"
+    },
+    {
+      "id": "ep-2-3",
+      "seriesId": "2",
+      "number": 3,
+      "title": "Tech News #3",
+      "status": "Published",
+      "duration": "0:58",
+      "dueDate": "2026-04-03"
+    },
+    {
+      "id": "ep-2-4",
+      "seriesId": "2",
+      "number": 4,
+      "title": "Tech News #4",
+      "status": "Published",
+      "duration": "0:58",
+      "dueDate": "2026-04-04"
+    },
+    {
+      "id": "ep-2-5",
+      "seriesId": "2",
+      "number": 5,
+      "title": "Tech News #5",
+      "status": "Published",
+      "duration": "0:58",
+      "dueDate": "2026-04-05"
+    },
+    {
+      "id": "ep-2-6",
+      "seriesId": "2",
+      "number": 6,
+      "title": "Tech News #6",
+      "status": "Published",
+      "duration": "0:58",
+      "dueDate": "2026-04-06"
+    },
+    {
+      "id": "ep-2-7",
+      "seriesId": "2",
+      "number": 7,
+      "title": "Tech News #7",
+      "status": "Published",
+      "duration": "0:58",
+      "dueDate": "2026-04-07"
+    },
+    {
+      "id": "ep-2-8",
+      "seriesId": "2",
+      "number": 8,
+      "title": "Tech News #8",
+      "status": "Published",
+      "duration": "0:58",
+      "dueDate": "2026-04-08"
+    },
+    {
+      "id": "ep-2-9",
+      "seriesId": "2",
+      "number": 9,
+      "title": "Tech News #9",
+      "status": "Published",
+      "duration": "0:58",
+      "dueDate": "2026-04-09"
+    },
+    {
+      "id": "ep-2-10",
+      "seriesId": "2",
+      "number": 10,
+      "title": "Tech News #10",
+      "status": "Published",
+      "duration": "0:58",
+      "dueDate": "2026-04-10"
+    },
+    {
+      "id": "ep-2-11",
+      "seriesId": "2",
+      "number": 11,
+      "title": "Tech News #11",
+      "status": "Published",
+      "duration": "0:58",
+      "dueDate": "2026-04-11"
+    },
+    {
+      "id": "ep-2-12",
+      "seriesId": "2",
+      "number": 12,
+      "title": "Tech News #12",
+      "status": "Published",
+      "duration": "0:58",
+      "dueDate": "2026-04-12"
+    },
+    {
+      "id": "ep-2-13",
+      "seriesId": "2",
+      "number": 13,
+      "title": "Tech News #13",
+      "status": "Published",
+      "duration": "0:58",
+      "dueDate": "2026-04-13"
+    },
+    {
+      "id": "ep-2-14",
+      "seriesId": "2",
+      "number": 14,
+      "title": "Tech News #14",
+      "status": "Published",
+      "duration": "0:58",
+      "dueDate": "2026-04-14"
+    },
+    {
+      "id": "ep-2-15",
+      "seriesId": "2",
+      "number": 15,
+      "title": "Tech News #15",
+      "status": "Published",
+      "duration": "0:58",
+      "dueDate": "2026-04-15"
+    },
+    {
+      "id": "ep-2-16",
+      "seriesId": "2",
+      "number": 16,
+      "title": "Tech News #16",
+      "status": "Published",
+      "duration": "0:58",
+      "dueDate": "2026-04-16"
+    },
+    {
+      "id": "ep-2-17",
+      "seriesId": "2",
+      "number": 17,
+      "title": "Tech News #17",
+      "status": "Published",
+      "duration": "0:58",
+      "dueDate": "2026-04-17"
+    },
+    {
+      "id": "ep-2-18",
+      "seriesId": "2",
+      "number": 18,
+      "title": "Tech News #18",
+      "status": "Published",
+      "duration": "0:58",
+      "dueDate": "2026-04-18"
+    },
+    {
+      "id": "ep-2-19",
+      "seriesId": "2",
+      "number": 19,
+      "title": "Tech News #19",
+      "status": "Draft",
+      "duration": "0:58",
+      "dueDate": "2026-04-19"
+    },
+    {
+      "id": "ep-2-20",
+      "seriesId": "2",
+      "number": 20,
+      "title": "Tech News #20",
+      "status": "Draft",
+      "duration": "0:58",
+      "dueDate": "2026-04-20"
+    },
+    {
+      "id": "ep-2-21",
+      "seriesId": "2",
+      "number": 21,
+      "title": "Tech News #21",
+      "status": "Draft",
+      "duration": "0:58",
+      "dueDate": "2026-04-21"
+    },
+    {
+      "id": "ep-2-22",
+      "seriesId": "2",
+      "number": 22,
+      "title": "Tech News #22",
+      "status": "Draft",
+      "duration": "0:58",
+      "dueDate": "2026-04-22"
+    },
+    {
+      "id": "ep-2-23",
+      "seriesId": "2",
+      "number": 23,
+      "title": "Tech News #23",
+      "status": "Draft",
+      "duration": "0:58",
+      "dueDate": "2026-04-23"
+    },
+    {
+      "id": "ep-2-24",
+      "seriesId": "2",
+      "number": 24,
+      "title": "Tech News #24",
+      "status": "Draft",
+      "duration": "0:58",
+      "dueDate": "2026-04-24"
+    },
+    {
+      "id": "ep-2-25",
+      "seriesId": "2",
+      "number": 25,
+      "title": "Tech News #25",
+      "status": "Draft",
+      "duration": "0:58",
+      "dueDate": "2026-04-25"
+    },
+    {
+      "id": "ep-2-26",
+      "seriesId": "2",
+      "number": 26,
+      "title": "Tech News #26",
+      "status": "Draft",
+      "duration": "0:58",
+      "dueDate": "2026-04-26"
+    },
+    {
+      "id": "ep-2-27",
+      "seriesId": "2",
+      "number": 27,
+      "title": "Tech News #27",
+      "status": "Draft",
+      "duration": "0:58",
+      "dueDate": "2026-04-27"
+    },
+    {
+      "id": "ep-2-28",
+      "seriesId": "2",
+      "number": 28,
+      "title": "Tech News #28",
+      "status": "Draft",
+      "duration": "0:58",
+      "dueDate": "2026-04-28"
+    },
+    {
+      "id": "ep-2-29",
+      "seriesId": "2",
+      "number": 29,
+      "title": "Tech News #29",
+      "status": "Draft",
+      "duration": "0:58",
+      "dueDate": "2026-04-29"
+    },
+    {
+      "id": "ep-2-30",
+      "seriesId": "2",
+      "number": 30,
+      "title": "Tech News #30",
+      "status": "Draft",
+      "duration": "0:58",
+      "dueDate": "2026-04-30"
+    },
+    {
+      "id": "ep-3-1",
+      "seriesId": "3",
+      "number": 1,
+      "title": "Planning the CMS Architecture",
+      "status": "Published",
+      "duration": "22:00",
+      "dueDate": "2026-04-01"
+    },
+    {
+      "id": "ep-3-2",
+      "seriesId": "3",
+      "number": 2,
+      "title": "Setting Up the Backend",
+      "status": "Draft",
+      "duration": null,
+      "dueDate": "2026-04-10"
+    },
+    {
+      "id": "ep-3-3",
+      "seriesId": "3",
+      "number": 3,
+      "title": "Building the Content Editor",
+      "status": "Draft",
+      "duration": null,
+      "dueDate": "2026-04-20"
+    },
+    {
+      "id": "ep-3-4",
+      "seriesId": "3",
+      "number": 4,
+      "title": "AI Integration",
+      "status": "Draft",
+      "duration": null,
+      "dueDate": "2026-04-30"
+    },
+    {
+      "id": "ep-3-5",
+      "seriesId": "3",
+      "number": 5,
+      "title": "Deployment & Launch",
+      "status": "Draft",
+      "duration": null,
+      "dueDate": "2026-05-05"
+    },
+    {
+      "id": "ep-6eZP96d-1778671739654-0",
+      "seriesId": "6eZP96d",
+      "number": 1,
+      "title": "Intro to React",
+      "status": "Draft",
+      "duration": "10 min",
+      "dueDate": null
+    },
+    {
+      "id": "ep-6eZP96d-1778671739763-1",
+      "seriesId": "6eZP96d",
+      "number": 2,
+      "title": "JSX Basics",
+      "status": "Draft",
+      "duration": "12 min",
+      "dueDate": null
+    },
+    {
+      "id": "ep-6eZP96d-1778671739805-2",
+      "seriesId": "6eZP96d",
+      "number": 3,
+      "title": "React Components",
+      "status": "Draft",
+      "duration": "18 min",
+      "dueDate": null
+    },
+    {
+      "id": "ep-6eZP96d-1778671739831-3",
+      "seriesId": "6eZP96d",
+      "number": 4,
+      "title": "State & Props",
+      "status": "Draft",
+      "duration": "20 min",
+      "dueDate": null
+    },
+    {
+      "id": "ep-6eZP96d-1778671739874-4",
+      "seriesId": "6eZP96d",
+      "number": 5,
+      "title": "Event Handling",
+      "status": "Draft",
+      "duration": "15 min",
+      "dueDate": null
+    },
+    {
+      "id": "ep-6eZP96d-1778671740165-5",
+      "seriesId": "6eZP96d",
+      "number": 6,
+      "title": "React Hooks Intro",
+      "status": "Draft",
+      "duration": "10 min",
+      "dueDate": null
+    },
+    {
+      "id": "ep-6eZP96d-1778671740186-6",
+      "seriesId": "6eZP96d",
+      "number": 7,
+      "title": "useState & useEffect",
+      "status": "Draft",
+      "duration": "18 min",
+      "dueDate": null
+    },
+    {
+      "id": "ep-6eZP96d-1778671740205-7",
+      "seriesId": "6eZP96d",
+      "number": 8,
+      "title": "React Router Basics",
+      "status": "Draft",
+      "duration": "12 min",
+      "dueDate": null
+    },
+    {
+      "id": "ep-6eZP96d-1778671740422-8",
+      "seriesId": "6eZP96d",
+      "number": 9,
+      "title": "Navigation & Routes",
+      "status": "Draft",
+      "duration": "20 min",
+      "dueDate": null
+    },
+    {
+      "id": "ep-6eZP96d-1778671740442-9",
+      "seriesId": "6eZP96d",
+      "number": 10,
+      "title": "React Context API",
+      "status": "Draft",
+      "duration": "18 min",
+      "dueDate": null
+    },
+    {
+      "id": "ep-6eZP96d-1778671740746-10",
+      "seriesId": "6eZP96d",
+      "number": 11,
+      "title": "Redux Intro",
+      "status": "Draft",
+      "duration": "12 min",
+      "dueDate": null
+    },
+    {
+      "id": "ep-6eZP96d-1778671740770-11",
+      "seriesId": "6eZP96d",
+      "number": 12,
+      "title": "Actions & Reducers",
+      "status": "Draft",
+      "duration": "20 min",
+      "dueDate": null
+    },
+    {
+      "id": "ep-6eZP96d-1778671740786-12",
+      "seriesId": "6eZP96d",
+      "number": 13,
+      "title": "React & Redux Integration",
+      "status": "Draft",
+      "duration": "22 min",
+      "dueDate": null
+    },
+    {
+      "id": "ep-6eZP96d-1778671740995-13",
+      "seriesId": "6eZP96d",
+      "number": 14,
+      "title": "React Project Setup",
+      "status": "Draft",
+      "duration": "10 min",
+      "dueDate": null
+    },
+    {
+      "id": "ep-6eZP96d-1778671741021-14",
+      "seriesId": "6eZP96d",
+      "number": 15,
+      "title": "Building Todo App",
+      "status": "Draft",
+      "duration": "25 min",
+      "dueDate": null
+    },
+    {
+      "id": "ep-6eZP96d-1778671741045-15",
+      "seriesId": "6eZP96d",
+      "number": 16,
+      "title": "Todo App: State Management",
+      "status": "Draft",
+      "duration": "20 min",
+      "dueDate": null
+    },
+    {
+      "id": "ep-6eZP96d-1778671741061-16",
+      "seriesId": "6eZP96d",
+      "number": 17,
+      "title": "React Best Practices",
+      "status": "Draft",
+      "duration": "15 min",
+      "dueDate": null
+    },
+    {
+      "id": "ep-6eZP96d-1778671741339-17",
+      "seriesId": "6eZP96d",
+      "number": 18,
+      "title": "Optimizing Performance",
+      "status": "Draft",
+      "duration": "18 min",
+      "dueDate": null
+    },
+    {
+      "id": "ep-6eZP96d-1778671741349-18",
+      "seriesId": "6eZP96d",
+      "number": 19,
+      "title": "Error Handling & Debugging",
+      "status": "Draft",
+      "duration": "20 min",
+      "dueDate": null
+    },
+    {
+      "id": "ep-6eZP96d-1778671741607-19",
+      "seriesId": "6eZP96d",
+      "number": 20,
+      "title": "React Testing Intro",
+      "status": "Draft",
+      "duration": "12 min",
+      "dueDate": null
+    },
+    {
+      "id": "ep-6eZP96d-1778671741633-20",
+      "seriesId": "6eZP96d",
+      "number": 21,
+      "title": "Jest & Enzyme Setup",
+      "status": "Draft",
+      "duration": "10 min",
+      "dueDate": null
+    },
+    {
+      "id": "ep-6eZP96d-1778671741904-21",
+      "seriesId": "6eZP96d",
+      "number": 22,
+      "title": "Writing Unit Tests",
+      "status": "Draft",
+      "duration": "18 min",
+      "dueDate": null
+    },
+    {
+      "id": "ep-6eZP96d-1778671741931-23",
+      "seriesId": "6eZP96d",
+      "number": 24,
+      "title": "React Security Fundamentals",
+      "status": "Draft",
+      "duration": "15 min",
+      "dueDate": null
+    },
+    {
+      "id": "ep-6eZP96d-1778671742175-24",
+      "seriesId": "6eZP96d",
+      "number": 25,
+      "title": "Common React Mistakes",
+      "status": "Draft",
+      "duration": "12 min",
+      "dueDate": null
+    },
+    {
+      "id": "ep-6eZP96d-1778671742199-25",
+      "seriesId": "6eZP96d",
+      "number": 26,
+      "title": "Advanced React Concepts",
+      "status": "Draft",
+      "duration": "22 min",
+      "dueDate": null
+    },
+    {
+      "id": "ep-6eZP96d-1778671742206-26",
+      "seriesId": "6eZP96d",
+      "number": 27,
+      "title": "React & Other Libraries",
+      "status": "Draft",
+      "duration": "20 min",
+      "dueDate": null
+    },
+    {
+      "id": "ep-6eZP96d-1778671742479-27",
+      "seriesId": "6eZP96d",
+      "number": 28,
+      "title": "Real-World React Apps",
+      "status": "Draft",
+      "duration": "18 min",
+      "dueDate": null
+    },
+    {
+      "id": "ep-6eZP96d-1778671742504-28",
+      "seriesId": "6eZP96d",
+      "number": 29,
+      "title": "React Future & Trends",
+      "status": "Draft",
+      "duration": "15 min",
+      "dueDate": null
+    },
+    {
+      "id": "ep-6eZP96d-1778671742525-29",
+      "seriesId": "6eZP96d",
+      "number": 30,
+      "title": "Final Project & Recap",
+      "status": "Draft",
+      "duration": "25 min",
+      "dueDate": null
+    },
+    {
+      "id": "ep-ATEvuQc-1778671917367-0",
+      "seriesId": "ATEvuQc",
+      "number": 1,
+      "title": "Intro to Photography",
+      "status": "Draft",
+      "duration": "10 min",
+      "dueDate": null
+    },
+    {
+      "id": "ep-ATEvuQc-1778671917408-1",
+      "seriesId": "ATEvuQc",
+      "number": 2,
+      "title": "Camera Basics",
+      "status": "Draft",
+      "duration": "18 min",
+      "dueDate": null
+    },
+    {
+      "id": "ep-ATEvuQc-1778671917423-2",
+      "seriesId": "ATEvuQc",
+      "number": 3,
+      "title": "Understanding Aperture",
+      "status": "Draft",
+      "duration": "22 min",
+      "dueDate": null
+    },
+    {
+      "id": "ep-ATEvuQc-1778671917720-3",
+      "seriesId": "ATEvuQc",
+      "number": 4,
+      "title": "Mastering Shutter Speed",
+      "status": "Draft",
+      "duration": "25 min",
+      "dueDate": null
+    },
+    {
+      "id": "ep-ATEvuQc-1778671917743-4",
+      "seriesId": "ATEvuQc",
+      "number": 5,
+      "title": "ISO Explained",
+      "status": "Draft",
+      "duration": "12 min",
+      "dueDate": null
+    },
+    {
+      "id": "ep-ATEvuQc-1778671917761-5",
+      "seriesId": "ATEvuQc",
+      "number": 6,
+      "title": "Lighting Fundamentals",
+      "status": "Draft",
+      "duration": "30 min",
+      "dueDate": null
+    },
+    {
+      "id": "ep-ATEvuQc-1778671917954-6",
+      "seriesId": "ATEvuQc",
+      "number": 7,
+      "title": "Natural Light Techniques",
+      "status": "Draft",
+      "duration": "28 min",
+      "dueDate": null
+    },
+    {
+      "id": "ep-ATEvuQc-1778671917982-7",
+      "seriesId": "ATEvuQc",
+      "number": 8,
+      "title": "Artificial Lighting Basics",
+      "status": "Draft",
+      "duration": "35 min",
+      "dueDate": null
+    },
+    {
+      "id": "ep-ATEvuQc-1778671918000-8",
+      "seriesId": "ATEvuQc",
+      "number": 9,
+      "title": "Composition Essentials",
+      "status": "Draft",
+      "duration": "20 min",
+      "dueDate": null
+    },
+    {
+      "id": "ep-ATEvuQc-1778671918022-9",
+      "seriesId": "ATEvuQc",
+      "number": 10,
+      "title": "Putting it All Together",
+      "status": "Draft",
+      "duration": "45 min",
+      "dueDate": null
     }
   ]
 }

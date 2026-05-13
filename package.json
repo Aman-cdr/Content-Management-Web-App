@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "json-server": "json-server --watch db.json --port 3001"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.95.2",
@@ -21,6 +22,7 @@
     "next": "16.2.1",
     "next-auth": "^4.24.14",
     "nextjs-toploader": "^3.9.17",
+    "openai": "^6.37.0",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "react-hook-form": "^7.72.0",
@@ -36,6 +38,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.1",
+    "json-server": "^0.17.4",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

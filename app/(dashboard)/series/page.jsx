@@ -1,18 +1,19 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
-import { 
-  ListVideo, 
-  Plus, 
-  MoreVertical, 
-  Layers, 
-  ArrowRight, 
-  LayoutGrid, 
-  List, 
-  TrendingUp, 
-  CheckCircle2, 
-  Clock, 
-  Calendar, 
+import { useState, useMemo, useEffect, useCallback } from "react";
+import { useSeries } from "@/context/SeriesContext";
+import {
+  ListVideo,
+  Plus,
+  MoreVertical,
+  Layers,
+  ArrowRight,
+  LayoutGrid,
+  List,
+  TrendingUp,
+  CheckCircle2,
+  Clock,
+  Calendar,
   MoreHorizontal,
   Edit2,
   Copy,
@@ -24,53 +25,20 @@ import {
   Search,
   Filter,
   ListOrdered,
-  Play
+  Play,
+  Sparkles,
+  Wand2,
+  Check,
+  RotateCcw,
+  ClipboardList,
 } from "lucide-react";
 import { FaYoutube, FaTiktok, FaInstagram, FaTwitter } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { format } from "date-fns";
+import EpisodeThumbnail from "@/app/components/EpisodeThumbnail";
 
-// ---------- Mock Data & Constants ----------
-
-const INITIAL_SERIES = [
-  { 
-    id: 1, 
-    name: "Next.js Masterclass", 
-    episodes: 12, 
-    completed: 4, 
-    type: "Course", 
-    description: "Deep dive into Next.js 14 App Router, Server Actions, and Auth.",
-    platforms: ["YouTube"],
-    lastUpdated: "2026-04-28T10:00:00Z",
-    estCompletion: "2026-06-15",
-    archived: false
-  },
-  { 
-    id: 2, 
-    name: "Daily Tech News", 
-    episodes: 30, 
-    completed: 18, 
-    type: "Shorts", 
-    description: "Daily bite-sized tech updates for TikTok and Reels.",
-    platforms: ["TikTok", "Instagram"],
-    lastUpdated: "2026-04-29T15:30:00Z",
-    estCompletion: "2026-05-30",
-    archived: false
-  },
-  { 
-    id: 3, 
-    name: "Build a CMS with AI", 
-    episodes: 5, 
-    completed: 1, 
-    type: "Project", 
-    description: "Step-by-step guide to building a modern CMS using AI tools.",
-    platforms: ["YouTube", "Twitter"],
-    lastUpdated: "2026-04-25T09:15:00Z",
-    estCompletion: "2026-05-10",
-    archived: false
-  },
-];
+// ---------- Constants ----------
 
 const TYPE_CONFIG = {
   "Course": { gradient: "from-blue-500 to-cyan-600", bg: "bg-blue-50", text: "text-blue-600", border: "border-blue-200" },
@@ -98,12 +66,14 @@ function StatusBadge({ type }) {
 }
 
 export default function SeriesPlannerPage() {
-  const [series, setSeries] = useState(INITIAL_SERIES);
-  const [view, setView] = useState("grid"); // grid | list
+  const { series, isLoading, addSeries, updateSeries, deleteSeries, archiveSeries, duplicateSeries } = useSeries();
+
+  const [view, setView] = useState("grid");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingSeries, setEditingSeries] = useState(null);
   const [isArchivedOpen, setIsArchivedOpen] = useState(false);
   const [sortConfig, setSortConfig] = useState({ key: 'lastUpdated', direction: 'desc' });
+  const [isSaving, setIsSaving] = useState(false);
 
   // Modal Form State
   const [formData, setFormData] = useState({
@@ -119,13 +89,12 @@ export default function SeriesPlannerPage() {
   // Derived Stats
   const stats = useMemo(() => {
     const active = series.filter(s => !s.archived);
-    const totalEpisodes = active.reduce((acc, s) => acc + s.episodes, 0);
-    const completedEpisodes = active.reduce((acc, s) => acc + s.completed, 0);
+    const totalEpisodes = active.reduce((acc, s) => acc + (s.episodes || 0), 0);
+    const completedEpisodes = active.reduce((acc, s) => acc + (s.completed || 0), 0);
     const avgCompletion = totalEpisodes ? Math.round((completedEpisodes / totalEpisodes) * 100) : 0;
-    
     return {
       total: active.length,
-      active: active.filter(s => s.completed < s.episodes).length,
+      active: active.filter(s => (s.completed || 0) < (s.episodes || 0)).length,
       episodes: totalEpisodes,
       avg: avgCompletion
     };
@@ -133,13 +102,11 @@ export default function SeriesPlannerPage() {
 
   // Sorting Logic
   const sortedSeries = useMemo(() => {
-    const sortable = [...series];
-    sortable.sort((a, b) => {
+    return [...series].sort((a, b) => {
       if (a[sortConfig.key] < b[sortConfig.key]) return sortConfig.direction === 'asc' ? -1 : 1;
       if (a[sortConfig.key] > b[sortConfig.key]) return sortConfig.direction === 'asc' ? 1 : -1;
       return 0;
     });
-    return sortable;
   }, [series, sortConfig]);
 
   const activeSeries = sortedSeries.filter(s => !s.archived);
@@ -173,48 +140,52 @@ export default function SeriesPlannerPage() {
     setIsModalOpen(true);
   };
 
-  const handleSaveSeries = (e) => {
+  const handleSaveSeries = async (e) => {
     e.preventDefault();
-    if (editingSeries) {
-      setSeries(series.map(s => s.id === editingSeries.id ? { ...s, ...formData, lastUpdated: new Date().toISOString() } : s));
-    } else {
-      setSeries([{
-        id: Date.now(),
-        ...formData,
-        completed: 0,
-        lastUpdated: new Date().toISOString(),
-        archived: false
-      }, ...series]);
+    setIsSaving(true);
+    try {
+      if (editingSeries) {
+        await updateSeries(editingSeries.id, {
+          ...editingSeries,
+          ...formData,
+          lastUpdated: new Date().toISOString(),
+        });
+      } else {
+        await addSeries({
+          ...formData,
+          completed: 0,
+          lastUpdated: new Date().toISOString(),
+          archived: false,
+        });
+      }
+      setIsModalOpen(false);
+    } catch (err) {
+      console.error("Save failed:", err);
+    } finally {
+      setIsSaving(false);
     }
-    setIsModalOpen(false);
   };
 
-  const handleDuplicate = (s) => {
-    const duplicate = {
-      ...s,
-      id: Date.now(),
-      name: `${s.name} (Copy)`,
-      completed: 0,
-      lastUpdated: new Date().toISOString()
-    };
-    setSeries([duplicate, ...series]);
+  const handleDuplicate = async (s) => {
+    try { await duplicateSeries(s); } catch (err) { console.error(err); }
   };
 
-  const handleArchive = (id) => {
-    setSeries(series.map(s => s.id === id ? { ...s, archived: !s.archived } : s));
+  const handleArchive = async (id) => {
+    try { await archiveSeries(id); } catch (err) { console.error(err); }
   };
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [seriesToDelete, setSeriesToDelete] = useState(null);
+  const [aiSeries, setAiSeries] = useState(null);
 
   const handleDeleteClick = (s) => {
     setSeriesToDelete(s);
     setIsDeleteModalOpen(true);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (seriesToDelete) {
-      setSeries(series.filter(s => s.id !== seriesToDelete.id));
+      try { await deleteSeries(seriesToDelete.id); } catch (err) { console.error(err); }
       setIsDeleteModalOpen(false);
       setSeriesToDelete(null);
     }
@@ -223,11 +194,19 @@ export default function SeriesPlannerPage() {
   const togglePlatform = (p) => {
     setFormData(prev => ({
       ...prev,
-      platforms: prev.platforms.includes(p) 
-        ? prev.platforms.filter(x => x !== p) 
+      platforms: prev.platforms.includes(p)
+        ? prev.platforms.filter(x => x !== p)
         : [...prev.platforms, p]
     }));
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="w-6 h-6 border-[3px] border-t-transparent rounded-full animate-spin" style={{ borderColor: "var(--t-primary)", borderTopColor: "transparent" }} />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8 pb-16">
@@ -286,13 +265,14 @@ export default function SeriesPlannerPage() {
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
           >
             {activeSeries.map((s) => (
-              <SeriesCard 
-                key={s.id} 
-                series={s} 
+              <SeriesCard
+                key={s.id}
+                series={s}
                 onEdit={() => handleOpenModal(s)}
                 onDuplicate={() => handleDuplicate(s)}
                 onArchive={() => handleArchive(s.id)}
                 onDelete={() => handleDeleteClick(s)}
+                onAIGenerate={() => setAiSeries(s)}
               />
             ))}
           </motion.div>
@@ -321,10 +301,8 @@ export default function SeriesPlannerPage() {
                   <tr key={s.id} className="border-b border-[#F4F5F8] hover:bg-[#F9FAFB] transition-colors group">
                     <td className="px-6 py-4">
                       <Link href={`/series/${s.id}`} className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-xl overflow-hidden border border-[#E2E4E9] shadow-sm">
-                          <img 
-                            src={`/thumbnails/series_thumb${(s.id % 3) + 1}.png`} 
-                            alt={s.name}
+                        <div className="w-20 aspect-video rounded-xl overflow-hidden border border-[#E2E4E9] shadow-sm shrink-0">
+                          <EpisodeThumbnail title={s.name} size="full" rounded="rounded-none" epNumber={null} showFace={false} showPlay={false}
                             className="w-full h-full object-cover"
                           />
                         </div>
@@ -384,13 +362,14 @@ export default function SeriesPlannerPage() {
               >
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 opacity-60">
                   {archivedSeries.map(s => (
-                    <SeriesCard 
-                      key={s.id} 
-                      series={s} 
+                    <SeriesCard
+                      key={s.id}
+                      series={s}
                       onEdit={() => handleOpenModal(s)}
                       onDuplicate={() => handleDuplicate(s)}
                       onArchive={() => handleArchive(s.id)}
                       onDelete={() => handleDeleteClick(s)}
+                      onAIGenerate={() => setAiSeries(s)}
                     />
                   ))}
                 </div>
@@ -486,10 +465,19 @@ export default function SeriesPlannerPage() {
                   </div>
                 </div>
                 
-                <button type="submit" className="w-full py-4 rounded-2xl bg-indigo-600 text-white text-sm font-black uppercase tracking-widest hover:bg-indigo-500 shadow-lg shadow-indigo-600/20 transition-all">{editingSeries ? "Save Changes" : "Create Series"}</button>
+                <button type="submit" disabled={isSaving} className="w-full py-4 rounded-2xl text-white text-sm font-black uppercase tracking-widest transition-all disabled:opacity-60 btn-primary">
+                  {isSaving ? "Saving…" : editingSeries ? "Save Changes" : "Create Series"}
+                </button>
               </form>
             </motion.div>
           </div>
+        )}
+      </AnimatePresence>
+
+      {/* ── AI EPISODE GENERATOR MODAL ── */}
+      <AnimatePresence>
+        {aiSeries && (
+          <AIEpisodeModal series={aiSeries} onClose={() => setAiSeries(null)} />
         )}
       </AnimatePresence>
 
@@ -523,9 +511,198 @@ export default function SeriesPlannerPage() {
   );
 }
 
+// ---------- AI Episode Generator Modal ----------
+
+const EPISODE_TEMPLATES = {
+  Course: (name, n) => Array.from({ length: n }, (_, i) => ({
+    ep: i + 1,
+    title: [
+      `Introduction to ${name} — What You'll Build`,
+      `Setting Up Your Dev Environment`,
+      `Core Concepts Explained Simply`,
+      `Building Your First Feature`,
+      `Deep Dive: Advanced Patterns`,
+      `Handling Errors & Edge Cases`,
+      `Authentication & Security`,
+      `Optimizing for Performance`,
+      `Testing & Debugging Strategies`,
+      `Deploying to Production`,
+      `Real-World Project Walkthrough`,
+      `What's Next — Resources & Roadmap`,
+    ][i % 12],
+    duration: `${15 + Math.floor(Math.random() * 25)} min`,
+  })),
+  Shorts: (name, n) => Array.from({ length: n }, (_, i) => ({
+    ep: i + 1,
+    title: [
+      `${name} #${i+1}: Quick Tip`,
+      `Did You Know? ${name} Secret`,
+      `${name} in 60 Seconds`,
+      `Most People Get ${name} Wrong`,
+      `The Fastest Way to ${name}`,
+      `Stop Making This ${name} Mistake`,
+    ][i % 6],
+    duration: "< 60 sec",
+  })),
+  Project: (name, n) => Array.from({ length: n }, (_, i) => ({
+    ep: i + 1,
+    title: [
+      `Project Kickoff — Planning ${name}`,
+      `Setting Up the Architecture`,
+      `Building Core Features`,
+      `Connecting the Backend`,
+      `Polishing the UI`,
+      `Launch & What I Learned`,
+    ][i % 6],
+    duration: `${20 + Math.floor(Math.random() * 30)} min`,
+  })),
+  Playlist: (name, n) => Array.from({ length: n }, (_, i) => ({
+    ep: i + 1,
+    title: `${name} — Part ${i + 1}`,
+    duration: `${10 + Math.floor(Math.random() * 20)} min`,
+  })),
+};
+
+function AIEpisodeModal({ series, onClose }) {
+  const [loading, setLoading] = useState(false);
+  const [episodes, setEpisodes] = useState(null);
+  const [selected, setSelected] = useState([]);
+  const [copied, setCopied] = useState(false);
+  const [count, setCount] = useState(series.episodes || 10);
+
+  const generate = () => {
+    setLoading(true);
+    setEpisodes(null);
+    setSelected([]);
+    setTimeout(() => {
+      const gen = EPISODE_TEMPLATES[series.type] || EPISODE_TEMPLATES.Course;
+      const result = gen(series.name, Math.min(count, 20));
+      setEpisodes(result);
+      setSelected(result.map(e => e.ep));
+      setLoading(false);
+    }, 1600);
+  };
+
+  const toggleEp = (ep) => setSelected(prev => prev.includes(ep) ? prev.filter(x => x !== ep) : [...prev, ep]);
+
+  const copyToClipboard = () => {
+    const text = (episodes || [])
+      .filter(e => selected.includes(e.ep))
+      .map(e => `Ep ${e.ep}: ${e.title} [${e.duration}]`)
+      .join("\n");
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
+      <motion.div
+        initial={{ opacity: 0, scale: 0.93, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.93, y: 20 }}
+        className="relative w-full max-w-xl bg-white rounded-3xl shadow-2xl border border-[#E2E4E9] overflow-hidden flex flex-col max-h-[88vh]"
+      >
+        {/* Header */}
+        <div className="px-7 py-5 border-b border-[#F4F5F8] flex items-center justify-between" style={{ background: "linear-gradient(135deg, var(--t-primary-light), transparent)" }}>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "linear-gradient(135deg, var(--t-primary), var(--t-secondary))" }}>
+              <Sparkles className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h3 className="text-[15px] font-[800] text-[#0F0F0F]">AI Episode Generator</h3>
+              <p className="text-[11px] text-neutral-400 mt-0.5">{series.name}</p>
+            </div>
+          </div>
+          <button onClick={onClose} className="p-2 hover:bg-black/5 rounded-xl transition-colors text-neutral-400">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Config */}
+        <div className="px-7 py-4 border-b border-[#F4F5F8] flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <label className="text-[11px] font-bold text-neutral-500 uppercase tracking-widest whitespace-nowrap">Episodes to generate</label>
+            <input
+              type="number" min={1} max={20} value={count} onChange={e => setCount(Math.max(1, Math.min(20, parseInt(e.target.value) || 1)))}
+              className="w-16 px-3 py-1.5 rounded-lg border border-[#E2E4E9] text-[13px] font-bold text-center focus:outline-none focus:border-[var(--t-primary)] transition"
+            />
+          </div>
+          <button
+            onClick={generate} disabled={loading}
+            className="ml-auto flex items-center gap-2 px-4 py-2 rounded-xl text-white text-[13px] font-[600] transition-all hover:brightness-110 active:scale-95 disabled:opacity-60 btn-primary"
+          >
+            {loading ? <><RotateCcw className="w-3.5 h-3.5 animate-spin" /> Generating…</> : <><Wand2 className="w-3.5 h-3.5" /> {episodes ? "Regenerate" : "Generate"}</>}
+          </button>
+        </div>
+
+        {/* Results */}
+        <div className="flex-1 overflow-y-auto px-7 py-5">
+          {!episodes && !loading && (
+            <div className="flex flex-col items-center justify-center py-14 text-neutral-300">
+              <Sparkles className="w-10 h-10 mb-3" />
+              <p className="text-[13px] font-medium text-neutral-400">Click Generate to create episode ideas</p>
+              <p className="text-[11px] text-neutral-300 mt-1">Based on your series type: <span className="font-bold">{series.type}</span></p>
+            </div>
+          )}
+          {loading && (
+            <div className="flex flex-col items-center justify-center py-14 gap-3">
+              <div className="w-8 h-8 border-[3px] border-t-transparent rounded-full animate-spin" style={{ borderColor: "var(--t-primary)", borderTopColor: "transparent" }} />
+              <p className="text-[13px] text-neutral-400">AI is crafting your episode plan…</p>
+            </div>
+          )}
+          {episodes && !loading && (
+            <div className="space-y-2">
+              {episodes.map(ep => (
+                <div
+                  key={ep.ep}
+                  onClick={() => toggleEp(ep.ep)}
+                  className={`flex items-center gap-3 p-3.5 rounded-xl cursor-pointer border transition-all ${
+                    selected.includes(ep.ep)
+                      ? "border-[var(--t-primary)] bg-[var(--t-primary-light)]"
+                      : "border-[#F0F0F0] hover:border-[#E2E4E9] bg-white hover:bg-[#F9FAFB]"
+                  }`}
+                >
+                  <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-[11px] font-black flex-shrink-0 transition-all ${
+                    selected.includes(ep.ep) ? "text-white" : "bg-[#F4F5F8] text-neutral-500"
+                  }`} style={selected.includes(ep.ep) ? { backgroundColor: "var(--t-primary)" } : {}}>
+                    {selected.includes(ep.ep) ? <Check className="w-3.5 h-3.5" /> : ep.ep}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[13px] font-semibold text-[#111318] truncate">{ep.title}</p>
+                    <p className="text-[11px] text-neutral-400 mt-0.5 flex items-center gap-1"><Clock className="w-3 h-3" />{ep.duration}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        {episodes && !loading && (
+          <div className="px-7 py-4 border-t border-[#F4F5F8] flex items-center justify-between gap-3">
+            <span className="text-[12px] text-neutral-400">{selected.length} of {episodes.length} selected</span>
+            <div className="flex gap-2">
+              <button
+                onClick={copyToClipboard}
+                className="flex items-center gap-1.5 px-4 py-2 rounded-xl border border-[#E2E4E9] text-[13px] font-semibold text-neutral-600 hover:bg-neutral-50 transition"
+              >
+                {copied ? <><Check className="w-3.5 h-3.5 text-emerald-500" /> Copied!</> : <><ClipboardList className="w-3.5 h-3.5" /> Copy</>}
+              </button>
+              <button onClick={onClose} className="px-5 py-2 rounded-xl text-white text-[13px] font-semibold transition hover:brightness-110 btn-primary">
+                Done
+              </button>
+            </div>
+          </div>
+        )}
+      </motion.div>
+    </div>
+  );
+}
+
 // ---------- Sub-components ----------
 
-function SeriesCard({ series: s, onEdit, onDuplicate, onArchive, onDelete }) {
+function SeriesCard({ series: s, onEdit, onDuplicate, onArchive, onDelete, onAIGenerate }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const progress = Math.round((s.completed / s.episodes) * 100);
 
@@ -538,14 +715,10 @@ function SeriesCard({ series: s, onEdit, onDuplicate, onArchive, onDelete }) {
   return (
     <div className={`group bg-white border border-[#E2E4E9] rounded-xl overflow-hidden transition-all duration-300 hover:shadow-lg ${s.archived ? 'opacity-70 grayscale-[0.5]' : ''}`} style={{ borderWidth: '0.5px', borderRadius: '12px' }}>
       {/* 16:9 Thumbnail at top */}
-      <Link href={`/series/${s.id}`} className="relative block aspect-video overflow-hidden group/thumb">
-        <img 
-          src={`/thumbnails/series_thumb${(s.id % 3) + 1}.png`} 
-          alt={s.name}
-          className="w-full h-full object-cover transition-transform duration-700 group-hover/thumb:scale-105"
-        />
+      <Link href={`/series/${s.id}`} className="relative block aspect-video overflow-hidden">
+        <EpisodeThumbnail title={s.name} size="full" rounded="rounded-none" epNumber={null} showPlay />
         {/* Video count overlay badge */}
-        <div className="absolute bottom-3 right-3 px-2 py-1 bg-black/80 backdrop-blur rounded text-[10px] font-black text-white flex items-center gap-1.5 border border-white/10">
+        <div className="absolute top-2.5 right-2.5 px-2 py-1 bg-black/80 backdrop-blur rounded text-[10px] font-black text-white flex items-center gap-1.5 border border-white/10 z-10">
           <ListVideo className="w-3.5 h-3.5" />
           <span>{s.episodes} VIDEOS</span>
         </div>
@@ -617,14 +790,20 @@ function SeriesCard({ series: s, onEdit, onDuplicate, onArchive, onDelete }) {
           ))}
         </div>
 
-        {/* Footer row with completion % and "View all episodes" link */}
-        <div className="pt-4 border-t border-[#F4F5F8] flex items-center justify-between">
-          <div className="flex items-center gap-1.5">
-            <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">{s.completed}/{s.episodes} EPISODES</span>
+        {/* Footer row */}
+        <div className="pt-4 border-t border-[#F4F5F8] flex items-center justify-between gap-2">
+          <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">{s.completed}/{s.episodes} EP</span>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={onAIGenerate}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all hover:brightness-110 text-white btn-primary"
+            >
+              <Sparkles className="w-3 h-3" /> AI Episodes
+            </button>
+            <Link href={`/series/${s.id}`} className="text-[11px] font-bold text-neutral-400 hover:text-indigo-600 flex items-center gap-1 transition-colors uppercase tracking-wider">
+              View <ArrowRight className="w-3 h-3" />
+            </Link>
           </div>
-          <Link href={`/series/${s.id}`} className="text-[11px] font-bold text-neutral-400 hover:text-indigo-600 flex items-center gap-1 transition-colors uppercase tracking-wider">
-            View All <ArrowRight className="w-3 h-3" />
-          </Link>
         </div>
       </div>
     </div>

@@ -3,27 +3,29 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { 
-  LayoutDashboard, 
-  Sparkles, 
-  PlusCircle, 
-  Kanban, 
-  ListVideo, 
-  Library, 
-  CalendarClock, 
-  Images, 
-  BarChart3, 
+  LayoutDashboard,
+  Sparkles,
+  PlusCircle,
+  Kanban,
+  ListVideo,
+  Library,
+  CalendarClock,
+  Images,
+  BarChart3,
   Settings2,
   Bell,
   Search,
   ChevronDown,
   AlertTriangle,
   X,
-  Wrench
+  Wrench,
+  BookOpen
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useRef, useEffect } from "react";
 import UserDropdown from "@/app/components/UserDropdown";
 import { SERIES_LOOKUP } from "@/lib/mock-data";
+import { SeriesProvider } from "@/context/SeriesContext";
 
 export default function DashboardLayout({ children }) {
   const pathname = usePathname();
@@ -50,6 +52,7 @@ export default function DashboardLayout({ children }) {
       label: "CREATE",
       items: [
         { name: "Add Content", href: "/add-content", icon: PlusCircle },
+        { name: "Brief Board", href: "/brief-board", icon: BookOpen },
       ]
     },
     {
@@ -57,7 +60,7 @@ export default function DashboardLayout({ children }) {
       items: [
         { name: "Roadmap", href: "/roadmap", icon: Kanban },
         { name: "Series Planner", href: "/series", icon: ListVideo },
-        { name: "Content Library", href: "/all-content", icon: Library },
+        { name: "Content Hub", href: "/all-content", icon: Library },
       ]
     },
     {
@@ -82,12 +85,13 @@ export default function DashboardLayout({ children }) {
   ];
 
   return (
-    <div className="flex h-screen bg-[#EEEEF0] text-[#0A0A0F] overflow-hidden">
-      {/* Sidebar - Premium Dark Redesign */}
-      <aside className="w-[240px] bg-[#0C0C14] border-r border-white/5 flex flex-col h-screen fixed z-50">
+    <SeriesProvider>
+    <div className="flex h-screen overflow-hidden" style={{ background: "var(--t-bg)", color: "var(--t-text)" }}>
+      {/* Sidebar */}
+      <aside className="app-sidebar w-[240px] border-r border-white/5 flex flex-col h-screen fixed z-50">
         <div className="p-5 px-4 pb-4 border-b border-white/[0.05] mb-2">
           <Link href="/dashboard" className="flex items-center gap-3 no-underline group">
-            <div className="w-[36px] h-[36px] rounded-[10px] bg-gradient-to-br from-[#6366F1] to-[#8B5CF6] flex items-center justify-center flex-shrink-0 shadow-[0_4px_12px_rgba(99,102,241,0.4)]">
+            <div className="w-[36px] h-[36px] rounded-[10px] flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, var(--t-primary), var(--t-secondary))", boxShadow: "0 4px 12px var(--t-primary-glow)" }}>
               <Sparkles size={18} color="white" strokeWidth={2.2} />
             </div>
             <div className="flex flex-col">
@@ -116,7 +120,7 @@ export default function DashboardLayout({ children }) {
                       href={item.href}
                       className={`
                         relative flex items-center gap-[10px] px-3 py-[9px] mx-[10px] my-[2px] rounded-lg transition-all duration-150 group no-underline
-                        ${isActive ? 'bg-indigo-500/15 text-white font-semibold' : 'text-white/55 font-medium hover:bg-white/[0.05] hover:text-white/85'}
+                        ${isActive ? 'bg-white/[0.10] text-white font-semibold' : 'text-white/55 font-medium hover:bg-white/[0.05] hover:text-white/85'}
                       `}
                     >
                       {isActive && (
@@ -126,7 +130,7 @@ export default function DashboardLayout({ children }) {
                           top: '20%',
                           height: '60%',
                           width: '3px',
-                          background: 'linear-gradient(180deg, #6366F1, #8B5CF6)',
+                          background: 'linear-gradient(180deg, var(--t-primary), var(--t-secondary))',
                           borderRadius: '0 2px 2px 0'
                         }} />
                       )}
@@ -142,7 +146,7 @@ export default function DashboardLayout({ children }) {
                       </span>
 
                       {item.isNew && (
-                        <span className="ml-auto bg-gradient-to-br from-[#6366F1] to-[#8B5CF6] text-white text-[9px] font-bold px-[7px] py-[2px] rounded-full">
+                        <span className="ml-auto text-white text-[9px] font-bold px-[7px] py-[2px] rounded-full" style={{ background: "linear-gradient(135deg, var(--t-primary), var(--t-secondary))" }}>
                           NEW
                         </span>
                       )}
@@ -180,8 +184,8 @@ export default function DashboardLayout({ children }) {
       </aside>
 
       {/* Main Content - Adjusted for fixed sidebar */}
-      <main className="flex-1 ml-[240px] overflow-y-auto relative bg-[#EEEEF0]">
-        <header className="h-20 border-b border-[#E2E4E9] flex items-center justify-between px-10 bg-[#FFFFFF] sticky top-0 z-30">
+      <main className="flex-1 ml-[240px] overflow-y-auto relative" style={{ background: "var(--t-bg)" }}>
+        <header className="app-header h-20 border-b flex items-center justify-between px-10 sticky top-0 z-30" style={{ borderColor: "var(--t-border)" }}>
           <div className="flex items-center gap-6">
             <h1 className="text-sm font-bold text-[#8A91A8] uppercase tracking-widest">
               {(() => {
@@ -193,7 +197,7 @@ export default function DashboardLayout({ children }) {
                 return pathname.split("/").pop()?.replace("-", " ") || "Dashboard";
               })()}
             </h1>
-            <div className="hidden md:flex items-center gap-3 px-4 py-2 bg-[#F4F5F8] border border-[#E2E4E9] rounded-2xl focus-within:border-[#6366F1] transition-colors">
+            <div className="hidden md:flex items-center gap-3 px-4 py-2 bg-[#F4F5F8] border border-[#E2E4E9] rounded-2xl transition-colors" style={{ "--tw-ring-color": "var(--t-primary)" }} onFocus={(e) => e.currentTarget.style.borderColor = "var(--t-primary)"} onBlur={(e) => e.currentTarget.style.borderColor = "#E2E4E9"}>
               <Search className="w-4 h-4 text-[#8A91A8]" />
               <input 
                 type="text" 
@@ -237,7 +241,7 @@ export default function DashboardLayout({ children }) {
                             <h5 className="text-xs font-bold text-[#111318] mb-1">{issue.title}</h5>
                             <p className="text-[11px] text-[#8A91A8] mb-3 leading-relaxed">{issue.desc}</p>
                             <div className="flex items-center gap-2">
-                              <button className="flex items-center gap-1 px-3 py-1.5 bg-[#4F46E5] text-white rounded-lg text-[10px] font-bold hover:bg-[#4338CA] transition-colors flex-1 justify-center">
+                              <button className="flex items-center gap-1 px-3 py-1.5 text-white rounded-lg text-[10px] font-bold transition-colors flex-1 justify-center btn-primary">
                                 <Wrench className="w-3 h-3" /> Fix Issue
                               </button>
                               <button className="px-3 py-1.5 text-[10px] font-bold text-neutral-500 hover:bg-neutral-200 rounded-lg transition-colors flex-1 border border-neutral-200">
@@ -269,5 +273,6 @@ export default function DashboardLayout({ children }) {
         <div className="fixed bottom-0 left-0 w-[400px] h-[400px] bg-purple-600/5 blur-[100px] rounded-full translate-y-1/3 -translate-x-1/4 pointer-events-none -z-10"></div>
       </main>
     </div>
+    </SeriesProvider>
   );
 }

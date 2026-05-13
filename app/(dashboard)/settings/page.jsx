@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useRef, useEffect, useMemo } from "react";
+import ThemePicker from "@/app/components/ThemePicker";
+import { Paintbrush } from "lucide-react";
 import { 
   User, 
   Bell, 
@@ -57,7 +59,7 @@ function Toggle({ checked, onChange }) {
   return (
     <button 
       onClick={() => onChange(!checked)}
-      className={`relative w-11 h-6 rounded-full transition-colors duration-200 outline-none ${checked ? 'bg-[#4F46E5]' : 'bg-[#E2E4E9]'}`}
+      className={`relative w-11 h-6 rounded-full transition-colors duration-200 outline-none ${checked ? 'toggle-checked' : 'bg-[#E2E4E9]'}`}
     >
       <div className={`absolute top-1 left-1 bg-white w-4 h-4 rounded-full transition-transform duration-200 ${checked ? 'translate-x-5' : 'translate-x-0'}`} />
     </button>
@@ -178,7 +180,7 @@ export default function SettingsPage() {
               <span>{tab.name}</span>
             </div>
             {activeTab === tab.id && (
-              <motion.div layoutId="tab-active" className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#4F46E5]" />
+              <motion.div layoutId="tab-active" className="absolute bottom-0 left-0 right-0 h-0.5" style={{ backgroundColor: "var(--t-primary)" }} />
             )}
           </button>
         ))}
@@ -376,6 +378,13 @@ export default function SettingsPage() {
                       />
                     </div>
                   </div>
+                </div>
+
+                {/* Appearance — Theme */}
+                <div className="pt-6 border-t border-[#F4F5F8]">
+                  <SectionHeading icon={Paintbrush}>Appearance</SectionHeading>
+                  <p className="text-[13px] text-neutral-400 mb-5">Choose a colour theme for the entire app. Your selection is saved instantly.</p>
+                  <ThemePicker />
                 </div>
 
                 {/* Footer Action */}
@@ -676,7 +685,7 @@ export default function SettingsPage() {
                       <p className="text-[10px] font-black text-neutral-400 uppercase tracking-widest">Confirm New Password</p>
                       <input type="password" placeholder="••••••••" className="w-full h-11 bg-[#F9FAFB] border border-[#E2E4E9] rounded-xl px-4 text-sm outline-none focus:border-indigo-500" />
                     </div>
-                    <button className="w-full mt-4 py-3.5 bg-[#4F46E5] text-white rounded-xl text-xs font-black uppercase tracking-widest shadow-lg shadow-indigo-600/20 hover:scale-[1.02] active:scale-95 transition-all">Update Password</button>
+                    <button className="w-full mt-4 py-3.5 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all btn-primary">Update Password</button>
                   </div>
                 </div>
 

@@ -181,6 +181,27 @@ export default function SchedulerPage() {
   }, [contents]);
   const [filter, setFilter] = useState("All");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [criticalDismissed, setCriticalDismissed] = useState(false);
+  const [bottleneckDismissed, setBottleneckDismissed] = useState(false);
+  const [productionExpanded, setProductionExpanded] = useState(false);
+
+  const now = new Date();
+  const in72h = addDays(now, 3);
+  const in7d = addDays(now, 7);
+
+  const criticalItems = useMemo(() => {
+    return posts.filter(p => {
+      const isDraft = p.status === "Draft" || p.status === "draft";
+      return isDraft && p.date >= now && p.date < in72h;
+    });
+  }, [posts]);
+
+  const bottleneckItems = useMemo(() => {
+    return posts.filter(p => {
+      const isDraft = p.status === "Draft" || p.status === "draft";
+      return isDraft && p.date >= now && p.date < in7d;
+    });
+  }, [posts]);
 
   // Modal Form State
   const [newPost, setNewPost] = useState({
@@ -267,6 +288,63 @@ export default function SchedulerPage() {
           New Post
         </button>
       </div>
+
+      {/* Warning Banners */}
+      <AnimatePresence>
+        {criticalItems.length > 0 && !criticalDismissed && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            className="bg-red-50 border border-red-200 rounded-[16px] px-5 py-4 flex items-start gap-3"
+          >
+            <span className="text-red-500 text-lg leading-none mt-0.5">⚠️</span>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold text-red-700">
+                {criticalItems.length} piece{criticalItems.length > 1 ? "s" : ""} scheduled in the next 72 hours {criticalItems.length > 1 ? "are" : "is"} still in Draft — review now
+              </p>
+              <ul className="mt-1.5 flex flex-wrap gap-2">
+                {criticalItems.map(item => (
+                  <li key={item.id} className="text-[11px] font-semibold text-red-600 bg-red-100 px-2.5 py-1 rounded-full">
+                    {item.title}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <button onClick={() => setCriticalDismissed(true)} className="shrink-0 p-1 hover:bg-red-100 rounded-lg transition-colors text-red-400">
+              <X className="w-4 h-4" />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {bottleneckItems.length > 0 && criticalItems.length === 0 && !bottleneckDismissed && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            className="bg-amber-50 border border-amber-200 rounded-[16px] px-5 py-4 flex items-start gap-3"
+          >
+            <span className="text-amber-500 text-lg leading-none mt-0.5">ℹ️</span>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold text-amber-700">
+                {bottleneckItems.length} Draft piece{bottleneckItems.length > 1 ? "s" : ""} scheduled this week — make sure they&apos;re ready before publish time
+              </p>
+              <ul className="mt-1.5 flex flex-wrap gap-2">
+                {bottleneckItems.map(item => (
+                  <li key={item.id} className="text-[11px] font-semibold text-amber-700 bg-amber-100 px-2.5 py-1 rounded-full">
+                    {item.title}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <button onClick={() => setBottleneckDismissed(true)} className="shrink-0 p-1 hover:bg-amber-100 rounded-lg transition-colors text-amber-400">
+              <X className="w-4 h-4" />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-8">
         {/* Section 1: Calendar View */}
@@ -376,9 +454,14 @@ export default function SchedulerPage() {
                     <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
                       <PlatformIcon platform={post.platform} size={40} />
                     </div>
-                    <div className="flex items-center gap-3 mb-3">
+                    <div className="flex items-center gap-3 mb-3 flex-wrap">
                       <PlatformIcon platform={post.platform} />
                       <StatusBadge status={post.status} />
+                      {(post.status === "Draft" || post.status === "draft") && post.date < in7d && post.date >= now && (
+                        <span className="text-[10px] font-bold text-amber-600 bg-amber-100 border border-amber-200 px-2 py-0.5 rounded-full">
+                          ⚠️ Draft
+                        </span>
+                      )}
                     </div>
                     <h4 className="font-bold text-[#374151] mb-4 line-clamp-2">{post.title}</h4>
                     <div className="flex items-center gap-4 text-xs text-neutral-500 font-bold">
@@ -413,6 +496,60 @@ export default function SchedulerPage() {
         </motion.div>
       </div>
 
+      {/* Production Timeline Reference Card */}
+      <div className="bg-white border border-[#E5E7EB] rounded-[20px] shadow-[0_4px_16px_rgb(0,0,0,0.04)] overflow-hidden">
+        <button
+          onClick={() => setProductionExpanded(v => !v)}
+          className="w-full flex items-center justify-between px-6 py-4 text-left hover:bg-[#F9FAFB] transition-colors"
+        >
+          <div className="flex items-center gap-3">
+            <Clock className="w-4 h-4 text-[#6366F1]" />
+            <span className="text-sm font-bold text-[#374151]">Production Timeline Reference</span>
+          </div>
+          <ChevronDown className={`w-4 h-4 text-neutral-400 transition-transform ${productionExpanded ? "rotate-180" : ""}`} />
+        </button>
+        <AnimatePresence>
+          {productionExpanded && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="overflow-hidden"
+            >
+              <div className="px-6 pb-6 pt-2">
+                <div className="flex items-center gap-0 overflow-x-auto pb-2 scrollbar-hide">
+                  {[
+                    { label: "Idea", time: null },
+                    { label: "Script", time: "1–2d" },
+                    { label: "Record", time: "1d" },
+                    { label: "Edit", time: "1–2d" },
+                    { label: "Thumbnail", time: "0.5d" },
+                    { label: "Upload", time: null },
+                    { label: "Publish", time: null },
+                  ].map((step, i, arr) => (
+                    <div key={step.label} className="flex items-center shrink-0">
+                      <div className="flex flex-col items-center gap-1">
+                        <div className="w-8 h-8 rounded-full bg-[#6366F1]/10 border-2 border-[#6366F1]/30 flex items-center justify-center">
+                          <span className="text-[9px] font-black text-[#6366F1]">{i + 1}</span>
+                        </div>
+                        <span className="text-[10px] font-bold text-[#374151] whitespace-nowrap">{step.label}</span>
+                        {step.time && (
+                          <span className="text-[9px] text-neutral-400 font-semibold">{step.time}</span>
+                        )}
+                      </div>
+                      {i < arr.length - 1 && (
+                        <div className="w-8 h-[2px] bg-gradient-to-r from-[#6366F1]/30 to-[#8B5CF6]/30 mx-1 shrink-0 mb-4" />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
       {/* Section 3: Upcoming Queue */}
       <section className="space-y-6">
         <div className="flex items-center gap-2">
@@ -433,8 +570,13 @@ export default function SchedulerPage() {
                 <div className="absolute inset-0 flex items-center justify-center opacity-30 group-hover:scale-110 transition-transform duration-700">
                   <PlatformIcon platform={post.platform} size={60} />
                 </div>
-                <div className="absolute top-4 right-4">
+                <div className="absolute top-4 right-4 flex flex-col items-end gap-1">
                   <StatusBadge status={post.status} />
+                  {(post.status === "Draft" || post.status === "draft") && post.date < in7d && post.date >= now && (
+                    <span className="text-[10px] font-bold text-amber-600 bg-amber-100 border border-amber-200 px-2 py-0.5 rounded-full">
+                      ⚠️ Draft
+                    </span>
+                  )}
                 </div>
               </div>
               <div className="flex items-center gap-2 mb-2">

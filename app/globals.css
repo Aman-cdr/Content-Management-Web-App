@@ -1,37 +1,105 @@
 @import "tailwindcss";
 
+/* ─── Tailwind theme tokens (fallback to indigo defaults) ─── */
 @theme {
-  --color-background: #EEEEF0;
-  --color-foreground: #0A0A0F;
-  --color-primary: #4F46E5;
-  --color-secondary: #8B5CF6;
-  --color-accent: #818cf8;
-  --color-muted: #8A91A8;
-  --color-tertiary: #4B5264;
-  --color-border: #E2E4E9;
-  --color-card: #FFFFFF;
-  --color-card-hover: #FFFFFF;
+  --color-background: var(--t-bg, #EEEEF0);
+  --color-foreground: var(--t-text, #0A0A0F);
+  --color-primary:    var(--t-primary-dark, #4F46E5);
+  --color-secondary:  var(--t-secondary, #8B5CF6);
+  --color-accent:     var(--t-primary, #6366F1);
+  --color-muted:      var(--t-text-3, #8A91A8);
+  --color-tertiary:   var(--t-text-2, #4B5264);
+  --color-border:     var(--t-border, #E2E4E9);
+  --color-card:       var(--t-surface, #FFFFFF);
+  --color-card-hover: var(--t-surface, #FFFFFF);
 }
 
+/* ─── Indigo defaults so the page renders correctly before JS hydrates ─── */
 :root {
-  --background: #EEEEF0;
-  --foreground: #0A0A0F;
-  --secondary-text: #4B5264;
-  --tertiary-text: #8A91A8;
-  --primary: #4F46E5;
-  --secondary: #8B5CF6;
-  --card: #FFFFFF;
-  --card-shadow: 0 1px 4px rgba(0, 0, 0, 0.06), 0 4px 16px rgba(0, 0, 0, 0.04);
-  --card-shadow-hover: 0 2px 8px rgba(0, 0, 0, 0.08), 0 8px 24px rgba(0, 0, 0, 0.06);
-  --card-border: #E2E4E9;
-  --surface: #FFFFFF;
+  --t-primary:       #6366F1;
+  --t-primary-dark:  #4F46E5;
+  --t-primary-light: rgba(99,102,241,0.09);
+  --t-primary-glow:  rgba(99,102,241,0.25);
+  --t-secondary:     #8B5CF6;
+  --t-bg:            #EEEEF0;
+  --t-surface:       #FFFFFF;
+  --t-sidebar:       #0C0C14;
+  --t-sidebar-text:  #9CA3AF;
+  --t-border:        #E2E4E9;
+  --t-text:          #0A0A0F;
+  --t-text-2:        #4B5264;
+  --t-text-3:        #8A91A8;
+  --t-header-bg:     #FFFFFF;
+
+  /* Legacy aliases kept for backward compat with existing components */
+  --background:      #EEEEF0;
+  --foreground:      #0A0A0F;
+  --primary:         #4F46E5;
+  --secondary:       #8B5CF6;
+  --card:            #FFFFFF;
+  --card-border:     #E2E4E9;
+  --secondary-text:  #4B5264;
+  --tertiary-text:   #8A91A8;
+  --surface:         #FFFFFF;
+  --card-shadow:     0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+  --card-shadow-hover: 0 2px 8px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.06);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--t-bg);
+  color: var(--t-text);
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
+}
+
+/* ─── Sidebar picks up theme color ─── */
+.app-sidebar {
+  background-color: var(--t-sidebar) !important;
+}
+
+/* ─── Top header picks up theme surface ─── */
+.app-header {
+  background-color: var(--t-header-bg) !important;
+}
+
+/* ─── Primary interactive elements respond to theme ─── */
+.theme-btn {
+  background: linear-gradient(135deg, var(--t-primary), var(--t-secondary));
+  color: #fff;
+}
+.theme-btn:hover { opacity: 0.9; }
+
+.theme-ring {
+  box-shadow: 0 0 0 3px var(--t-primary-light);
+  border-color: var(--t-primary) !important;
+}
+
+.theme-text { color: var(--t-primary); }
+.theme-bg   { background-color: var(--t-primary-light); }
+
+/* ─── App-wide primary button ─── */
+.btn-primary {
+  background: var(--t-primary);
+  color: #fff;
+  transition: opacity 0.15s;
+}
+.btn-primary:hover { opacity: 0.88; }
+
+/* ─── Toggle switch ─── */
+.toggle-checked {
+  background-color: var(--t-primary) !important;
+}
+
+/* ─── Focus border / ring ─── */
+.focus-primary:focus {
+  border-color: var(--t-primary) !important;
+  outline: none;
+}
+
+/* ─── Tab active indicator ─── */
+.tab-active {
+  color: var(--t-primary) !important;
+  border-bottom-color: var(--t-primary) !important;
 }
 
 @layer base {

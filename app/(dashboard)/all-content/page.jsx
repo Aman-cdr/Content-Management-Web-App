@@ -2,216 +2,223 @@
 
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { 
-  Search, 
-  Plus, 
-  MoreVertical, 
-  Eye, 
-  Edit2, 
-  Trash2, 
-  X, 
-  Files, 
-  ChevronRight, 
-  Calendar, 
-  Tag, 
-  Rocket, 
-  AlertTriangle,
-  LayoutGrid,
-  List,
-  Filter,
-  ArrowUpDown,
-  CheckCircle2,
-  Clock,
-  Video,
-  FileText,
-  Image as ImageIcon,
-  Mic,
-  ExternalLink,
-  ChevronDown,
-  BarChart3,
-  TrendingUp,
-  Hash,
-  Check,
-  RotateCcw,
-  Layers,
-  Settings2
+import {
+  Search, Plus, MoreVertical, Eye, Edit2, Trash2, X,
+  Files, Calendar, Tag, Rocket, AlertTriangle,
+  LayoutGrid, List, ArrowUpDown, CheckCircle2, Clock,
+  Video, FileText, Image as ImageIcon, Mic, Hash,
+  Check, RotateCcw, ChevronDown, SlidersHorizontal,
 } from "lucide-react";
-import { FaInstagram, FaYoutube, FaTiktok, FaTwitter } from "react-icons/fa";
+import { FaInstagram, FaYoutube, FaTiktok, FaTwitter, FaNewspaper } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import { useContent } from "@/context/ContentContext";
+import { MOCK_CONTENT } from "@/lib/mock-data";
 
-const PLATFORM_ICONS = { 
-  "Instagram Reels": FaInstagram, 
-  "YouTube Shorts": FaYoutube, 
-  YouTube: FaYoutube, 
-  TikTok: FaTiktok, 
-  "Twitter/X": FaTwitter 
-};
+// ─── Config ──────────────────────────────────────────────────────────────────
 
-const PLATFORM_COLORS = { 
-  "Instagram Reels": "from-pink-500 via-purple-500 to-amber-500", 
-  "YouTube Shorts": "from-red-600 to-red-500", 
-  YouTube: "from-red-600 to-red-500", 
-  TikTok: "from-gray-800 to-black", 
-  "Twitter/X": "from-blue-500 to-blue-400" 
+const PLATFORM_META = {
+  "YouTube":         { icon: FaYoutube,    color: "#FF0000", bg: "bg-red-50",   text: "text-red-600" },
+  "YouTube Shorts":  { icon: FaYoutube,    color: "#FF0000", bg: "bg-red-50",   text: "text-red-600" },
+  "Instagram Reels": { icon: FaInstagram,  color: "#E1306C", bg: "bg-pink-50",  text: "text-pink-600" },
+  "Instagram":       { icon: FaInstagram,  color: "#E1306C", bg: "bg-pink-50",  text: "text-pink-600" },
+  "TikTok":          { icon: FaTiktok,     color: "#000000", bg: "bg-gray-100", text: "text-gray-700" },
+  "Twitter/X":       { icon: FaTwitter,    color: "#1DA1F2", bg: "bg-blue-50",  text: "text-blue-500" },
+  "Newsletter":      { icon: FaNewspaper,  color: "#F59E0B", bg: "bg-amber-50", text: "text-amber-600" },
 };
 
 const TYPE_CONFIG = {
-  video: { icon: Video, color: "text-blue-500", bg: "bg-blue-50", border: "border-blue-100" },
-  article: { icon: FileText, color: "text-amber-500", bg: "bg-amber-50", border: "border-amber-100" },
-  image: { icon: ImageIcon, color: "text-emerald-500", bg: "bg-emerald-50", border: "border-emerald-100" },
-  podcast: { icon: Mic, color: "text-purple-500", bg: "bg-purple-50", border: "border-purple-100" },
+  video:   { icon: Video,       label: "Video",   color: "text-blue-500",   bg: "bg-blue-50",   border: "border-blue-100" },
+  short:   { icon: Video,       label: "Short",   color: "text-pink-500",   bg: "bg-pink-50",   border: "border-pink-100" },
+  article: { icon: FileText,    label: "Article", color: "text-amber-500",  bg: "bg-amber-50",  border: "border-amber-100" },
+  image:   { icon: ImageIcon,   label: "Image",   color: "text-emerald-500",bg: "bg-emerald-50",border: "border-emerald-100" },
+  podcast: { icon: Mic,         label: "Podcast", color: "text-purple-500", bg: "bg-purple-50", border: "border-purple-100" },
 };
 
-function ContentCard({ item, index, view, onPreview, onEdit, onDelete, onPublish, isSelected, onToggleSelect }) {
+const STATUS_META = {
+  published: { label: "Published", cls: "bg-emerald-50 text-emerald-700 border-emerald-100" },
+  draft:     { label: "Draft",     cls: "bg-amber-50  text-amber-700  border-amber-100"  },
+  scheduled: { label: "Scheduled", cls: "bg-blue-50   text-blue-700   border-blue-100"   },
+};
+
+// ─── Card ────────────────────────────────────────────────────────────────────
+
+function ContentCard({ item, view, onPreview, onEdit, onDelete, onPublish, isSelected, onToggleSelect }) {
   const [menuOpen, setMenuOpen] = useState(false);
-  
-  const realThumb = item.thumbnails?.youtube || item.thumbnails?.instagram || item.thumbnails?.shorts;
-  const mockThumb = `/thumbnails/thumb${(index % 3) + 1}.png`;
-  const thumbSrc = realThumb || mockThumb;
-  
-  const dateStr = item.createdAt ? new Date(item.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "";
-  
+
+  const thumbObj = item.thumbnails || item.thumbnail || {};
+  const thumbSrc = thumbObj.youtube || thumbObj.instagram || thumbObj.shorts || null;
+
+  const dateStr = item.createdAt
+    ? new Date(item.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+    : "";
+
   const primaryPlatform = item.platforms?.[0];
+  const platformMeta = PLATFORM_META[primaryPlatform];
+  const PlatformIcon = platformMeta?.icon;
   const typeInfo = TYPE_CONFIG[item.type] || TYPE_CONFIG.video;
   const TypeIcon = typeInfo.icon;
-  const PlatformIcon = PLATFORM_ICONS[primaryPlatform];
-  const platformColor = PLATFORM_COLORS[primaryPlatform] || "from-gray-500 to-gray-400";
+  const statusMeta = STATUS_META[item.status?.toLowerCase()] || STATUS_META.draft;
+  const isShort = item.type === "short" || item.platforms?.some(p => ["YouTube Shorts","Instagram Reels","TikTok"].includes(p));
 
+  // ── List Row ──
   if (view === "list") {
     return (
-      <motion.div 
-        layout
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className={`group bg-[#FFFFFF] border ${isSelected ? "border-[#6366F1] bg-[#6366F1]/[0.02]" : "border-[#E5E7EB]"} rounded-[16px] p-4 flex items-center gap-4 hover:border-[#6366F1]/[0.3] hover:shadow-[0_4px_20px_rgba(0,0,0,0.04)] transition-all`}
+      <motion.div
+        layout initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+        className={`group bg-white border rounded-2xl p-4 flex items-center gap-4 transition-all hover:shadow-sm
+          ${isSelected ? "border-[var(--t-primary)] bg-[var(--t-primary-light)]" : "border-[#E5E7EB] hover:border-[#D1D5DB]"}`}
       >
-        <button 
+        <button
           onClick={() => onToggleSelect(item.id)}
-          className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all ${isSelected ? "bg-[#6366F1] border-[#6366F1] text-white" : "bg-white border-[#D1D5DB]"}`}
+          className={`w-5 h-5 rounded-md border flex items-center justify-center flex-shrink-0 transition-all
+            ${isSelected ? "text-white border-[var(--t-primary)]" : "bg-white border-[#D1D5DB]"}`}
+          style={isSelected ? { backgroundColor: "var(--t-primary)" } : {}}
         >
           {isSelected && <Check size={12} />}
         </button>
 
-        <div className="w-16 h-12 rounded-lg bg-[#F4F5F8] overflow-hidden shrink-0 cursor-pointer" onClick={() => onPreview(item)}>
-          {thumbSrc ? (
-            <img src={thumbSrc} className="w-full h-full object-cover" />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-neutral-300">
-              <TypeIcon size={20} />
-            </div>
-          )}
+        <div className="w-[72px] h-[44px] rounded-xl bg-[#F4F5F8] overflow-hidden shrink-0 cursor-pointer" onClick={() => onPreview(item)}>
+          {thumbSrc
+            ? <img src={thumbSrc} className="w-full h-full object-cover" alt="" />
+            : <div className="w-full h-full flex items-center justify-center"><TypeIcon size={18} className="text-neutral-300" /></div>}
         </div>
+
         <div className="flex-1 min-w-0">
-          <h4 className="text-[14px] font-bold text-[#0F0F0F] truncate group-hover:text-indigo-600 transition-colors cursor-pointer" onClick={() => onPreview(item)}>{item.title}</h4>
-          <div className="flex items-center gap-3 mt-1">
-            <span className={`text-[10px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded border ${typeInfo.bg} ${typeInfo.color} ${typeInfo.border}`}>{item.type}</span>
+          <h4
+            className="text-[14px] font-semibold text-[#0F0F0F] truncate cursor-pointer hover:text-[var(--t-primary)] transition-colors"
+            onClick={() => onPreview(item)}
+          >
+            {item.title}
+          </h4>
+          <div className="flex items-center gap-2 mt-1 flex-wrap">
+            <span className={`text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded border ${typeInfo.bg} ${typeInfo.color} ${typeInfo.border}`}>
+              {typeInfo.label}
+            </span>
             {item.tags?.slice(0, 2).map(tag => (
-              <span key={tag} className="text-[10px] text-neutral-400 font-bold flex items-center gap-1 bg-neutral-50 px-1.5 py-0.5 rounded"><Hash size={10} /> {tag}</span>
+              <span key={tag} className="text-[10px] text-neutral-400 flex items-center gap-0.5 bg-neutral-50 px-1.5 py-0.5 rounded border border-neutral-100">
+                <Hash size={9} />{tag}
+              </span>
             ))}
-            <span className="text-[11px] text-neutral-400 font-medium flex items-center gap-1"><Calendar size={12} /> {dateStr}</span>
           </div>
         </div>
+
         <div className="flex items-center gap-4 shrink-0">
-          <div className="flex -space-x-1">
-            {item.platforms?.map(p => {
-              const Icon = PLATFORM_ICONS[p];
-              return Icon ? <div key={p} className="w-6 h-6 rounded-full bg-white border border-[#E2E4E9] flex items-center justify-center shadow-sm"><Icon size={12} className="text-neutral-500" /></div> : null;
+          {/* Platforms */}
+          <div className="flex -space-x-1.5">
+            {item.platforms?.slice(0, 3).map(p => {
+              const m = PLATFORM_META[p];
+              return m ? (
+                <div key={p} className={`w-6 h-6 rounded-full ${m.bg} flex items-center justify-center border border-white shadow-sm`}>
+                  <m.icon size={11} style={{ color: m.color }} />
+                </div>
+              ) : null;
             })}
           </div>
-          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${item.status === "published" ? "bg-emerald-50 text-emerald-600 border border-emerald-100" : "bg-amber-50 text-amber-600 border border-amber-100"}`}>
-            {item.status}
+
+          {/* Status */}
+          <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${statusMeta.cls} whitespace-nowrap`}>
+            {statusMeta.label}
           </span>
+
+          {/* Date */}
+          <span className="text-[11px] text-neutral-400 flex items-center gap-1 whitespace-nowrap hidden md:flex">
+            <Calendar size={11} />{dateStr}
+          </span>
+
+          {/* Actions */}
           <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
-            <button onClick={() => onEdit(item)} className="p-2 text-neutral-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg"><Edit2 size={16} /></button>
-            <button onClick={() => onDelete(item.id)} className="p-2 text-neutral-400 hover:text-red-500 hover:bg-red-50 rounded-lg"><Trash2 size={16} /></button>
+            <button onClick={() => onEdit(item)} className="p-1.5 text-neutral-400 hover:text-[var(--t-primary)] hover:bg-[var(--t-primary-light)] rounded-lg transition-all">
+              <Edit2 size={15} />
+            </button>
+            <button onClick={() => onDelete(item)} className="p-1.5 text-neutral-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all">
+              <Trash2 size={15} />
+            </button>
           </div>
         </div>
       </motion.div>
     );
   }
 
-  const isShortForm = item.platforms?.some(p => ["YouTube Shorts", "Instagram Reels", "TikTok"].includes(p));
-
+  // ── Grid Card ──
   return (
-    <motion.div 
-      layout
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      className={`group bg-[#FFFFFF] border ${isSelected ? "border-[#6366F1] shadow-[0_0_0_3px_rgba(99,102,241,0.08)]" : "border-[#E5E7EB]"} rounded-[16px] overflow-hidden hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] hover:border-[#6366F1]/[0.3] transition-all duration-300 flex flex-col h-full`}
+    <motion.div
+      layout initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+      className={`group bg-white border rounded-2xl overflow-hidden flex flex-col transition-all duration-200 hover:shadow-[0_8px_24px_rgba(0,0,0,0.07)] hover:-translate-y-0.5
+        ${isSelected ? "border-[var(--t-primary)] shadow-[0_0_0_3px_var(--t-primary-light)]" : "border-[#E5E7EB]"}`}
     >
-      {/* Card Header / Thumbnail */}
-      <div className={`relative ${isShortForm ? "aspect-[9/16]" : "aspect-video"} overflow-hidden cursor-pointer`} onClick={() => onPreview(item)}>
-        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors z-10" />
-        {thumbSrc ? (
-          <img src={thumbSrc} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-        ) : (
-          <div className="w-full h-full bg-[#F9FAFB] flex items-center justify-center">
-            <TypeIcon size={40} className="text-neutral-200" />
+      {/* Thumbnail */}
+      <div className="relative overflow-hidden cursor-pointer aspect-video" onClick={() => onPreview(item)}>
+        {thumbSrc
+          ? <img src={thumbSrc} className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500" alt="" />
+          : <div className="w-full h-full bg-[#F4F5F8] flex items-center justify-center"><TypeIcon size={36} className="text-neutral-200" /></div>}
+
+        {/* Dim overlay */}
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-200" />
+
+        {/* Checkbox */}
+        <button
+          onClick={(e) => { e.stopPropagation(); onToggleSelect(item.id); }}
+          className={`absolute top-2.5 left-2.5 z-10 w-6 h-6 rounded-lg border-2 flex items-center justify-center shadow-md transition-all
+            ${isSelected ? "text-white border-transparent" : "bg-white/80 backdrop-blur-sm border-white/50 text-transparent"}`}
+          style={isSelected ? { backgroundColor: "var(--t-primary)" } : {}}
+        >
+          <Check size={13} />
+        </button>
+
+        {/* Platform pill */}
+        {platformMeta && (
+          <div className={`absolute top-2.5 right-2.5 z-10 flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold shadow-md border border-white/20 backdrop-blur-sm ${platformMeta.bg} ${platformMeta.text}`}>
+            <PlatformIcon size={11} style={{ color: platformMeta.color }} />
           </div>
         )}
-        
-        {/* Selection Checkbox */}
-        <div className="absolute top-3 left-3 z-30">
-          <button 
-            onClick={(e) => { e.stopPropagation(); onToggleSelect(item.id); }}
-            className={`w-6 h-6 rounded-lg border flex items-center justify-center transition-all shadow-lg ${isSelected ? "bg-[#6366F1] border-[#6366F1] text-white" : "bg-white/80 backdrop-blur-sm border-white/20 text-transparent"}`}
-          >
-            <Check size={14} />
-          </button>
+
+        {/* Status pill */}
+        <div className={`absolute bottom-2.5 right-2.5 z-10 text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-lg border border-white/20 backdrop-blur-md
+          ${item.status?.toLowerCase() === "published" ? "bg-emerald-500/90 text-white" : item.status?.toLowerCase() === "scheduled" ? "bg-blue-500/90 text-white" : "bg-amber-500/90 text-white"}`}>
+          {item.status}
         </div>
 
-        {/* Hover Overlay */}
-        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 z-20 scale-90 group-hover:scale-100">
-          <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-xl text-indigo-600">
-            <Eye size={20} />
-          </div>
-        </div>
-
-        {/* Platform Badge */}
-        <div className="absolute top-3 right-3 z-20">
-          <div className={`flex items-center gap-1.5 px-2 py-1 bg-white border border-white/20 rounded-lg shadow-lg text-white font-bold text-[9px] uppercase tracking-wider bg-gradient-to-r ${platformColor}`}>
-            {PlatformIcon && <PlatformIcon size={12} />}
-          </div>
-        </div>
-
-        {/* Status Pill */}
-        <div className="absolute bottom-3 right-3 z-20">
-          <div className={`px-2 py-1 rounded-lg backdrop-blur-md border border-white/20 text-[9px] font-black uppercase tracking-widest ${item.status?.toLowerCase() === "published" ? "bg-emerald-500/80 text-white" : "bg-amber-500/80 text-white"}`}>
-            {item.status}
+        {/* Preview icon on hover */}
+        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all z-10">
+          <div className="w-11 h-11 bg-white rounded-full flex items-center justify-center shadow-xl" style={{ color: "var(--t-primary)" }}>
+            <Eye size={18} />
           </div>
         </div>
       </div>
 
-      {/* Card Body */}
-      <div className={`${isShortForm ? "p-3.5" : "p-5"} flex flex-col flex-1`}>
-        <div className="flex justify-between items-start gap-2 mb-1.5">
-          <div className="min-w-0">
-            <h4 className={`${isShortForm ? "text-[13px]" : "text-[15px]"} font-bold text-[#0F0F0F] leading-tight line-clamp-2 group-hover:text-[#6366F1] transition-colors`}>{item.title}</h4>
-          </div>
+      {/* Body */}
+      <div className="p-4 flex flex-col flex-1">
+        <div className="flex justify-between items-start gap-2 mb-2">
+          <h4 className="text-[14px] font-semibold text-[#0F0F0F] leading-snug line-clamp-2 flex-1 group-hover:text-[var(--t-primary)] transition-colors cursor-pointer" onClick={() => onPreview(item)}>
+            {item.title}
+          </h4>
           <div className="relative shrink-0">
-            <button 
-              onClick={(e) => { e.stopPropagation(); setMenuOpen(!menuOpen); }} 
-              className="p-1 text-neutral-400 hover:text-[#0F0F0F] hover:bg-[#F4F5F8] rounded-lg transition-all"
+            <button
+              onClick={(e) => { e.stopPropagation(); setMenuOpen(v => !v); }}
+              className="p-1 text-neutral-300 hover:text-neutral-600 hover:bg-[#F4F5F8] rounded-lg transition-all"
             >
-              <MoreVertical size={isShortForm ? 16 : 18} />
+              <MoreVertical size={16} />
             </button>
             <AnimatePresence>
               {menuOpen && (
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(false)} />
-                  <motion.div 
-                    initial={{ opacity: 0, scale: 0.95, y: 10 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                    className="absolute right-0 top-full mt-2 w-40 bg-white border border-[#E2E4E9] rounded-xl shadow-2xl z-50 p-1"
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95, y: 6 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 6 }}
+                    className="absolute right-0 top-full mt-1.5 w-36 bg-white border border-[#E2E4E9] rounded-xl shadow-xl z-50 p-1"
                   >
-                    <button onClick={() => { setMenuOpen(false); onEdit(item); }} className="w-full flex items-center gap-2 px-2.5 py-1.5 text-[10px] font-bold text-neutral-600 hover:bg-neutral-50 hover:text-[#6366F1] rounded-lg transition-all uppercase tracking-wider"><Edit2 size={12} /> Edit</button>
-                    {item.status === "draft" && (
-                      <button onClick={() => { setMenuOpen(false); onPublish(item.id); }} className="w-full flex items-center gap-2 px-2.5 py-1.5 text-[10px] font-bold text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all uppercase tracking-wider"><Rocket size={12} /> Publish</button>
+                    <button onClick={() => { setMenuOpen(false); onEdit(item); }} className="w-full flex items-center gap-2 px-3 py-2 text-[11px] font-semibold text-neutral-600 hover:bg-neutral-50 rounded-lg transition-all">
+                      <Edit2 size={13} /> Edit
+                    </button>
+                    {item.status?.toLowerCase() === "draft" && (
+                      <button onClick={() => { setMenuOpen(false); onPublish(item.id); }} className="w-full flex items-center gap-2 px-3 py-2 text-[11px] font-semibold text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all">
+                        <Rocket size={13} /> Publish
+                      </button>
                     )}
                     <div className="h-px bg-[#F4F5F8] my-1" />
-                    <button onClick={() => { setMenuOpen(false); onDelete(item.id); }} className="w-full flex items-center gap-2 px-2.5 py-1.5 text-[10px] font-bold text-red-500 hover:bg-red-50 rounded-lg transition-all uppercase tracking-wider"><Trash2 size={12} /> Delete</button>
+                    <button onClick={() => { setMenuOpen(false); onDelete(item); }} className="w-full flex items-center gap-2 px-3 py-2 text-[11px] font-semibold text-red-500 hover:bg-red-50 rounded-lg transition-all">
+                      <Trash2 size={13} /> Delete
+                    </button>
                   </motion.div>
                 </>
               )}
@@ -220,394 +227,281 @@ function ContentCard({ item, index, view, onPreview, onEdit, onDelete, onPublish
         </div>
 
         {item.tags?.length > 0 && (
-          <div className="flex flex-wrap gap-1 mb-3">
+          <div className="flex flex-wrap gap-1 mb-2.5">
             {item.tags.slice(0, 3).map(tag => (
-              <span key={tag} className="text-[9px] font-bold text-neutral-500 bg-neutral-100 px-1.5 py-0.5 rounded flex items-center gap-0.5">
-                <Hash size={8} /> {tag}
+              <span key={tag} className="text-[9px] font-semibold text-neutral-500 bg-neutral-100 px-1.5 py-0.5 rounded flex items-center gap-0.5">
+                <Hash size={8} />{tag}
               </span>
             ))}
           </div>
         )}
 
-        <p className={`${isShortForm ? "text-[11px] mb-3" : "text-[12px] mb-4"} text-neutral-400 font-medium line-clamp-2 leading-relaxed`}>
+        <p className="text-[12px] text-neutral-400 line-clamp-2 leading-relaxed mb-3 flex-1">
           {item.description || "No description provided."}
         </p>
 
-        <div className={`mt-auto ${isShortForm ? "pt-3" : "pt-4"} border-t border-[#F4F5F8] flex items-center justify-between`}>
-          <div className="flex items-center gap-1.5">
-            <div className={`${isShortForm ? "w-6 h-6" : "w-7 h-7"} rounded-lg ${typeInfo.bg} ${typeInfo.color} flex items-center justify-center border ${typeInfo.border}`}>
-              <TypeIcon size={isShortForm ? 12 : 14} />
-            </div>
-            <span className="text-[9px] font-black uppercase tracking-widest text-neutral-300">{item.type}</span>
+        <div className="pt-3 border-t border-[#F4F5F8] flex items-center justify-between">
+          <div className={`flex items-center gap-1.5 px-2 py-1 rounded-lg ${typeInfo.bg} border ${typeInfo.border}`}>
+            <TypeIcon size={12} className={typeInfo.color} />
+            <span className={`text-[9px] font-bold uppercase tracking-wide ${typeInfo.color}`}>{typeInfo.label}</span>
           </div>
-          <div className="flex items-center gap-1 text-[10px] font-bold text-neutral-400">
-            <Calendar size={isShortForm ? 10 : 12} className="opacity-60" />
-            {dateStr}
-          </div>
+          <span className="text-[11px] text-neutral-400 flex items-center gap-1">
+            <Calendar size={11} className="opacity-50" />{dateStr}
+          </span>
         </div>
       </div>
     </motion.div>
   );
 }
 
+// ─── Page ─────────────────────────────────────────────────────────────────────
+
+const TYPE_FILTERS  = ["All", "Video", "Short", "Article", "Podcast"];
+const STATUS_FILTERS = ["All", "Published", "Draft", "Scheduled"];
+const SORT_OPTIONS  = [
+  { value: "newest",       label: "Newest" },
+  { value: "oldest",       label: "Oldest" },
+  { value: "alphabetical", label: "A – Z"  },
+];
+
 export default function AllContentPage() {
   const router = useRouter();
-  const { contents, deleteContent, publishContent, isLoading } = useContent();
-  const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState("longform");
-  const [view, setView] = useState("grid");
-  const [sortBy, setSortBy] = useState("newest");
-  const [preview, setPreview] = useState(null);
-  const [deleteTarget, setDeleteTarget] = useState(null);
+  const { contents: apiContents, deleteContent, publishContent, bulkDelete, bulkUpdate, isLoading } = useContent();
+  const contents = !isLoading && apiContents.length === 0 ? MOCK_CONTENT : apiContents;
+
+  const [search,      setSearch]      = useState("");
+  const [typeFilter,  setTypeFilter]  = useState("All");
+  const [statusFilter,setStatusFilter]= useState("All");
+  const [sortBy,      setSortBy]      = useState("newest");
+  const [view,        setView]        = useState("grid");
+  const [preview,     setPreview]     = useState(null);
+  const [deleteTarget,setDeleteTarget]= useState(null);
   const [selectedIds, setSelectedIds] = useState([]);
-  const [showFilters, setShowFilters] = useState(false);
-  const [tagInput, setTagInput] = useState("");
-  
-  // Advanced Filter States
-  const [filterPlatform, setFilterPlatform] = useState("all");
-  const [filterType, setFilterType] = useState("all");
-  const [filterStatus, setFilterStatus] = useState("all");
-  const [filterTags, setFilterTags] = useState([]);
+  const [tagInput,    setTagInput]    = useState("");
 
   const stats = useMemo(() => ({
-    total: contents.length,
+    total:     contents.length,
     published: contents.filter(c => c.status?.toLowerCase() === "published").length,
-    drafts: contents.filter(c => c.status?.toLowerCase() === "draft").length
+    drafts:    contents.filter(c => c.status?.toLowerCase() === "draft").length,
+    scheduled: contents.filter(c => c.status?.toLowerCase() === "scheduled").length,
   }), [contents]);
 
-  const allTags = useMemo(() => {
-    const tags = new Set();
-    contents.forEach(c => c.tags?.forEach(t => tags.add(t)));
-    return Array.from(tags);
-  }, [contents]);
+  const filtered = useMemo(() => {
+    return contents
+      .filter(c => {
+        if (search && !c.title?.toLowerCase().includes(search.toLowerCase())) return false;
+        if (typeFilter !== "All"   && c.type?.toLowerCase() !== typeFilter.toLowerCase()) return false;
+        if (statusFilter !== "All" && c.status?.toLowerCase() !== statusFilter.toLowerCase()) return false;
+        return true;
+      })
+      .sort((a, b) => {
+        if (sortBy === "newest") return new Date(b.createdAt) - new Date(a.createdAt);
+        if (sortBy === "oldest") return new Date(a.createdAt) - new Date(b.createdAt);
+        return (a.title || "").localeCompare(b.title || "");
+      });
+  }, [contents, search, typeFilter, statusFilter, sortBy]);
 
-  const filtered = contents.filter((c) => {
-    const matchSearch = !search || c.title?.toLowerCase().includes(search.toLowerCase()) || c.description?.toLowerCase().includes(search.toLowerCase());
-    if (!matchSearch) return false;
-    
-    // Legacy tabs (mapped to advanced filters)
-    if (filter === "longform" && (!c.platforms?.includes("YouTube") || c.platforms?.includes("YouTube Shorts"))) return false;
-    if (filter === "shorts" && !c.platforms?.some(p => ["YouTube Shorts", "Instagram Reels", "TikTok"].includes(p))) return false;
-    if (filter === "published" && c.status !== "published") return false;
-    if (filter === "drafts" && c.status !== "draft") return false;
+  const toggleSelect    = id  => setSelectedIds(p => p.includes(id) ? p.filter(i => i !== id) : [...p, id]);
+  const selectAll       = ()  => setSelectedIds(selectedIds.length === filtered.length ? [] : filtered.map(f => f.id));
+  const clearFilters    = ()  => { setSearch(""); setTypeFilter("All"); setStatusFilter("All"); setSortBy("newest"); };
+  const hasActiveFilter = search || typeFilter !== "All" || statusFilter !== "All";
 
-    // Advanced Filters
-    if (filterPlatform !== "all" && !c.platforms?.includes(filterPlatform)) return false;
-    if (filterType !== "all" && c.type !== filterType) return false;
-    if (filterStatus !== "all" && c.status !== filterStatus) return false;
-    if (filterTags.length > 0 && !filterTags.every(t => c.tags?.includes(t))) return false;
-
-    return true;
-  }).sort((a, b) => {
-    if (sortBy === "newest") return new Date(b.createdAt) - new Date(a.createdAt);
-    if (sortBy === "oldest") return new Date(a.createdAt) - new Date(b.createdAt);
-    return a.title.localeCompare(b.title);
-  });
-
-  const toggleSelect = (id) => {
-    setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
-  };
-
-  const selectAll = () => {
-    if (selectedIds.length === filtered.length) setSelectedIds([]);
-    else setSelectedIds(filtered.map(f => f.id));
-  };
-
-  const handleBulkDelete = async () => {
-    if (confirm(`Are you sure you want to delete ${selectedIds.length} items?`)) {
-      const { bulkDelete } = await import("@/context/ContentContext").then(m => m.useContent()); // Dynamic import hack if needed, but we already have it from useContent()
-      // Wait, we already have bulkDelete from useContent()
-    }
-  };
-
-  const { bulkDelete, bulkUpdate } = useContent();
-
-  const handleBulkStatus = (status) => {
-    bulkUpdate(selectedIds, { status });
-    setSelectedIds([]);
-  };
-
-  const handleBulkAddTag = (tag) => {
-    if (!tag) return;
-    selectedIds.forEach(id => {
-      const item = contents.find(c => c.id === id);
-      const newTags = Array.from(new Set([...(item.tags || []), tag]));
-      bulkUpdate([id], { tags: newTags });
-    });
-    setSelectedIds([]);
-  };
-
-  const handleEdit = (item) => router.push(`/add-content?edit=${item.id}`);
-
-  const tabs = [
-    { id: "longform", label: "YouTube (16:9)", icon: Video },
-    { id: "shorts", label: "Reels & Shorts (9:16)", icon: Rocket },
-    { id: "published", label: "Published", icon: CheckCircle2 },
-    { id: "drafts", label: "Drafts", icon: Clock },
-  ];
+  const handleEdit   = item => router.push(`/add-content?edit=${item.id}`);
+  const handleDelete = item => setDeleteTarget(item);
 
   return (
-    <div className="min-h-screen pb-20 space-y-8">
+    <div className="min-h-screen pb-20 space-y-6">
+
       {/* ── HEADER ── */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <div className="flex items-center gap-3 mb-1">
-            <span className="w-[3px] h-7 bg-gradient-to-b from-[#6366F1] to-[#8B5CF6] rounded-full" />
-            <h2 className="text-[28px] font-[800] text-[#0F0F0F] tracking-tight">Content Library</h2>
-          </div>
-          <p className="text-neutral-500 text-[14px] font-[400] mt-0.5">Create, manage, and distribute content across your ecosystem.</p>
+          <h2 className="text-[26px] font-[800] text-[var(--t-text)] tracking-tight">Content Hub</h2>
+          <p className="text-[var(--t-text-3)] text-[13px] mt-0.5">Create, manage, and publish across all platforms.</p>
         </div>
 
-        <div className="flex items-center gap-4">
-          <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-[16px] p-[12px_24px] flex items-center gap-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+        <div className="flex items-center gap-3">
+          {/* Stats chips */}
+          <div className="hidden sm:flex items-center gap-2">
             {[
-              { label: "Total", val: stats.total, color: "text-[#6366F1]" },
-              { label: "Published", val: stats.published, color: "text-[#10B981]" },
-              { label: "Drafts", val: stats.drafts, color: "text-[#F59E0B]" }
+              { label: "Total",     val: stats.total,     color: "text-[var(--t-primary)]",  bg: "bg-[var(--t-primary-light)]" },
+              { label: "Published", val: stats.published, color: "text-emerald-600", bg: "bg-emerald-50" },
+              { label: "Drafts",    val: stats.drafts,    color: "text-amber-600",  bg: "bg-amber-50"  },
             ].map(s => (
-              <div key={s.label} className="text-center">
-                <p className="text-[10px] font-[700] uppercase tracking-widest text-[#9CA3AF] mb-0.5">{s.label}</p>
-                <p className={`text-[18px] font-[800] ${s.color}`}>{s.val}</p>
+              <div key={s.label} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl ${s.bg}`}>
+                <span className={`text-[18px] font-[800] leading-none ${s.color}`}>{s.val}</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">{s.label}</span>
               </div>
             ))}
           </div>
-          <button 
-            onClick={() => router.push("/add-content")} 
-            className="flex items-center gap-2 px-[24px] py-[14px] bg-gradient-to-br from-[#6366F1] to-[#8B5CF6] text-white rounded-[14px] text-[14px] font-[600] transition-all shadow-[0_4px_14px_rgba(99,102,241,0.3)] hover:brightness-110 active:scale-95"
+
+          <button
+            onClick={() => router.push("/add-content")}
+            className="flex items-center gap-2 px-5 py-2.5 text-white rounded-xl text-[13px] font-[600] transition-all hover:brightness-110 active:scale-95 btn-primary"
           >
-            <Plus size={18} /> New Asset
+            <Plus size={16} /> New Content
           </button>
         </div>
       </div>
 
-      {/* ── STICKY FILTER BAR ── */}
-      <div className="sticky top-4 z-40 bg-white/80 backdrop-blur-xl border border-[#E5E7EB] rounded-[24px] p-2.5 flex flex-col items-stretch gap-3 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar w-full lg:w-auto">
-            <button 
-              onClick={selectAll}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${selectedIds.length > 0 ? "bg-indigo-50 text-indigo-600 border border-indigo-100" : "bg-transparent text-neutral-500 border border-transparent hover:bg-neutral-50"}`}
-            >
-              {selectedIds.length === filtered.length && filtered.length > 0 ? <Check size={14} /> : <Layers size={14} />}
-              {selectedIds.length > 0 ? `Selected (${selectedIds.length})` : "Select All"}
+      {/* ── FILTER BAR ── */}
+      <div className="bg-white border border-[#E5E7EB] rounded-2xl p-3 space-y-3 shadow-sm">
+
+        {/* Row 1: Search + View + Sort */}
+        <div className="flex items-center gap-3">
+          <div className="relative flex-1 max-w-xs">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+            <input
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Search content..."
+              className="w-full pl-9 pr-4 py-2 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl text-[13px] text-[#0F0F0F] placeholder:text-neutral-400 focus:outline-none focus:border-[var(--t-primary)] transition-all"
+            />
+            {search && (
+              <button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600">
+                <X size={14} />
+              </button>
+            )}
+          </div>
+
+          <div className="flex-1" />
+
+          {/* Clear filters */}
+          {hasActiveFilter && (
+            <button onClick={clearFilters} className="flex items-center gap-1.5 text-[11px] font-semibold text-neutral-400 hover:text-neutral-700 transition-colors px-2">
+              <RotateCcw size={13} /> Clear
             </button>
-            <div className="w-px h-6 bg-neutral-100" />
-            {tabs.map((t) => (
-              <button 
-                key={t.id} 
-                onClick={() => setFilter(t.id)} 
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-[600] whitespace-nowrap transition-all ${filter === t.id ? "bg-[#6366F1] text-white shadow-[0_4px_12px_rgba(99,102,241,0.2)]" : "bg-transparent text-[#6B7280] hover:bg-[#F9FAFB]"}`}
+          )}
+
+          {/* Sort */}
+          <div className="relative hidden sm:block">
+            <select
+              value={sortBy}
+              onChange={e => setSortBy(e.target.value)}
+              className="appearance-none pl-3 pr-8 py-2 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl text-[12px] font-semibold text-[#4B5264] outline-none cursor-pointer hover:bg-neutral-100 transition-all"
+            >
+              {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+            </select>
+            <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-neutral-400 pointer-events-none" />
+          </div>
+
+          {/* View toggle */}
+          <div className="flex p-1 bg-[#F4F5F8] border border-[#E5E7EB] rounded-xl">
+            <button onClick={() => setView("grid")} className={`p-1.5 rounded-lg transition-all ${view === "grid" ? "bg-white shadow-sm text-[var(--t-primary)]" : "text-neutral-400 hover:text-neutral-600"}`}>
+              <LayoutGrid size={15} />
+            </button>
+            <button onClick={() => setView("list")} className={`p-1.5 rounded-lg transition-all ${view === "list" ? "bg-white shadow-sm text-[var(--t-primary)]" : "text-neutral-400 hover:text-neutral-600"}`}>
+              <List size={15} />
+            </button>
+          </div>
+        </div>
+
+        {/* Row 2: Type filters + Status filters */}
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          {/* Type pills */}
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 mr-1">Type</span>
+            {TYPE_FILTERS.map(t => (
+              <button
+                key={t}
+                onClick={() => setTypeFilter(t)}
+                className={`px-3 py-1.5 rounded-xl text-[12px] font-semibold transition-all ${
+                  typeFilter === t
+                    ? "text-white shadow-sm"
+                    : "bg-[#F4F5F8] text-neutral-500 hover:bg-neutral-200"
+                }`}
+                style={typeFilter === t ? { backgroundColor: "var(--t-primary)" } : {}}
               >
-                <t.icon size={14} />
-                {t.label}
+                {t}
               </button>
             ))}
           </div>
 
-          <div className="flex items-center gap-3 w-full lg:w-auto">
-            <div className="relative flex-1 lg:w-64">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
-              <input 
-                value={search} 
-                onChange={(e) => setSearch(e.target.value)} 
-                placeholder="Search library..." 
-                className="w-full pl-10 pr-4 py-2.5 bg-[#F9FAFB] border border-[#E2E4E9] rounded-xl text-xs font-bold text-[#0F0F0F] placeholder:text-neutral-400 focus:outline-none focus:border-indigo-600 transition-all" 
-              />
-            </div>
+          {/* Divider */}
+          <div className="h-6 w-px bg-[#E5E7EB] hidden sm:block" />
 
-            <button 
-              onClick={() => setShowFilters(!showFilters)}
-              className={`p-2.5 rounded-xl border transition-all ${showFilters || filterPlatform !== "all" || filterType !== "all" || filterStatus !== "all" || filterTags.length > 0 ? "bg-indigo-50 border-indigo-200 text-indigo-600" : "bg-white border-[#E2E4E9] text-neutral-500 hover:bg-neutral-50"}`}
-            >
-              <Filter size={18} />
-            </button>
-
-            <div className="h-8 w-px bg-neutral-100" />
-
-            <div className="flex p-1 bg-[#F4F5F8] border border-[#E2E4E9] rounded-xl shrink-0">
-              <button onClick={() => setView("grid")} className={`p-2 rounded-lg transition-all ${view === "grid" ? "bg-white text-indigo-600 shadow-sm" : "text-neutral-400"}`}><LayoutGrid size={16} /></button>
-              <button onClick={() => setView("list")} className={`p-2 rounded-lg transition-all ${view === "list" ? "bg-white text-indigo-600 shadow-sm" : "text-neutral-400"}`}><List size={16} /></button>
-            </div>
-
-            <div className="relative shrink-0 hidden sm:block">
-              <select 
-                value={sortBy} 
-                onChange={(e) => setSortBy(e.target.value)}
-                className="appearance-none pl-10 pr-10 py-2.5 bg-white border border-[#E2E4E9] rounded-xl text-xs font-bold text-[#4B5264] outline-none hover:bg-neutral-50 transition-all cursor-pointer"
-              >
-                <option value="newest">Newest First</option>
-                <option value="oldest">Oldest First</option>
-                <option value="alphabetical">A - Z</option>
-              </select>
-              <ArrowUpDown className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400 pointer-events-none" />
-              <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-neutral-400 pointer-events-none" />
-            </div>
+          {/* Status pills */}
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 mr-1">Status</span>
+            {STATUS_FILTERS.map(s => {
+              const colorMap = {
+                All:       { active: "var(--t-primary)",   bg: "" },
+                Published: { active: "#10B981", bg: "bg-emerald-50 text-emerald-700 border border-emerald-200" },
+                Draft:     { active: "#F59E0B", bg: "bg-amber-50  text-amber-700  border border-amber-200"  },
+                Scheduled: { active: "#3B82F6", bg: "bg-blue-50   text-blue-700   border border-blue-200"   },
+              };
+              const isActive = statusFilter === s;
+              return (
+                <button
+                  key={s}
+                  onClick={() => setStatusFilter(s)}
+                  className={`px-3 py-1.5 rounded-xl text-[12px] font-semibold transition-all ${
+                    isActive
+                      ? s === "All" ? "text-white shadow-sm" : colorMap[s].bg + " font-bold"
+                      : "bg-[#F4F5F8] text-neutral-500 hover:bg-neutral-200"
+                  }`}
+                  style={isActive && s === "All" ? { backgroundColor: "var(--t-primary)" } : {}}
+                >
+                  {s}
+                  {s !== "All" && (
+                    <span className="ml-1.5 text-[10px] opacity-60">
+                      {s === "Published" ? stats.published : s === "Draft" ? stats.drafts : stats.scheduled}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
           </div>
         </div>
 
-        {/* ── ADVANCED FILTERS PANEL ── */}
-        <AnimatePresence>
-          {showFilters && (
-            <motion.div 
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              className="overflow-hidden"
+        {/* Results count */}
+        <div className="flex items-center justify-between pt-1 border-t border-[#F4F5F8]">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={selectAll}
+              className={`flex items-center gap-1.5 text-[11px] font-semibold transition-colors ${
+                selectedIds.length > 0 ? "text-[var(--t-primary)]" : "text-neutral-400 hover:text-neutral-600"
+              }`}
             >
-              <div className="pt-3 border-t border-[#F4F5F8] grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Platform</label>
-                  <select 
-                    value={filterPlatform}
-                    onChange={(e) => setFilterPlatform(e.target.value)}
-                    className="w-full p-2 bg-white border border-[#E2E4E9] rounded-xl text-xs font-bold outline-none"
-                  >
-                    <option value="all">All Platforms</option>
-                    {Object.keys(PLATFORM_ICONS).map(p => <option key={p} value={p}>{p}</option>)}
-                  </select>
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Content Type</label>
-                  <select 
-                    value={filterType}
-                    onChange={(e) => setFilterType(e.target.value)}
-                    className="w-full p-2 bg-white border border-[#E2E4E9] rounded-xl text-xs font-bold outline-none"
-                  >
-                    <option value="all">All Types</option>
-                    <option value="video">Video</option>
-                    <option value="article">Article</option>
-                    <option value="image">Image</option>
-                    <option value="podcast">Podcast</option>
-                  </select>
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Status</label>
-                  <select 
-                    value={filterStatus}
-                    onChange={(e) => setFilterStatus(e.target.value)}
-                    className="w-full p-2 bg-white border border-[#E2E4E9] rounded-xl text-xs font-bold outline-none"
-                  >
-                    <option value="all">All Statuses</option>
-                    <option value="published">Published</option>
-                    <option value="draft">Draft</option>
-                    <option value="scheduled">Scheduled</option>
-                  </select>
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Tags</label>
-                  <div className="flex flex-wrap gap-1 p-1.5 bg-white border border-[#E2E4E9] rounded-xl min-h-[38px]">
-                    {filterTags.map(tag => (
-                      <span key={tag} className="flex items-center gap-1 px-2 py-0.5 bg-indigo-50 text-indigo-600 rounded-lg text-[10px] font-bold">
-                        {tag}
-                        <button onClick={() => setFilterTags(filterTags.filter(t => t !== tag))}><X size={10} /></button>
-                      </span>
-                    ))}
-                    <input 
-                      placeholder={filterTags.length === 0 ? "Filter by tags..." : ""}
-                      className="flex-1 bg-transparent border-none outline-none text-xs font-medium min-w-[80px]"
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" && e.target.value) {
-                          if (!filterTags.includes(e.target.value)) setFilterTags([...filterTags, e.target.value]);
-                          e.target.value = "";
-                        }
-                      }}
-                    />
-                  </div>
-                </div>
-              </div>
-              <div className="mt-3 flex justify-end gap-3">
-                <button 
-                  onClick={() => {
-                    setFilterPlatform("all");
-                    setFilterType("all");
-                    setFilterStatus("all");
-                    setFilterTags([]);
-                    setFilter("longform");
-                  }}
-                  className="flex items-center gap-2 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-neutral-400 hover:text-neutral-600 transition-all"
-                >
-                  <RotateCcw size={12} /> Reset Filters
-                </button>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+              {selectedIds.length === filtered.length && filtered.length > 0 ? <Check size={13} /> : <SlidersHorizontal size={13} />}
+              {selectedIds.length > 0 ? `${selectedIds.length} selected` : "Select all"}
+            </button>
+          </div>
+          <span className="text-[11px] text-neutral-400 font-medium">
+            {filtered.length} {filtered.length === 1 ? "item" : "items"}
+            {hasActiveFilter && " (filtered)"}
+          </span>
+        </div>
       </div>
 
       {/* ── BULK ACTION BAR ── */}
       <AnimatePresence>
         {selectedIds.length > 0 && (
-          <motion.div 
-            initial={{ y: 100, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 100, opacity: 0 }}
-            className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[60] w-full max-w-2xl px-4"
+          <motion.div
+            initial={{ y: 80, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 80, opacity: 0 }}
+            className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[60] px-4 w-full max-w-lg"
           >
-            <div className="bg-[#0F0F0F] text-white rounded-3xl p-4 shadow-2xl flex items-center justify-between gap-6 border border-white/10 backdrop-blur-xl">
-              <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-2xl bg-indigo-600 flex items-center justify-center font-black">
+            <div className="bg-[#0F0F0F] text-white rounded-2xl p-3 shadow-2xl flex items-center justify-between gap-4 border border-white/10">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-xl flex items-center justify-center font-black text-sm" style={{ backgroundColor: "var(--t-primary)" }}>
                   {selectedIds.length}
                 </div>
-                <div>
-                  <p className="text-xs font-black uppercase tracking-widest text-white/60">Selected</p>
-                  <p className="text-sm font-bold">Bulk Actions</p>
-                </div>
+                <span className="text-[13px] font-semibold">item{selectedIds.length > 1 ? "s" : ""} selected</span>
               </div>
-
               <div className="flex items-center gap-2">
-                <div className="relative group/action">
-                  <button className="p-3 bg-white/10 hover:bg-white/20 rounded-2xl transition-all flex items-center gap-2 text-xs font-bold">
-                    <CheckCircle2 size={16} /> Status
-                  </button>
-                  <div className="absolute bottom-full mb-2 right-0 bg-white rounded-2xl p-1 shadow-2xl hidden group-hover/action:block border border-neutral-100 min-w-[140px]">
-                    <button onClick={() => handleBulkStatus("published")} className="w-full flex items-center gap-2 px-3 py-2 text-[10px] font-bold text-neutral-600 hover:bg-neutral-50 rounded-xl transition-all uppercase tracking-wider"><Check size={12} /> Published</button>
-                    <button onClick={() => handleBulkStatus("draft")} className="w-full flex items-center gap-2 px-3 py-2 text-[10px] font-bold text-neutral-600 hover:bg-neutral-50 rounded-xl transition-all uppercase tracking-wider"><RotateCcw size={12} /> Draft</button>
-                  </div>
-                </div>
-
-                <div className="relative group/tag">
-                  <button className="p-3 bg-white/10 hover:bg-white/20 rounded-2xl transition-all flex items-center gap-2 text-xs font-bold">
-                    <Tag size={16} /> Tag
-                  </button>
-                  <div className="absolute bottom-full mb-2 right-0 bg-white rounded-2xl p-3 shadow-2xl hidden group-hover/tag:block border border-neutral-100 min-w-[200px]">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-2">Add tag to selected</p>
-                    <div className="flex gap-1">
-                      <input 
-                        value={tagInput}
-                        onChange={(e) => setTagInput(e.target.value)}
-                        placeholder="New tag..."
-                        className="flex-1 px-2 py-1.5 bg-neutral-50 border border-neutral-200 rounded-lg text-xs text-neutral-700 outline-none focus:border-indigo-500"
-                        onKeyDown={(e) => { if (e.key === "Enter") { handleBulkAddTag(tagInput); setTagInput(""); }}}
-                      />
-                      <button 
-                        onClick={() => { handleBulkAddTag(tagInput); setTagInput(""); }}
-                        className="p-1.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all"
-                      >
-                        <Plus size={14} />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="w-px h-8 bg-white/10 mx-1" />
-
-                <button 
-                  onClick={async () => {
-                    if (confirm(`Delete ${selectedIds.length} items?`)) {
-                      await bulkDelete(selectedIds);
-                      setSelectedIds([]);
-                    }
-                  }}
-                  className="p-3 bg-red-500/20 hover:bg-red-500 text-red-500 hover:text-white rounded-2xl transition-all"
+                <button
+                  onClick={() => bulkUpdate(selectedIds, { status: "published" })}
+                  className="flex items-center gap-1.5 px-3 py-2 bg-white/10 hover:bg-white/20 rounded-xl text-[11px] font-bold transition-all"
                 >
-                  <Trash2 size={16} />
+                  <Rocket size={13} /> Publish
                 </button>
-
-                <button 
-                  onClick={() => setSelectedIds([])}
-                  className="p-3 bg-white/5 hover:bg-white/10 text-white/40 hover:text-white rounded-2xl transition-all"
+                <button
+                  onClick={async () => { if (confirm(`Delete ${selectedIds.length} items?`)) { await bulkDelete(selectedIds); setSelectedIds([]); } }}
+                  className="p-2 bg-red-500/20 hover:bg-red-500 text-red-400 hover:text-white rounded-xl transition-all"
                 >
-                  <X size={16} />
+                  <Trash2 size={15} />
+                </button>
+                <button onClick={() => setSelectedIds([])} className="p-2 bg-white/5 hover:bg-white/10 text-white/40 hover:text-white rounded-xl transition-all">
+                  <X size={15} />
                 </button>
               </div>
             </div>
@@ -615,78 +509,89 @@ export default function AllContentPage() {
         )}
       </AnimatePresence>
 
-      {/* ── CONTENT GRID ── */}
+      {/* ── CONTENT GRID / LIST ── */}
       {isLoading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
-            <div key={i} className="bg-white border border-[#E2E4E9] rounded-2xl h-[300px] animate-pulse" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="bg-white border border-[#E2E4E9] rounded-2xl h-[280px] animate-pulse" />
           ))}
         </div>
       ) : filtered.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-24 bg-[#FFFFFF] border border-[#E5E7EB] rounded-[32px] text-center shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
-          <div className="w-20 h-20 bg-[#F9FAFB] rounded-full flex items-center justify-center mb-6 border border-[#E5E7EB]">
-            <Files size={32} className="text-[#D1D5DB]" />
+        <div className="flex flex-col items-center justify-center py-24 bg-white border border-[#E5E7EB] rounded-2xl text-center">
+          <div className="w-16 h-16 bg-[#F9FAFB] rounded-full flex items-center justify-center mb-5 border border-[#E5E7EB]">
+            <Files size={28} className="text-[#D1D5DB]" />
           </div>
-          <h3 className="text-[22px] font-[800] text-[#111318] mb-2">No matching content</h3>
-          <p className="text-[#6B7280] text-[14px] font-[400] mb-8 max-w-sm">We couldn't find any content matching your search or filters. Try adjusting your settings.</p>
+          <h3 className="text-[20px] font-[800] text-[#111318] mb-1">No content found</h3>
+          <p className="text-[#6B7280] text-[13px] mb-6 max-w-xs">
+            {hasActiveFilter ? "Try adjusting your filters or search terms." : "Start by creating your first piece of content."}
+          </p>
           <div className="flex gap-3">
-            <button onClick={() => { setSearch(""); setFilter("longform"); }} className="px-[24px] py-[12px] bg-transparent border border-[#E5E7EB] rounded-[12px] text-[14px] font-[600] text-[#374151] hover:bg-[#F9FAFB] transition-all">Clear Filters</button>
-            <button onClick={() => router.push("/add-content")} className="px-[24px] py-[12px] bg-gradient-to-br from-[#6366F1] to-[#8B5CF6] text-white rounded-[12px] text-[14px] font-[600] hover:brightness-110 shadow-[0_4px_14px_rgba(99,102,241,0.25)] transition-all">Create New Asset</button>
+            {hasActiveFilter && (
+              <button onClick={clearFilters} className="px-5 py-2.5 bg-white border border-[#E5E7EB] rounded-xl text-[13px] font-semibold text-[#374151] hover:bg-[#F9FAFB] transition-all">
+                Clear Filters
+              </button>
+            )}
+            <button
+              onClick={() => router.push("/add-content")}
+              className="px-5 py-2.5 text-white rounded-xl text-[13px] font-semibold hover:brightness-110 transition-all btn-primary"
+            >
+              Create Content
+            </button>
           </div>
         </div>
       ) : (
-        <div className={view === "grid" 
-          ? `grid gap-6 ${filter === "shorts" 
-              ? "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6" 
-              : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"}` 
-          : "space-y-4"}>
+        <div className={
+          view === "grid"
+            ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"
+            : "space-y-2"
+        }>
           <AnimatePresence mode="popLayout">
-            {filtered.map((item, idx) => (
-              <ContentCard 
-                key={item.id} 
-                item={item} 
-                index={idx}
+            {filtered.map(item => (
+              <ContentCard
+                key={item.id}
+                item={item}
                 view={view}
                 isSelected={selectedIds.includes(item.id)}
                 onToggleSelect={toggleSelect}
-                onPreview={setPreview} 
-                onEdit={handleEdit} 
-                onDelete={(id) => setDeleteTarget(contents.find(c => c.id === id))} 
-                onPublish={publishContent} 
+                onPreview={setPreview}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                onPublish={publishContent}
               />
             ))}
           </AnimatePresence>
         </div>
       )}
 
-      {/* ── MODALS ── */}
+      {/* ── PREVIEW PANEL ── */}
       <AnimatePresence>
         {preview && (
-          <PreviewPanel 
-            item={preview} 
-            onClose={() => setPreview(null)} 
-            onEdit={(item) => { setPreview(null); router.push(`/add-content?edit=${item.id}`); }} 
-            onDelete={(id) => { setPreview(null); setDeleteTarget(contents.find(c => c.id === id)); }} 
-            onPublish={publishContent} 
+          <PreviewPanel
+            item={preview}
+            onClose={() => setPreview(null)}
+            onEdit={item => { setPreview(null); router.push(`/add-content?edit=${item.id}`); }}
+            onDelete={item => { setPreview(null); setDeleteTarget(item); }}
+            onPublish={publishContent}
           />
         )}
       </AnimatePresence>
 
+      {/* ── DELETE CONFIRM ── */}
       <AnimatePresence>
         {deleteTarget && (
           <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setDeleteTarget(null)} className="absolute inset-0 bg-black/60 backdrop-blur-md" />
-            <motion.div initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }} className="relative bg-white border border-[#E2E4E9] rounded-[32px] p-8 shadow-2xl w-full max-w-sm text-center">
-              <div className="w-20 h-20 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-6">
-                <AlertTriangle size={40} />
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setDeleteTarget(null)} className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+            <motion.div initial={{ opacity: 0, scale: 0.9, y: 16 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 16 }} className="relative bg-white rounded-2xl p-7 shadow-2xl w-full max-w-sm text-center">
+              <div className="w-14 h-14 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-5">
+                <AlertTriangle size={28} />
               </div>
-              <h3 className="text-2xl font-black text-[#0F0F0F] mb-2">Delete Asset?</h3>
-              <p className="text-sm font-medium text-neutral-400 mb-8 leading-relaxed">
-                Are you sure you want to delete <span className="text-[#0F0F0F] font-bold">"{deleteTarget.title}"</span>? This cannot be undone.
+              <h3 className="text-xl font-black text-[#0F0F0F] mb-1">Delete content?</h3>
+              <p className="text-[13px] text-neutral-400 mb-6 leading-relaxed">
+                "<span className="text-[#0F0F0F] font-semibold">{deleteTarget.title}</span>" will be permanently removed.
               </p>
-              <div className="flex gap-3">
-                <button onClick={() => setDeleteTarget(null)} className="flex-1 py-4 rounded-2xl border border-[#E2E4E9] text-xs font-black uppercase tracking-widest text-[#4B5264] hover:bg-neutral-50 transition-all">Cancel</button>
-                <button onClick={() => { deleteContent(deleteTarget.id); setDeleteTarget(null); }} className="flex-1 py-4 rounded-2xl bg-red-500 text-white text-xs font-black uppercase tracking-widest hover:bg-red-600 transition-all">Yes, Delete</button>
+              <div className="flex gap-2">
+                <button onClick={() => setDeleteTarget(null)} className="flex-1 py-3 rounded-xl border border-[#E2E4E9] text-[13px] font-semibold text-[#4B5264] hover:bg-neutral-50 transition-all">Cancel</button>
+                <button onClick={() => { deleteContent(deleteTarget.id); setDeleteTarget(null); }} className="flex-1 py-3 rounded-xl bg-red-500 hover:bg-red-600 text-white text-[13px] font-semibold transition-all">Delete</button>
               </div>
             </motion.div>
           </div>
@@ -696,75 +601,96 @@ export default function AllContentPage() {
   );
 }
 
-// Reuse the PreviewPanel from original code but refined
+// ─── Preview Panel ────────────────────────────────────────────────────────────
+
 function PreviewPanel({ item, onClose, onEdit, onDelete, onPublish }) {
   if (!item) return null;
-
-  // Use the same logic as the card to find the right thumbnail
-  const realThumb = item.thumbnails?.youtube || item.thumbnails?.instagram || item.thumbnails?.shorts;
-  // For the preview, we'll try to find its index in the content list if we want exact matching, 
-  // or just default to a consistent mock based on ID
-  const mockIdx = typeof item.id === 'number' ? item.id % 3 : 0;
-  const thumbSrc = realThumb || `/thumbnails/thumb${mockIdx + 1}.png`;
+  const thumbObj = item.thumbnails || item.thumbnail || {};
+  const thumbSrc = thumbObj.youtube || thumbObj.instagram || thumbObj.shorts || null;
   const typeInfo = TYPE_CONFIG[item.type] || TYPE_CONFIG.video;
   const TypeIcon = typeInfo.icon;
-  const isShortForm = item.platforms?.some(p => ["YouTube Shorts", "Instagram Reels", "TikTok"].includes(p));
+  const isShort = item.type === "short" || item.platforms?.some(p => ["YouTube Shorts","Instagram Reels","TikTok"].includes(p));
+  const statusMeta = STATUS_META[item.status?.toLowerCase()] || STATUS_META.draft;
 
   return (
     <motion.div initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }} transition={{ type: "spring", damping: 30, stiffness: 300 }} className="fixed inset-0 z-[100] flex justify-end">
-      <div className="flex-1 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="w-full max-w-xl bg-white shadow-2xl overflow-y-auto">
-        <div className="sticky top-0 bg-white/80 backdrop-blur-md border-b border-[#F4F5F8] px-6 py-4 flex justify-between items-center z-10">
-          <h3 className="text-lg font-black text-[#0F0F0F]">Content Details</h3>
-          <button onClick={onClose} className="p-2 hover:bg-[#F3F4F6] rounded-xl"><X size={20} className="text-neutral-500" /></button>
+      <div className="flex-1 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+      <div className="w-full max-w-md bg-white shadow-2xl overflow-y-auto flex flex-col">
+
+        {/* Header */}
+        <div className="sticky top-0 bg-white border-b border-[#F4F5F8] px-6 py-4 flex justify-between items-center z-10">
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--t-text-3)] mb-0.5">Content Preview</p>
+            <h3 className="text-[15px] font-bold text-[#0F0F0F] line-clamp-1">{item.title}</h3>
+          </div>
+          <button onClick={onClose} className="p-2 hover:bg-[#F4F5F8] rounded-xl transition-all"><X size={18} className="text-neutral-500" /></button>
         </div>
-        
-        <div className={`relative ${isShortForm ? "aspect-[9/16] max-h-[70vh] mx-auto" : "aspect-video"} w-full bg-[#F4F5F8] overflow-hidden`}>
-          {thumbSrc ? (
-            <img src={thumbSrc} alt="" className="w-full h-full object-cover" />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center"><TypeIcon size={64} className="text-neutral-200" /></div>
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-          <div className="absolute bottom-6 left-6 right-6">
-            <div className="flex gap-2 mb-3">
-              <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border border-white/20 backdrop-blur-md bg-white/10 text-white`}>{item.type}</span>
-              <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border border-white/20 backdrop-blur-md ${item.status === 'published' ? 'bg-emerald-500/80' : 'bg-amber-500/80'} text-white`}>{item.status}</span>
+
+        {/* Thumbnail */}
+        <div className={`relative w-full ${isShort ? "aspect-[4/5]" : "aspect-video"} bg-[#F4F5F8] overflow-hidden`}>
+          {thumbSrc
+            ? <img src={thumbSrc} alt="" className="w-full h-full object-cover" />
+            : <div className="w-full h-full flex items-center justify-center"><TypeIcon size={56} className="text-neutral-200" /></div>}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+          <div className="absolute bottom-5 left-5 right-5">
+            <div className="flex gap-2 mb-2">
+              <span className="text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg bg-white/20 backdrop-blur-sm border border-white/20 text-white">{typeInfo.label}</span>
+              <span className={`text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border border-white/20 backdrop-blur-sm text-white ${item.status?.toLowerCase() === "published" ? "bg-emerald-500/80" : "bg-amber-500/80"}`}>{item.status}</span>
             </div>
-            <h2 className="text-2xl font-black text-white tracking-tighter leading-tight">{item.title}</h2>
+            <h2 className="text-[18px] font-black text-white leading-tight">{item.title}</h2>
           </div>
         </div>
 
-        <div className="p-8 space-y-10 bg-white">
-          <div className="space-y-4">
-            <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400 block">Overview</label>
-            <p className="text-sm leading-relaxed text-[#4B5264] font-medium">{item.description || "No description provided."}</p>
-          </div>
-
-          {item.script && (
-            <div className="space-y-4">
-              <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400 block">Content Script</label>
-              <pre className="text-xs text-neutral-500 bg-[#F9FAFB] rounded-[24px] p-6 border border-[#F4F5F8] whitespace-pre-wrap max-h-96 overflow-y-auto font-mono leading-relaxed">{item.script}</pre>
+        {/* Details */}
+        <div className="p-6 space-y-6 flex-1">
+          {item.description && (
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 mb-2">Overview</p>
+              <p className="text-[13px] leading-relaxed text-[#4B5264]">{item.description}</p>
             </div>
           )}
 
-          <div className="space-y-4">
-            <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400 block">Distribution Channels</label>
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 mb-2">Platforms</p>
             <div className="flex flex-wrap gap-2">
-              {item.platforms?.map((p) => {
-                const Icon = PLATFORM_ICONS[p];
-                return <span key={p} className="flex items-center gap-2 text-[11px] font-black uppercase tracking-wider px-4 py-2 rounded-xl border border-[#E2E4E9] bg-white text-[#374151]">{Icon && <Icon size={14} />}{p}</span>;
+              {item.platforms?.map(p => {
+                const m = PLATFORM_META[p];
+                return (
+                  <span key={p} className={`flex items-center gap-1.5 text-[11px] font-bold px-3 py-1.5 rounded-xl border ${m ? `${m.bg} ${m.text}` : "bg-neutral-50 text-neutral-600 border-neutral-200"}`}>
+                    {m && <m.icon size={12} style={{ color: m.color }} />}{p}
+                  </span>
+                );
               })}
             </div>
           </div>
+
+          {item.tags?.length > 0 && (
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 mb-2">Tags</p>
+              <div className="flex flex-wrap gap-1.5">
+                {item.tags.map(tag => (
+                  <span key={tag} className="flex items-center gap-0.5 text-[11px] font-semibold px-2.5 py-1 bg-neutral-100 text-neutral-600 rounded-lg">
+                    <Hash size={10} />{tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
-        <div className="sticky bottom-0 p-8 bg-white/80 backdrop-blur-md border-t border-[#F4F5F8] flex flex-col sm:flex-row gap-3 shadow-[0_-10px_40px_rgba(0,0,0,0.02)]">
-          <button onClick={() => onEdit(item)} className="flex-1 py-4 bg-[#F4F5F8] hover:bg-[#E5E7EB] rounded-2xl text-xs font-black uppercase tracking-widest text-[#374151] transition-all flex items-center justify-center gap-2 border border-[#E2E4E9]"><Edit2 size={16} /> Full Edit</button>
-          {item.status === "draft" && onPublish && (
-            <button onClick={() => { onPublish(item.id); onClose(); }} className="flex-1 py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-xs font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20"><Rocket size={16} /> Publish Now</button>
+        {/* Actions */}
+        <div className="sticky bottom-0 p-5 bg-white/90 backdrop-blur-md border-t border-[#F4F5F8] flex gap-2">
+          <button onClick={() => onEdit(item)} className="flex-1 py-3 bg-[#F4F5F8] hover:bg-[#E5E7EB] rounded-xl text-[12px] font-bold text-[#374151] transition-all flex items-center justify-center gap-2 border border-[#E2E4E9]">
+            <Edit2 size={14} /> Edit
+          </button>
+          {item.status?.toLowerCase() === "draft" && (
+            <button onClick={() => { onPublish(item.id); onClose(); }} className="flex-1 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-[12px] font-bold transition-all flex items-center justify-center gap-2">
+              <Rocket size={14} /> Publish
+            </button>
           )}
-          <button onClick={() => { onDelete(item.id); onClose(); }} className="py-4 px-6 bg-white border border-red-100 hover:bg-red-50 text-red-500 rounded-2xl text-xs font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2"><Trash2 size={16} /></button>
+          <button onClick={() => onDelete(item)} className="p-3 bg-white border border-red-100 hover:bg-red-50 text-red-500 rounded-xl transition-all">
+            <Trash2 size={16} />
+          </button>
         </div>
       </div>
     </motion.div>
