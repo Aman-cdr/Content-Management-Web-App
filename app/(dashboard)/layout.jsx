@@ -273,6 +273,25 @@ export default function DashboardLayout({ children }) {
         <div className="fixed top-0 right-0 w-[500px] h-[500px] bg-blue-600/5 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/3 pointer-events-none -z-10"></div>
         <div className="fixed bottom-0 left-0 w-[400px] h-[400px] bg-purple-600/5 blur-[100px] rounded-full translate-y-1/3 -translate-x-1/4 pointer-events-none -z-10"></div>
       </main>
+
+      {/* Floating Quick Create Button — visible on all pages except Dashboard */}
+      {pathname !== "/dashboard" && (
+        <Link
+          href="/dashboard"
+          className="fixed bottom-8 right-8 z-[60] group"
+        >
+          <motion.div
+            whileHover={{ scale: 1.08 }}
+            whileTap={{ scale: 0.95 }}
+            className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#6366F1] to-[#8B5CF6] text-white flex items-center justify-center shadow-[0_8px_30px_rgba(99,102,241,0.4)] hover:shadow-[0_8px_40px_rgba(99,102,241,0.55)] transition-shadow"
+          >
+            <Sparkles className="w-6 h-6" />
+          </motion.div>
+          <div className="absolute bottom-full right-0 mb-2 px-3 py-1.5 bg-[#111318] text-white text-[11px] font-bold rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-lg">
+            ✨ AI Quick Create
+          </div>
+        </Link>
+      )}
     </div>
     </SeriesProvider>
   );
