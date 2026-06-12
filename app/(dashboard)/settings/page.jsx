@@ -39,6 +39,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/hooks";
 import { format } from "date-fns";
+import httpClient from "@/lib/axios-instance";
 
 // ---------- Constants ----------
 
@@ -85,6 +86,100 @@ export default function SettingsPage() {
   const [showToast, setShowToast] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
   const fileInputRef = useRef(null);
+
+  // Dynamic YouTube connection states
+  const [toastMessage, setToastMessage] = useState("Profile updated successfully");
+  const [toastType, setToastType] = useState("success");
+  const [youtubeStatus, setYoutubeStatus] = useState({ connected: false });
+  const [loadingYouTube, setLoadingYouTube] = useState(true);
+
+  const fetchYouTubeStatus = async () => {
+    try {
+      setLoadingYouTube(true);
+      const res = await httpClient.get('/publish/youtube/status');
+      if (res.success) {
+        setYoutubeStatus(res.data);
+      }
+    } catch (err) {
+      console.error("Failed to load YouTube status", err);
+    } finally {
+      setLoadingYouTube(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchYouTubeStatus();
+  }, []);
+
+  // Handle OAuth callback redirects redirecting back from backend
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const success = params.get("success");
+      const error = params.get("error");
+
+      if (success === "youtube_connected") {
+        setToastMessage("YouTube Connected Successfully");
+        setToastType("success");
+        setShowToast(true);
+        fetchYouTubeStatus();
+        const newUrl = window.location.pathname;
+        window.history.replaceState({}, document.title, newUrl);
+        setTimeout(() => setShowToast(false), 3000);
+      } else if (error) {
+        setToastMessage(`YouTube Connection Failed: ${error.replace(/_/g, ' ')}`);
+        setToastType("error");
+        setShowToast(true);
+        const newUrl = window.location.pathname;
+        window.history.replaceState({}, document.title, newUrl);
+        setTimeout(() => setShowToast(false), 4000);
+      }
+    }
+  }, []);
+
+  const handleConnectYouTube = async () => {
+    try {
+      const res = await httpClient.get('/publish/youtube/connect');
+      if (res.success && res.data.authUrl) {
+        window.location.href = res.data.authUrl;
+      } else {
+        setToastMessage("Failed to get YouTube authorization link");
+        setToastType("error");
+        setShowToast(true);
+        setTimeout(() => setShowToast(false), 3000);
+      }
+    } catch (err) {
+      setToastMessage(err.message || "Failed to initiate YouTube connection");
+      setToastType("error");
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3000);
+    }
+  };
+
+  const handleDisconnectYouTube = async () => {
+    try {
+      const res = await httpClient.post('/publish/youtube/disconnect');
+      if (res.success) {
+        setToastMessage("YouTube channel disconnected");
+        setToastType("success");
+        setShowToast(true);
+        setYoutubeStatus({ connected: false });
+        setTimeout(() => setShowToast(false), 3000);
+      }
+    } catch (err) {
+      setToastMessage(err.message || "Failed to disconnect YouTube");
+      setToastType("error");
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3000);
+    }
+  };
+
+  const handleUnsupportedConnect = (platformName) => {
+    setToastMessage(`${platformName} integration is coming soon!`);
+    setToastType("success");
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 3000);
+  };
 
   // Form State
   const [profileData, setProfileData] = useState({
@@ -461,11 +556,21 @@ export default function SettingsPage() {
               <SectionHeading icon={LinkIcon}>Connected Accounts</SectionHeading>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {[
-                  { name: "YouTube", icon: FaYoutube, color: "text-red-600", connected: true, handle: "@AmanTech", followers: "45.2K", lastSync: "2 hours ago" },
-                  { name: "Twitter/X", icon: FaTwitter, color: "text-[#0F0F0F]", connected: true, handle: "@aman_cdr", followers: "12.8K", lastSync: "5 mins ago" },
-                  { name: "TikTok", icon: FaMusic, color: "text-[#000000]", connected: false },
-                  { name: "Instagram", icon: FaInstagram, color: "text-pink-600", connected: false },
-                  { name: "LinkedIn", icon: FaLinkedin, color: "text-blue-700", connected: false }
+                  { 
+                    name: "YouTube", 
+                    icon: FaYoutube, 
+                    color: "text-red-600", 
+                    connected: youtubeStatus.connected, 
+                    handle: youtubeStatus.handle || youtubeStatus.channelName || "", 
+                    followers: youtubeStatus.subscribers !== undefined ? (youtubeStatus.subscribers >= 1000 ? `${(youtubeStatus.subscribers / 1000).toFixed(1)}K` : youtubeStatus.subscribers.toString()) : "0", 
+                    lastSync: youtubeStatus.lastSync ? format(new Date(youtubeStatus.lastSync), "PP") : "Never",
+                    onConnect: handleConnectYouTube,
+                    onDisconnect: handleDisconnectYouTube
+                  },
+                  { name: "Twitter/X", icon: FaTwitter, color: "text-[#0F0F0F]", connected: false, onConnect: () => handleUnsupportedConnect("Twitter/X") },
+                  { name: "TikTok", icon: FaMusic, color: "text-[#000000]", connected: false, onConnect: () => handleUnsupportedConnect("TikTok") },
+                  { name: "Instagram", icon: FaInstagram, color: "text-pink-600", connected: false, onConnect: () => handleUnsupportedConnect("Instagram") },
+                  { name: "LinkedIn", icon: FaLinkedin, color: "text-blue-700", connected: false, onConnect: () => handleUnsupportedConnect("LinkedIn") }
                 ].map((acc) => (
                   <div key={acc.name} className="bg-white border border-[#E2E4E9] rounded-2xl p-6 shadow-sm hover:shadow-md transition-all group">
                     <div className="flex justify-between items-start mb-6">
@@ -487,7 +592,10 @@ export default function SettingsPage() {
                           <Check className="w-3 h-3" /> Connected
                         </span>
                       ) : (
-                        <button className="text-[10px] font-black text-indigo-600 border border-indigo-200 px-4 py-1.5 rounded-full hover:bg-indigo-50 transition-all uppercase tracking-widest">
+                        <button 
+                          onClick={acc.onConnect}
+                          className="text-[10px] font-black text-indigo-600 border border-indigo-200 px-4 py-1.5 rounded-full hover:bg-indigo-50 transition-all uppercase tracking-widest"
+                        >
                           Connect
                         </button>
                       )}
@@ -496,13 +604,18 @@ export default function SettingsPage() {
                       <div className="flex justify-between items-center pt-4 border-t border-[#F4F5F8]">
                         <div className="flex gap-4">
                           <div className="text-[10px] font-bold text-neutral-400">
-                            <span className="block text-neutral-900 font-black">{acc.followers}</span> Followers
+                            <span className="block text-neutral-900 font-black">{acc.followers}</span> Subscribers
                           </div>
                           <div className="text-[10px] font-bold text-neutral-400">
                             <span className="block text-neutral-900 font-black">{acc.lastSync}</span> Sync
                           </div>
                         </div>
-                        <button className="text-[10px] font-black text-red-400 hover:text-red-500 transition-colors uppercase tracking-widest">Disconnect</button>
+                        <button 
+                          onClick={acc.onDisconnect}
+                          className="text-[10px] font-black text-red-400 hover:text-red-500 transition-colors uppercase tracking-widest"
+                        >
+                          Disconnect
+                        </button>
                       </div>
                     )}
                   </div>
@@ -749,12 +862,12 @@ export default function SettingsPage() {
             initial={{ opacity: 0, y: 50, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.9 }}
-            className="fixed bottom-12 left-1/2 -translate-x-1/2 z-[100] px-6 py-3 bg-emerald-600 text-white rounded-2xl shadow-2xl flex items-center gap-3"
+            className={`fixed bottom-12 left-1/2 -translate-x-1/2 z-[100] px-6 py-3 text-white rounded-2xl shadow-2xl flex items-center gap-3 ${toastType === 'error' ? 'bg-red-600' : 'bg-emerald-600'}`}
           >
             <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center">
-              <Check className="w-4 h-4" />
+              {toastType === 'error' ? <AlertTriangle className="w-4 h-4" /> : <Check className="w-4 h-4" />}
             </div>
-            <span className="text-sm font-black uppercase tracking-widest">Profile updated successfully</span>
+            <span className="text-sm font-black uppercase tracking-widest">{toastMessage}</span>
           </motion.div>
         )}
       </AnimatePresence>

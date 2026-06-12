@@ -159,8 +159,8 @@ export default function LoginPage() {
         <div className="relative z-10 w-full">
           {/* Logo */}
           <div className="flex items-center gap-2.5 mb-12 xl:mb-16">
-            <div className="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-600/20">
-              <Star className="w-5 h-5 text-white fill-white" />
+            <div className="w-9 h-9 rounded-xl overflow-hidden flex items-center justify-center bg-neutral-900 border border-white/10" style={{ boxShadow: "0 4px 12px rgba(99,102,241,0.2)" }}>
+              <img src="/logo.png" alt="CreatorCMS Logo" className="w-full h-full object-cover" />
             </div>
             <span className="text-xl font-bold tracking-tight text-white font-outfit">CreatorCMS</span>
           </div>

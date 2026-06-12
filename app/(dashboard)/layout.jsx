@@ -92,8 +92,8 @@ export default function DashboardLayout({ children }) {
       <aside className="app-sidebar w-[240px] border-r border-white/5 flex flex-col h-screen fixed z-50">
         <div className="p-5 px-4 pb-4 border-b border-white/[0.05] mb-2">
           <Link href="/dashboard" className="flex items-center gap-3 no-underline group">
-            <div className="w-[36px] h-[36px] rounded-[10px] flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, var(--t-primary), var(--t-secondary))", boxShadow: "0 4px 12px var(--t-primary-glow)" }}>
-              <Sparkles size={18} color="white" strokeWidth={2.2} />
+            <div className="w-[36px] h-[36px] rounded-[10px] overflow-hidden flex items-center justify-center flex-shrink-0 bg-neutral-900 border border-white/10" style={{ boxShadow: "0 4px 12px rgba(99,102,241,0.2)" }}>
+              <img src="/logo.png" alt="CreatorCMS Logo" className="w-full h-full object-cover" />
             </div>
             <div className="flex flex-col">
               <span className="text-white font-bold text-[15px] tracking-tight leading-none">CreatorCMS</span>

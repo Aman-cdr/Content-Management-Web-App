@@ -321,7 +321,7 @@ export default function SeriesPlannerPage() {
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <div className="flex-1 h-1.5 bg-neutral-100 rounded-full max-w-[120px]">
-                          <div className="h-full bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full" style={{ width: `${Math.round((s.completed / s.episodes) * 100)}%` }}></div>
+                          <div className="h-full bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full" style={{ width: `${s.episodes ? Math.round((s.completed / s.episodes) * 100) : 0}%` }}></div>
                         </div>
                         <span className="text-xs font-bold text-neutral-800">{s.completed}/{s.episodes}</span>
                       </div>
@@ -704,7 +704,7 @@ function AIEpisodeModal({ series, onClose }) {
 
 function SeriesCard({ series: s, onEdit, onDuplicate, onArchive, onDelete, onAIGenerate }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const progress = Math.round((s.completed / s.episodes) * 100);
+  const progress = s.episodes ? Math.round((s.completed / s.episodes) * 100) : 0;
 
   // Mock episodes for preview
   const previewEpisodes = [

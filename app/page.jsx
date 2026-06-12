@@ -31,8 +31,8 @@ export default function LandingPage() {
       <nav className="landing-navbar fixed top-0 left-0 right-0 z-50 px-6 py-4">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-white" />
+            <div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center bg-neutral-900 border border-white/10">
+              <img src="/logo.png" alt="CreatorCMS Logo" className="w-full h-full object-cover" />
             </div>
             <span className="text-xl font-bold tracking-tight">CreatorCMS</span>
           </div>
@@ -325,8 +325,8 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-12 mb-20">
           <div className="col-span-2 md:col-span-1">
             <div className="flex items-center gap-2 mb-6">
-              <div className="w-6 h-6 bg-indigo-600 rounded flex items-center justify-center">
-                <Sparkles className="w-3.5 h-3.5 text-white" />
+              <div className="w-6 h-6 rounded overflow-hidden flex items-center justify-center bg-neutral-900 border border-white/10">
+                <img src="/logo.png" alt="CreatorCMS Logo" className="w-full h-full object-cover" />
               </div>
               <span className="text-lg font-bold">CreatorCMS</span>
             </div>
