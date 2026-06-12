@@ -92,8 +92,8 @@ export default function DashboardLayout({ children }) {
       <aside className="app-sidebar w-[240px] border-r border-white/5 flex flex-col h-screen fixed z-50">
         <div className="p-5 px-4 pb-4 border-b border-white/[0.05] mb-2">
           <Link href="/dashboard" className="flex items-center gap-3 no-underline group">
-            <div className="w-[36px] h-[36px] rounded-[10px] flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, var(--t-primary), var(--t-secondary))", boxShadow: "0 4px 12px var(--t-primary-glow)" }}>
-              <Sparkles size={18} color="white" strokeWidth={2.2} />
+            <div className="w-[36px] h-[36px] rounded-[10px] overflow-hidden flex items-center justify-center flex-shrink-0 bg-neutral-900 border border-white/10" style={{ boxShadow: "0 4px 12px rgba(99,102,241,0.2)" }}>
+              <img src="/logo.png" alt="CreatorCMS Logo" className="w-full h-full object-cover" />
             </div>
             <div className="flex flex-col">
               <span className="text-white font-bold text-[15px] tracking-tight leading-none">CreatorCMS</span>
@@ -273,6 +273,25 @@ export default function DashboardLayout({ children }) {
         <div className="fixed top-0 right-0 w-[500px] h-[500px] bg-blue-600/5 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/3 pointer-events-none -z-10"></div>
         <div className="fixed bottom-0 left-0 w-[400px] h-[400px] bg-purple-600/5 blur-[100px] rounded-full translate-y-1/3 -translate-x-1/4 pointer-events-none -z-10"></div>
       </main>
+
+      {/* Floating Quick Create Button — visible on all pages except Dashboard */}
+      {pathname !== "/dashboard" && (
+        <Link
+          href="/dashboard"
+          className="fixed bottom-8 right-8 z-[60] group"
+        >
+          <motion.div
+            whileHover={{ scale: 1.08 }}
+            whileTap={{ scale: 0.95 }}
+            className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#6366F1] to-[#8B5CF6] text-white flex items-center justify-center shadow-[0_8px_30px_rgba(99,102,241,0.4)] hover:shadow-[0_8px_40px_rgba(99,102,241,0.55)] transition-shadow"
+          >
+            <Sparkles className="w-6 h-6" />
+          </motion.div>
+          <div className="absolute bottom-full right-0 mb-2 px-3 py-1.5 bg-[#111318] text-white text-[11px] font-bold rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-lg">
+            ✨ AI Quick Create
+          </div>
+        </Link>
+      )}
     </div>
     </SeriesProvider>
   );

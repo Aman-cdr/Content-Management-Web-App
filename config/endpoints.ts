@@ -49,6 +49,10 @@ export const ENDPOINTS = {
     GET_BY_ID: (id: string) => `/publish/${id}`,
     CANCEL: (id: string) => `/publish/${id}`,
   },
+  AI: {
+    GENERATE: '/ai/generate',
+    CHAT: '/ai/chat',
+  },
   GENERATE: '/generate',
   ANALYTICS: '/analytics',
   GENERATE_SCRIPT: '/generate-script',
