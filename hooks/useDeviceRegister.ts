@@ -31,30 +31,6 @@ interface UseDeviceRegisterReturn {
 }
 
 /**
- * Helper to check if a JWT token has expired
- */
-function isTokenExpired(token: string | null): boolean {
-  if (!token) return true;
-  try {
-    const base64Url = token.split('.')[1];
-    if (!base64Url) return true;
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(
-      window.atob(base64)
-        .split('')
-        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-        .join('')
-    );
-    const { exp } = JSON.parse(jsonPayload);
-    if (!exp) return false;
-    // Check if current time is past token expiration (exp is in seconds)
-    return Date.now() >= exp * 1000;
-  } catch (err) {
-    return true; // If error parsing, assume invalid/expired
-  }
-}
-
-/**
  * Hook to register the current browser device with the backend.
  * Returns a bearer token that must be used for login/register API calls.
  *
@@ -71,16 +47,11 @@ export function useDeviceRegister(): UseDeviceRegisterReturn {
     // Skip on server-side
     if (typeof window === "undefined") return null;
 
-    // If we already have a valid bearer token, return it directly
+    // If we already have a bearer token, return it directly
     const existingToken = TokenStorage.getBearerToken();
-    if (existingToken && !isTokenExpired(existingToken)) {
+    if (existingToken) {
       setBearerToken(existingToken);
       return existingToken;
-    }
-
-    // Clear expired token if present
-    if (existingToken && isTokenExpired(existingToken)) {
-      TokenStorage.removeBearerToken();
     }
 
     setIsLoading(true);
