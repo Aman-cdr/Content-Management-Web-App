@@ -619,9 +619,12 @@ function PreviewPanel({ item, onClose, onEdit, onDelete, onPublish }) {
   const [loadingJob, setLoadingJob] = useState(false);
 
   useEffect(() => {
-    const fetchJob = async () => {
-      if (!item.id && !item._id) return;
-      setLoadingJob(true);
+    if (!item.id && !item._id) return;
+
+    let interval = null;
+
+    const fetchJob = async (showLoading = true) => {
+      if (showLoading) setLoadingJob(true);
       try {
         const res = await httpClient.get(ENDPOINTS.PUBLISH.LIST, {
           params: { contentId: item.id || item._id }
@@ -760,6 +763,7 @@ function PreviewPanel({ item, onClose, onEdit, onDelete, onPublish }) {
                                 'bg-neutral-50 text-neutral-500 border-neutral-200'}`}
                             >
                               {pr.status}
+                              {pr.status === 'publishing' && typeof pr.progress === 'number' && ` (${pr.progress}%)`}
                             </span>
                             
                             {pr.liveUrl && (

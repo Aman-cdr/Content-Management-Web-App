@@ -70,6 +70,42 @@ export default function PublishPage() {
     fetchJobs();
   }, []);
 
+  // Background polling for active jobs
+  useEffect(() => {
+    const hasActiveJob = jobs.some(job => job.status === "publishing");
+    if (!hasActiveJob) return;
+
+    const interval = setInterval(async () => {
+      try {
+        const res = await httpClient.get(ENDPOINTS.PUBLISH.LIST);
+        if (res.success && Array.isArray(res.data)) {
+          setJobs(res.data);
+
+          // Check if all publishing jobs are finished now
+          const stillPublishing = res.data.some(j => j.status === "publishing");
+          if (!stillPublishing) {
+            setNotification({ type: "success", message: "Video published successfully!" });
+            clearInterval(interval);
+            return;
+          }
+
+          // Find the active publishing job and show progress in notification
+          const activeJob = res.data.find(j => j.status === "publishing");
+          if (activeJob) {
+            const ytResult = activeJob.platformResults?.find(pr => pr.platform.includes('youtube'));
+            if (ytResult && ytResult.status === 'publishing' && typeof ytResult.progress === 'number') {
+              setNotification({ type: "success", message: `Publishing to YouTube: ${ytResult.progress}% uploaded` });
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Polling error:", err);
+      }
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [jobs]);
+
   const showNotification = (type, message) => {
     setNotification({ type, message });
     setTimeout(() => {
@@ -923,7 +959,14 @@ export default function PublishPage() {
                                 <span className={`w-1.5 h-1.5 rounded-full ${
                                   res.status === 'published' ? 'bg-emerald-500' : res.status === 'failed' ? 'bg-red-500' : res.status === 'publishing' ? 'bg-amber-500 animate-pulse' : 'bg-blue-400'
                                 }`} />
-                                <span className="text-[10px] font-bold text-neutral-500 capitalize">{res.status}</span>
+                                <span className="text-[10px] font-bold text-neutral-500 capitalize">
+                                  {res.status}
+                                  {res.status === 'publishing' && typeof res.progress === 'number' && (
+                                    <span className="text-[#4F46E5] font-extrabold ml-1">
+                                      ({res.progress}%)
+                                    </span>
+                                  )}
+                                </span>
                                 
                                 {res.status === "published" && res.liveUrl && (
                                   <a

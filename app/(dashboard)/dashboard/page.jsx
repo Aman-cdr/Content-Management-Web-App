@@ -119,7 +119,7 @@ function ErrorBanner({ message, onRetry }) {
 }
 
 // ---------- Live Indicator ----------
-function LiveIndicator({ lastUpdated, error, onReconnect }) {
+function LiveIndicator({ lastUpdated, error, connectedCount = 0, onReconnect }) {
   if (error) {
     return (
       <div className="flex items-center gap-2 text-xs text-red-500 bg-red-50 px-3 py-1.5 rounded-lg border border-red-100">
@@ -147,7 +147,7 @@ function LiveIndicator({ lastUpdated, error, onReconnect }) {
         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
         <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
       </span>
-      <span className="font-semibold text-[#4B5264]">4 platforms connected</span>
+      <span className="font-semibold text-[#4B5264]">{connectedCount} {connectedCount === 1 ? 'platform' : 'platforms'} connected</span>
       <span className="text-neutral-400 ml-1">({timeAgo})</span>
     </div>
   );
@@ -301,7 +301,7 @@ export default function DashboardPage() {
                 <div className="w-1.5 h-1.5 rounded-full bg-[#10B981]" />
                 <p className="text-[11px] font-[700] text-[#6B7280] uppercase tracking-wider">Strategy: Focus on YouTube Shorts this week</p>
               </div>
-              <LiveIndicator lastUpdated={lastUpdated} error={error} onReconnect={refetch} />
+              <LiveIndicator lastUpdated={lastUpdated} error={error} connectedCount={data?.connectedCount || 0} onReconnect={refetch} />
             </div>
           </motion.div>
           <motion.button 

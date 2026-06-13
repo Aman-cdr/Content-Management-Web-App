@@ -715,8 +715,8 @@ export default function AddContentPage() {
                     ) : (
                       <div className="border border-emerald-100 bg-emerald-50/20 rounded-2xl p-4 flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-lg bg-emerald-100/50 border border-emerald-200/30 flex items-center justify-center text-emerald-600">
-                            <Video className="w-4 h-4" />
+                          <div className="w-16 h-10 rounded-lg overflow-hidden border border-[#E2E4E9] bg-neutral-100 flex items-center justify-center shrink-0">
+                            <video src={uploadedVideo.url} className="w-full h-full object-cover" preload="metadata" />
                           </div>
                           <div>
                             <p className="text-xs font-bold text-neutral-800 truncate max-w-xs">{uploadedVideo.originalName || uploadedVideo.fileName}</p>
@@ -806,13 +806,20 @@ export default function AddContentPage() {
                     </span>
                   </div>
                   {description && <p className="text-[14px] text-neutral-500 leading-relaxed">{description}</p>}
-                  {Object.values(thumbnails).filter(Boolean).length > 0 && (
-                    <div className="flex gap-3 mt-2">
-                      {Object.entries(thumbnails).filter(([, v]) => v).map(([k, v]) => (
-                        <img key={k} src={v} alt={k} className="h-20 rounded-xl border border-[#E5E7EB] object-cover shadow-sm" />
-                      ))}
-                    </div>
-                  )}
+                  <div className="flex flex-wrap gap-4 mt-2">
+                    {type === "video" && uploadedVideo && (
+                      <div className="w-36 h-20 rounded-xl overflow-hidden border border-[#E5E7EB] bg-neutral-100 relative">
+                        <video src={uploadedVideo.url} className="w-full h-full object-cover" preload="metadata" />
+                      </div>
+                    )}
+                    {Object.values(thumbnails).filter(Boolean).length > 0 && (
+                      <div className="flex gap-3">
+                        {Object.entries(thumbnails).filter(([, v]) => v).map(([k, v]) => (
+                          <img key={k} src={v} alt={k} className="h-20 rounded-xl border border-[#E5E7EB] object-cover shadow-sm" />
+                        ))}
+                      </div>
+                    )}
+                  </div>
                   {script && (
                     <div className="rounded-2xl border border-[#E2E4E9] overflow-hidden bg-white">
                       <button
