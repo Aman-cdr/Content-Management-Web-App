@@ -1,0 +1,448 @@
+@import "tailwindcss";
+
+/* ─── Tailwind theme tokens (fallback to indigo defaults) ─── */
+@theme {
+  --color-background: var(--t-bg, #EEEEF0);
+  --color-foreground: var(--t-text, #0A0A0F);
+  --color-primary:    var(--t-primary-dark, #4F46E5);
+  --color-secondary:  var(--t-secondary, #8B5CF6);
+  --color-accent:     var(--t-primary, #6366F1);
+  --color-muted:      var(--t-text-3, #8A91A8);
+  --color-tertiary:   var(--t-text-2, #4B5264);
+  --color-border:     var(--t-border, #E2E4E9);
+  --color-card:       var(--t-surface, #FFFFFF);
+  --color-card-hover: var(--t-surface, #FFFFFF);
+}
+
+/* ─── Layout variables — NEVER overridden by theme selector ─── */
+/* Sidebar, background, surface, text are fixed. Only accent colors change. */
+:root {
+  /* Accent (changes with theme) */
+  --t-primary:       #6366F1;
+  --t-primary-dark:  #4F46E5;
+  --t-primary-light: rgba(99,102,241,0.09);
+  --t-primary-glow:  rgba(99,102,241,0.25);
+  --t-secondary:     #8B5CF6;
+
+  /* Layout (fixed — never changed by ThemeContext) */
+  --t-bg:            #EEEEF0;
+  --t-surface:       #FFFFFF;
+  --t-sidebar:       #0C0C14;
+  --t-sidebar-text:  #9CA3AF;
+  --t-border:        #E2E4E9;
+  --t-text:          #0A0A0F;
+  --t-text-2:        #4B5264;
+  --t-text-3:        #8A91A8;
+  --t-header-bg:     #FFFFFF;
+
+  /* Legacy aliases kept for backward compat with existing components */
+  --background:      #EEEEF0;
+  --foreground:      #0A0A0F;
+  --primary:         #4F46E5;
+  --secondary:       #8B5CF6;
+  --card:            #FFFFFF;
+  --card-border:     #E2E4E9;
+  --secondary-text:  #4B5264;
+  --tertiary-text:   #8A91A8;
+  --surface:         #FFFFFF;
+  --card-shadow:     0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+  --card-shadow-hover: 0 2px 8px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.06);
+}
+
+body {
+  background: var(--t-bg);
+  color: var(--t-text);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── Sidebar picks up theme color ─── */
+.app-sidebar {
+  background-color: var(--t-sidebar) !important;
+}
+
+/* ─── Top header picks up theme surface ─── */
+.app-header {
+  background-color: var(--t-header-bg) !important;
+}
+
+/* ─── Primary interactive elements respond to theme ─── */
+.theme-btn {
+  background: linear-gradient(135deg, var(--t-primary), var(--t-secondary));
+  color: #fff;
+}
+.theme-btn:hover { opacity: 0.9; }
+
+.theme-ring {
+  box-shadow: 0 0 0 3px var(--t-primary-light);
+  border-color: var(--t-primary) !important;
+}
+
+.theme-text { color: var(--t-primary); }
+.theme-bg   { background-color: var(--t-primary-light); }
+
+/* ─── App-wide primary button ─── */
+.btn-primary {
+  background: var(--t-primary);
+  color: #fff;
+  transition: opacity 0.15s;
+}
+.btn-primary:hover { opacity: 0.88; }
+
+/* ─── Toggle switch ─── */
+.toggle-checked {
+  background-color: var(--t-primary) !important;
+}
+
+/* ─── Focus border / ring ─── */
+.focus-primary:focus {
+  border-color: var(--t-primary) !important;
+  outline: none;
+}
+
+/* ─── Tab active indicator ─── */
+.tab-active {
+  color: var(--t-primary) !important;
+  border-bottom-color: var(--t-primary) !important;
+}
+
+@layer base {
+  * {
+    border-color: var(--card-border);
+  }
+}
+
+/* ─── Glass Panel ─── */
+.glass-panel {
+  background: #FFFFFF;
+  border: 1px solid var(--card-border);
+  border-radius: 1.5rem;
+  box-shadow: var(--card-shadow);
+}
+
+/* ─── Glass Card ─── */
+.glass-card {
+  background: #FFFFFF;
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  transition: all 0.2s ease;
+  box-shadow: var(--card-shadow);
+}
+
+.glass-card:hover {
+  background: var(--color-card-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--card-shadow-hover);
+}
+
+/* ─── Gradient Text ─── */
+.gradient-text {
+  background: linear-gradient(135deg, #818cf8 0%, #a78bfa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 800;
+}
+
+/* ─── Sidebar ─── */
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1.25rem;
+  border-radius: 1rem;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  color: #9CA3AF;
+  margin: 0.25rem 0.75rem;
+  font-weight: 600;
+}
+
+.sidebar-link:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #FFFFFF;
+  transform: translateX(4px);
+}
+
+.sidebar-link.active {
+  background: rgba(255, 255, 255, 0.1);
+  color: #FFFFFF;
+  box-shadow: none;
+}
+
+/* ─── Card ─── */
+.card {
+  background: #FFFFFF;
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  padding: 1.5rem;
+  transition: all 0.2s ease;
+  box-shadow: var(--card-shadow);
+}
+
+.card:hover {
+  background: var(--color-card-hover);
+  box-shadow: var(--card-shadow-hover);
+  transform: translateY(-1px);
+}
+
+/* ─── Glow ─── */
+.glow-primary {
+  box-shadow: 0 0 30px -5px rgba(99, 102, 241, 0.2);
+}
+
+/* ─── Float Animation ─── */
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* ─── Landing Page Styles (Premium Dark Theme) ─── */
+.landing-theme {
+  --bg-deep: #080810;
+  --accent-primary: #6366F1;
+  --accent-secondary: #8B5CF6;
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.6);
+  --card-bg: rgba(255, 255, 255, 0.04);
+  --card-border: rgba(255, 255, 255, 0.08);
+  --navbar-bg: rgba(8, 8, 16, 0.8);
+  --btn-gradient: linear-gradient(135deg, #6366F1, #8B5CF6);
+}
+
+.landing-page {
+  background-color: #080810 !important;
+  color: #ffffff !important;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.landing-navbar {
+  background: rgba(8, 8, 16, 0.8);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.landing-btn-primary {
+  background: linear-gradient(135deg, var(--t-primary, #6366F1), var(--t-secondary, #8B5CF6));
+  color: white;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.landing-btn-primary:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.landing-btn-ghost {
+  color: white;
+  background: transparent;
+  padding: 10px 20px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.landing-btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.landing-btn-outline {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: white;
+  padding: 14px 28px;
+  border-radius: 10px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.landing-btn-outline:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.landing-badge {
+  background: var(--t-primary-light, rgba(99, 102, 241, 0.09));
+  border: 1px solid var(--t-primary-glow, rgba(99, 102, 241, 0.25));
+  color: var(--t-primary, #6366F1);
+  padding: 6px 12px;
+  border-radius: 9999px;
+  font-size: 14px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.landing-gradient-text {
+  background: linear-gradient(135deg, var(--t-primary, #6366F1), var(--t-secondary, #8B5CF6));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.landing-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 16px;
+  padding: 28px;
+  transition: all 0.3s ease;
+}
+
+.landing-card:hover {
+  border-color: var(--t-primary-glow, rgba(99, 102, 241, 0.25));
+  background: var(--t-primary-light, rgba(99, 102, 241, 0.09));
+  transform: translateY(-4px);
+}
+
+.landing-icon-box {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--t-primary, #6366F1), var(--t-secondary, #8B5CF6));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.landing-stats-bar {
+  background: rgba(255, 255, 255, 0.02);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.landing-step-line {
+  border-top: 1px dashed var(--t-primary-glow, rgba(99, 102, 241, 0.25));
+  flex-grow: 1;
+  margin: 0 20px;
+}
+
+.landing-pricing-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 20px;
+  padding: 40px;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.landing-pricing-card.popular {
+  border: 1px solid var(--t-primary, #6366F1);
+  background: var(--t-primary-light, rgba(99, 102, 241, 0.09));
+  transform: scale(1.05);
+}
+
+.landing-cta-box {
+  background: linear-gradient(135deg, var(--t-primary-light, rgba(99, 102, 241, 0.09)), rgba(139, 92, 246, 0.03));
+  border: 1px solid var(--t-primary-glow, rgba(99, 102, 241, 0.25));
+  border-radius: 24px;
+  padding: 80px 40px;
+  text-align: center;
+}
+
+.avatar-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 14px;
+  border: 2px solid #080810;
+}
+
+/* ─── Tiptap Rich Text Editor ─── */
+.ProseMirror {
+  outline: none;
+}
+
+.ProseMirror p.is-editor-empty:first-child::before {
+  color: #9CA3AF;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+.ProseMirror ul {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.ProseMirror ol {
+  list-style-type: decimal;
+  padding-left: 1.5rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.ProseMirror h2 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+/* ─── Dual-handle range slider (Processing Timeframe) ───
+   Two <input type="range"> stacked on one track; only the thumb is
+   interactive so both handles can be dragged independently. */
+.dual-range-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  pointer-events: none;
+}
+.dual-range-slider::-webkit-slider-runnable-track {
+  background: transparent;
+}
+.dual-range-slider::-moz-range-track {
+  background: transparent;
+}
+.dual-range-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  pointer-events: auto;
+  width: 16px;
+  height: 16px;
+  border-radius: 9999px;
+  background: var(--t-primary);
+  border: 2px solid #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+}
+.dual-range-slider::-moz-range-thumb {
+  pointer-events: auto;
+  width: 16px;
+  height: 16px;
+  border-radius: 9999px;
+  background: var(--t-primary);
+  border: 2px solid #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+}
+
+.ProseMirror blockquote {
+  border-left: 3px solid rgba(0, 0, 0, 0.1);
+  padding-left: 1rem;
+  color: #4B5563;
+  font-style: italic;
+}

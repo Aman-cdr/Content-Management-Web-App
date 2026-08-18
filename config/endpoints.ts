@@ -1,0 +1,80 @@
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3040/api/v1';
+
+
+export const ENDPOINTS = {
+  CONTENT: {
+    GET_ALL: '/content/list',
+    CREATE: '/content/create',
+    UPDATE: (id: string) => `/content/update/${id}`,
+    DELETE: (id: string) => `/content/delete/${id}`,
+    BULK_DELETE: '/content/delete-bulk',
+    BULK_UPDATE: '/content/update-bulk',
+  },
+  SERIES: {
+    GET_ALL: '/series/list',
+    CREATE: '/series/create',
+    GET_BY_ID: (id: string) => `/series/get/${id}`,
+    UPDATE: (id: string) => `/series/update/${id}`,
+    DELETE: (id: string) => `/series/delete/${id}`,
+    GET_CONTENTS: (id: string) => `/series/${id}/contents`,
+  },
+  ROADMAP: {
+    GET_ALL: '/roadmap/list',
+    CREATE: '/roadmap/create',
+    GET_BY_ID: (id: string) => `/roadmap/get/${id}`,
+    UPDATE: (id: string) => `/roadmap/update/${id}`,
+    DELETE: (id: string) => `/roadmap/delete/${id}`,
+  },
+  MEDIA: {
+    GET_ALL: '/media',
+    CREATE: '/media',
+    DELETE: (id: string) => `/media/${id}`,
+  },
+  USER: {
+    LOGIN: '/user/login',
+    REGISTER: '/user/register',
+    PROFILE: '/user/profile',
+  },
+  DEVICE: {
+    REGISTER: '/device/register',
+  },
+  UPLOAD: {
+    VIDEO: '/upload/video',
+    THUMBNAIL: '/upload/thumbnail',
+    LIST: '/upload/list',
+    GET_BY_ID: (id: string) => `/upload/${id}`,
+    DELETE: (id: string) => `/upload/${id}`,
+  },
+  PUBLISH: {
+    CREATE: '/publish/create',
+    LIST: '/publish/list',
+    GET_BY_ID: (id: string) => `/publish/${id}`,
+    CANCEL: (id: string) => `/publish/${id}`,
+    RETRY: (id: string) => `/publish/${id}/retry`,
+    YOUTUBE_STATUS: '/publish/youtube/status',
+    INSTAGRAM_STATUS: '/publish/instagram/status',
+  },
+  EDITOR: {
+    CREATE: '/editor/create',
+    GET_BY_ID: (id: string) => `/editor/get/${id}`,
+    UPDATE_EDL: (id: string) => `/editor/update/${id}`,
+    UPDATE_CAPTIONS: (id: string) => `/editor/update-captions/${id}`,
+    UPDATE_DETAILS: (id: string) => `/editor/update-details/${id}`,
+    TRANSCRIBE: (id: string) => `/editor/${id}/transcribe`,
+    RENDER: (id: string) => `/editor/${id}/render`,
+  },
+  AI: {
+    GENERATE: '/ai/generate',
+    CHAT: '/ai/chat',
+    SUGGEST: '/ai/suggest',
+    THUMBNAIL: '/ai/thumbnail',
+    REWRITE: '/ai/rewrite',
+    HIGHLIGHTS: '/ai/highlights',
+    RESEARCH: '/ai/research',
+  },
+  GENERATE: '/generate',
+  ANALYTICS: '/analytics',
+  GENERATE_SCRIPT: '/generate-script',
+  RESCHEDULE: '/reschedule',
+  GENERATE_THUMBNAIL: '/generate-thumbnail',
+};
