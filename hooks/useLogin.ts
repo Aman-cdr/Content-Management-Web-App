@@ -78,6 +78,54 @@ export function useLogin(): UseLoginReturn {
         return null;
       } catch (err: any) {
         const message = err?.message || "Invalid email or password";
+
+        // If the error is a bearer token issue, clear it, re-register, and retry once
+        if (
+          err?.statusCode === 401 &&
+          typeof message === "string" &&
+          message.toLowerCase().includes("bearer")
+        ) {
+          try {
+            TokenStorage.removeBearerToken();
+
+            // Re-register the device to get a fresh bearer token
+            const deviceInfo = {
+              deviceIp: "127.0.0.1",
+              latitude: 1,
+              longitude: 1,
+              os: navigator.platform || "Unknown",
+              deviceType: /Mobi|Android/i.test(navigator.userAgent)
+                ? "Mobile"
+                : "Desktop",
+            };
+
+            const deviceRes = await httpClient.post<{ bearerToken: string }>(
+              ENDPOINTS.DEVICE.REGISTER,
+              deviceInfo
+            );
+
+            if (deviceRes.success && deviceRes.data?.bearerToken) {
+              TokenStorage.setBearerToken(deviceRes.data.bearerToken);
+
+              // Retry login with the fresh token
+              const retryResponse = await httpClient.post<LoginResponse>(
+                ENDPOINTS.USER.LOGIN,
+                payload
+              );
+
+              if (retryResponse.success && retryResponse.data) {
+                const { user: userData, token: accessToken } = retryResponse.data;
+                TokenStorage.setAccessToken(accessToken);
+                TokenStorage.setUserData(userData);
+                setUser(userData);
+                return retryResponse.data;
+              }
+            }
+          } catch {
+            // Retry failed — fall through to show original error
+          }
+        }
+
         setError(message);
         return null;
       } finally {

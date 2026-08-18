@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { 
-  TrendingUp, 
-  Users, 
-  Eye, 
-  DollarSign, 
-  Clock, 
-  ArrowUpRight, 
+import { useState, useEffect, useCallback, useMemo } from "react";
+import {
+  TrendingUp,
+  Users,
+  Eye,
+  DollarSign,
+  Clock,
+  ArrowUpRight,
   ArrowDownRight,
   ChevronDown,
   MoreVertical,
@@ -16,15 +16,28 @@ import {
   Download,
   Calendar,
   Sparkles,
-  Zap
+  Zap,
+  Play,
+  Video,
+  ExternalLink,
+  ThumbsUp,
+  MessageSquare,
+  RefreshCw,
+  AlertCircle,
+  Lock,
+  Heart,
+  Image as ImageIcon,
+  Award,
+  BarChart3
 } from "lucide-react";
-import { 
-  AreaChart, 
-  Area, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
+import { FaInstagram, FaYoutube } from "react-icons/fa";
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
   ResponsiveContainer,
   LineChart,
   Line,
@@ -35,9 +48,32 @@ import {
   Bar,
   Legend
 } from "recharts";
+import httpClient from "@/lib/axios-instance";
+import { ENDPOINTS } from "@/config/endpoints";
 import { motion, AnimatePresence } from "framer-motion";
 
-// ---------- Mock Data ----------
+// ── Helpers ─────────────────────────────────────────────────────────────────
+
+function fmt(n) {
+  if (n == null) return "—";
+  if (n >= 1_000_000) return (n / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M";
+  if (n >= 1_000)     return (n / 1_000).toFixed(1).replace(/\.0$/, "") + "K";
+  return String(n);
+}
+
+function timeAgo(dateString) {
+  if (!dateString) return "";
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffInSeconds = Math.floor((now - date) / 1000);
+  if (diffInSeconds < 60) return "just now";
+  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
+  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
+  if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 86400)}d ago`;
+  return date.toLocaleDateString();
+}
+
+// ── Data & Config ─────────────────────────────────────────────────────────────
 
 const STATS_DATA = [
   {
@@ -139,7 +175,7 @@ const DEVICE_DATA = [
 ];
 
 // 7 days x 24 hours heatmap mock
-const HEATMAP_DATA = Array.from({ length: 7 }, (_, day) => 
+const HEATMAP_DATA = Array.from({ length: 7 }, (_, day) =>
   Array.from({ length: 24 }, (_, hour) => ({
     day,
     hour,
@@ -149,12 +185,104 @@ const HEATMAP_DATA = Array.from({ length: 7 }, (_, day) =>
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-// ---------- Components ----------
+const ICON_MAP = { Play, Users, Video, Clock, Eye };
+
+// ── Components ────────────────────────────────────────────────────────────────
+
+function PlatformCard({ platform, isLoading }) {
+  const isYouTube = platform?.icon === "youtube";
+  const PlatformIcon = isYouTube ? FaYoutube : FaInstagram;
+  const gradientFrom = isYouTube ? "#FF0000" : "#E1306C";
+  const bgLight = isYouTube ? "bg-red-50" : "bg-pink-50";
+  const textColor = isYouTube ? "text-red-600" : "text-pink-600";
+
+  if (isLoading) {
+    return (
+      <div className="bg-white border border-[#E5E7EB] rounded-[24px] p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] animate-pulse">
+        <div className="flex items-center gap-3 mb-5">
+          <div className="w-11 h-11 rounded-xl bg-black/5" />
+          <div className="flex-1 space-y-2">
+            <div className="h-4 w-24 bg-black/5 rounded" />
+            <div className="h-3 w-16 bg-black/5 rounded" />
+          </div>
+        </div>
+        <div className="grid grid-cols-3 gap-3">
+          {[0, 1, 2].map(i => (
+            <div key={i} className="text-center">
+              <div className="h-6 w-12 bg-black/5 rounded mx-auto mb-1" />
+              <div className="h-3 w-14 bg-black/5 rounded mx-auto" />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (!platform?.connected) {
+    return (
+      <div className="bg-white border border-[#E5E7EB] rounded-[24px] p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+        <div className="flex items-center gap-3 mb-4">
+          <div className={`w-11 h-11 rounded-xl ${bgLight} flex items-center justify-center`}>
+            <PlatformIcon size={20} style={{ color: gradientFrom }} />
+          </div>
+          <div>
+            <p className="text-[15px] font-bold text-[#0F0F0F]">{platform?.platform || "Platform"}</p>
+            <p className="text-[11px] text-neutral-400 font-medium">Not connected</p>
+          </div>
+        </div>
+        <a
+          href="/settings"
+          className="flex items-center justify-center gap-2 w-full py-2.5 bg-[#F4F5F8] hover:bg-neutral-200 rounded-xl text-[12px] font-bold text-neutral-600 transition-all"
+        >
+          <Zap size={13} /> Connect in Settings
+        </a>
+      </div>
+    );
+  }
+
+  return (
+    <motion.div
+      whileHover={{ y: -5 }}
+      className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-[24px] p-6 relative overflow-hidden group shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all"
+    >
+      <div className="flex items-center gap-3 mb-5">
+        {platform.channelIcon ? (
+          <img
+            src={platform.channelIcon}
+            alt=""
+            className="w-11 h-11 rounded-xl object-cover border border-black/[0.06]"
+          />
+        ) : (
+          <div className={`w-11 h-11 rounded-xl ${bgLight} flex items-center justify-center`}>
+            <PlatformIcon size={20} style={{ color: gradientFrom }} />
+          </div>
+        )}
+        <div className="flex-1 min-w-0">
+          <p className="text-[15px] font-bold text-[#0F0F0F] truncate">{platform.channelName || platform.platform}</p>
+          <div className="flex items-center gap-1.5">
+            <PlatformIcon size={11} style={{ color: gradientFrom }} />
+            <span className={`text-[11px] font-bold ${textColor}`}>{platform.platform}</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-3 gap-3">
+        {(platform.stats || []).map((s, i) => (
+          <div key={i} className="text-center">
+            <p className="text-[20px] font-[800] text-[#0F0F0F] tracking-tight leading-none">{s.value}</p>
+            <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider mt-1.5">{s.label}</p>
+          </div>
+        ))}
+      </div>
+    </motion.div>
+  );
+}
 
 function StatCard({ stat, isLoading }) {
   if (isLoading) {
     return (
-      <div className="glass-card p-6 relative overflow-hidden animate-pulse bg-white">
+      <div className="glass-card p-6 relative overflow-hidden animate-pulse bg-white border border-[#E5E7EB] rounded-[24px]">
         <div className="flex items-center justify-between mb-4">
           <div className="w-10 h-10 rounded-xl bg-black/5" />
           <div className="w-14 h-6 rounded-lg bg-black/5" />
@@ -165,40 +293,46 @@ function StatCard({ stat, isLoading }) {
     );
   }
 
+  const Icon = stat?.icon || ICON_MAP[stat?.iconKey] || Eye;
+  const changeText = stat?.change || "+0.0%";
+  const isPositive = changeText.startsWith("+");
+
   return (
-    <motion.div 
+    <motion.div
       whileHover={{ y: -5 }}
       className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-[24px] p-6 relative overflow-hidden group shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all"
     >
       <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-[0.07] transition-opacity">
-        <stat.icon size={80} className="text-black" />
+        <Icon size={80} className="text-black" />
       </div>
       <div className="flex items-center justify-between mb-4">
-        <div className={`p-2.5 rounded-xl ${stat.bg}`}>
-          <stat.icon className={`w-5 h-5 ${stat.color}`} />
+        <div className={`p-2.5 rounded-xl ${stat.bg || "bg-blue-50"}`}>
+          <Icon className={`w-5 h-5 ${stat.color || "text-blue-600"}`} />
         </div>
-        <span className={`text-xs font-bold px-2 py-1 rounded-lg ${stat.change.startsWith('+') ? 'text-emerald-600 bg-emerald-50' : 'text-red-600 bg-red-50'}`}>
-          {stat.change}
+        <span className={`text-xs font-bold px-2 py-1 rounded-lg ${isPositive ? 'text-emerald-600 bg-emerald-50' : 'text-red-600 bg-red-50'}`}>
+          {changeText}
         </span>
       </div>
       <div className="flex items-end justify-between">
         <div>
           <p className="text-sm text-neutral-500 mb-1">{stat.name}</p>
-          <p className="text-3xl font-bold tracking-tight text-[#0F0F0F]">{stat.value}</p>
+          <p className="text-3xl font-bold tracking-tight text-[#0F0F0F]">{stat.value ?? "—"}</p>
         </div>
-        <div className="h-12 w-24">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={stat.trend.map((v, i) => ({ v, i }))}>
-              <Line 
-                type="monotone" 
-                dataKey="v" 
-                stroke={stat.color.includes('blue') ? '#2563eb' : stat.color.includes('purple') ? '#9333ea' : stat.color.includes('pink') ? '#db2777' : '#059669'} 
-                strokeWidth={2} 
-                dot={false} 
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
+        {stat.trend && (
+          <div className="h-12 w-24">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={stat.trend.map((v, i) => ({ v, i }))}>
+                <Line
+                  type="monotone"
+                  dataKey="v"
+                  stroke={stat.color?.includes('blue') ? '#2563eb' : stat.color?.includes('purple') ? '#9333ea' : stat.color?.includes('pink') ? '#db2777' : '#059669'}
+                  strokeWidth={2}
+                  dot={false}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        )}
       </div>
     </motion.div>
   );
@@ -206,7 +340,7 @@ function StatCard({ stat, isLoading }) {
 
 function SectionSkeleton({ height = "400px" }) {
   return (
-    <div className={`card w-full h-[${height}] animate-pulse bg-white border-black/[0.06] rounded-3xl overflow-hidden`}>
+    <div className={`card w-full h-[${height}] animate-pulse bg-white border border-[#E5E7EB] rounded-3xl overflow-hidden`}>
       <div className="p-8 space-y-4">
         <div className="h-8 w-48 bg-black/5 rounded" />
         <div className="h-4 w-full bg-black/5 rounded" />
@@ -216,21 +350,262 @@ function SectionSkeleton({ height = "400px" }) {
   );
 }
 
+function TopVideosTable({ videos, isLoading, sortConfig, onSort }) {
+  const cols = [
+    { key: "views",    label: "Views",    Icon: Eye },
+    { key: "likes",    label: "Likes",    Icon: ThumbsUp },
+    { key: "comments", label: "Comments", Icon: MessageSquare },
+  ];
+
+  if (isLoading) {
+    return (
+      <div className="space-y-3 mt-4">
+        {[...Array(5)].map((_, i) => (
+          <div key={i} className="flex items-center gap-3 animate-pulse">
+            <div className="w-16 h-10 bg-neutral-200 rounded-lg shrink-0" />
+            <div className="h-4 bg-neutral-200 rounded flex-1" />
+            <div className="h-4 w-16 bg-neutral-200 rounded" />
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (!videos || videos.length === 0) {
+    return (
+      <div className="text-center py-16 text-neutral-400">
+        <div className="w-14 h-14 rounded-2xl bg-red-50 flex items-center justify-center mx-auto mb-3">
+          <FaYoutube size={24} className="text-red-300" />
+        </div>
+        <p className="text-sm font-bold text-neutral-500">No videos found</p>
+        <p className="text-xs text-neutral-400 mt-1">Videos will appear here once your channel has uploads</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="overflow-x-auto mt-2">
+      <table className="w-full text-left">
+        <thead>
+          <tr className="text-[10px] text-neutral-400 uppercase font-black tracking-widest border-b border-black/[0.06]">
+            <th className="pb-3 font-black">Video</th>
+            {cols.map(c => (
+              <th
+                key={c.key}
+                className="pb-3 cursor-pointer hover:text-[#0F0F0F] transition-colors pr-4"
+                onClick={() => onSort(c.key)}
+              >
+                <span className="flex items-center gap-1">
+                  {c.label} {sortConfig?.key === c.key ? (sortConfig.direction === "asc" ? "↑" : "↓") : ""}
+                </span>
+              </th>
+            ))}
+            <th className="pb-3">Published</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-black/[0.04]">
+          {videos.map((v, idx) => (
+            <tr key={v.id || idx} className="hover:bg-[#F9FAFB] transition-colors group">
+              <td className="py-3 pr-4">
+                <div className="flex items-center gap-3">
+                  <div className="relative shrink-0">
+                    {idx === 0 && (
+                      <div className="absolute -top-1.5 -left-1.5 z-10 w-5 h-5 rounded-md bg-amber-400 flex items-center justify-center shadow-sm">
+                        <Award size={10} className="text-white" />
+                      </div>
+                    )}
+                    <img
+                      src={v.thumbnail}
+                      alt={v.title}
+                      className="w-20 h-12 rounded-lg object-cover bg-neutral-100"
+                    />
+                    {v.duration && (
+                      <span className="absolute bottom-1 right-1 bg-black/80 text-white text-[9px] font-bold px-1 rounded">
+                        {v.duration}
+                      </span>
+                    )}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-bold text-[#374151] line-clamp-2 leading-snug">{v.title}</p>
+                    {v.url && (
+                      <a
+                        href={v.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[10px] text-red-500 hover:underline font-medium flex items-center gap-1 mt-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        Open on YouTube <ExternalLink className="w-2.5 h-2.5" />
+                      </a>
+                    )}
+                  </div>
+                </div>
+              </td>
+              {cols.map(c => (
+                <td key={c.key} className="py-3 pr-4">
+                  <div className="flex items-center gap-1.5">
+                    <c.Icon className="w-3.5 h-3.5 text-neutral-400" />
+                    <span className="text-sm font-black text-[#0F0F0F]">{fmt(v[c.key])}</span>
+                  </div>
+                </td>
+              ))}
+              <td className="py-3 text-xs text-neutral-400 font-bold whitespace-nowrap">{timeAgo(v.publishedAt)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function InstagramTopPosts({ posts, isLoading }) {
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 mt-4">
+        {[...Array(5)].map((_, i) => (
+          <div key={i} className="aspect-square rounded-2xl bg-neutral-200 animate-pulse" />
+        ))}
+      </div>
+    );
+  }
+
+  if (!posts || posts.length === 0) {
+    return (
+      <div className="text-center py-16 text-neutral-400">
+        <div className="w-14 h-14 rounded-2xl bg-pink-50 flex items-center justify-center mx-auto mb-3">
+          <FaInstagram size={24} className="text-pink-300" />
+        </div>
+        <p className="text-sm font-bold text-neutral-500">No posts found</p>
+        <p className="text-xs text-neutral-400 mt-1">Posts will appear here once your account has media</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 mt-4">
+      {posts.map((post, idx) => (
+        <motion.a
+          key={post.id || idx}
+          href={post.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          whileHover={{ y: -4 }}
+          className="group relative aspect-square rounded-2xl overflow-hidden bg-neutral-100 border border-black/[0.06]"
+        >
+          <img
+            src={post.thumbnail || post.mediaUrl}
+            alt=""
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          />
+          {idx === 0 && (
+            <div className="absolute top-2 left-2 z-10 flex items-center gap-1 bg-amber-400 text-white text-[8px] font-black px-2 py-1 rounded-lg shadow-sm uppercase tracking-wider">
+              <Award size={9} /> Top Post
+            </div>
+          )}
+          <div className="absolute top-2 right-2 z-10">
+            {post.mediaType === "VIDEO" && (
+              <div className="w-6 h-6 rounded-lg bg-black/60 backdrop-blur-sm flex items-center justify-center">
+                <Play size={10} className="text-white" fill="white" />
+              </div>
+            )}
+            {post.mediaType === "CAROUSEL_ALBUM" && (
+              <div className="w-6 h-6 rounded-lg bg-black/60 backdrop-blur-sm flex items-center justify-center">
+                <ImageIcon size={10} className="text-white" />
+              </div>
+            )}
+          </div>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col justify-end p-3">
+            <div className="flex items-center gap-3">
+              <span className="flex items-center gap-1 text-white text-[11px] font-bold">
+                <Heart size={11} fill="white" /> {fmt(post.likes)}
+              </span>
+              <span className="flex items-center gap-1 text-white text-[11px] font-bold">
+                <MessageSquare size={11} fill="white" /> {fmt(post.comments)}
+              </span>
+            </div>
+            {post.caption && (
+              <p className="text-[9px] text-white/70 mt-1.5 line-clamp-2 leading-tight">{post.caption}</p>
+            )}
+          </div>
+        </motion.a>
+      ))}
+    </div>
+  );
+}
+
+function NotConnectedBanner() {
+  return (
+    <div className="bg-amber-50 border border-amber-200 rounded-[20px] p-5 flex items-start gap-4">
+      <AlertCircle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+      <div>
+        <p className="font-bold text-amber-800 mb-1">No platforms connected</p>
+        <p className="text-sm text-amber-700">
+          Connect YouTube or Instagram in{" "}
+          <a href="/settings" className="underline font-bold">Settings</a>{" "}
+          to see real analytics data.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function TabButton({ active, icon: Icon, label, color, onClick, count }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`relative flex items-center gap-2 px-5 py-2.5 rounded-xl text-[13px] font-bold transition-all ${
+        active
+          ? "bg-white shadow-sm text-[#0F0F0F] border border-black/[0.06]"
+          : "text-neutral-400 hover:text-neutral-600 hover:bg-white/50"
+      }`}
+    >
+      <Icon size={15} style={{ color: active ? color : undefined }} />
+      {label}
+      {count != null && (
+        <span className={`text-[10px] font-black px-1.5 py-0.5 rounded-md ${
+          active ? "bg-neutral-100 text-neutral-600" : "bg-neutral-100 text-neutral-400"
+        }`}>
+          {count}
+        </span>
+      )}
+    </button>
+  );
+}
+
+// ── Main Page ────────────────────────────────────────────────────────────────
+
 export default function AnalyticsPage() {
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState("Views");
-  const [sortConfig, setSortConfig] = useState({ key: 'views', direction: 'desc' });
+  const [chartTab, setChartTab] = useState("Views");
+  const [platformTab, setPlatformTab] = useState("all");
+  const [sortConfig, setSortConfig] = useState({ key: "views", direction: "desc" });
   const [timeRange, setTimeRange] = useState("Last 30 Days");
   const [isRangeDropdownOpen, setIsRangeDropdownOpen] = useState(false);
+  const [apiData, setApiData] = useState(null);
+  const [apiError, setApiError] = useState(null);
 
   const timeRanges = ["Last 7 Days", "Last 30 Days", "Last 90 Days", "All Time"];
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
+  const fetchAnalytics = useCallback(async () => {
+    setIsLoading(true);
+    setApiError(null);
+    try {
+      const res = await httpClient.get(ENDPOINTS.ANALYTICS);
+      setApiData(res.data);
+      if (res.data) {
+        if (res.data.youtubeConnected) setPlatformTab("youtube");
+        else if (res.data.instagramConnected) setPlatformTab("instagram");
+      }
+    } catch (err) {
+      console.error("Analytics fetch failed:", err);
+      setApiError("Failed to load analytics. Please try again.");
+    } finally {
       setIsLoading(false);
-    }, 300);
-    return () => clearTimeout(timer);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchAnalytics();
+  }, [fetchAnalytics]);
 
   const formatValue = (value) => {
     if (value >= 1000000) return (value / 1000000).toFixed(1) + 'M';
@@ -246,19 +621,29 @@ export default function AnalyticsPage() {
     setSortConfig({ key, direction });
   };
 
-  const sortedContent = [...TOP_CONTENT].sort((a, b) => {
-    let aVal = a[sortConfig.key];
-    let bVal = b[sortConfig.key];
-    
-    // Clean strings for comparison
-    if (typeof aVal === 'string') {
-      aVal = parseFloat(aVal.replace(/[^0-9.]/g, ''));
-      bVal = parseFloat(bVal.replace(/[^0-9.]/g, ''));
-    }
+  const sortedContent = useMemo(() => {
+    return [...TOP_CONTENT].sort((a, b) => {
+      let aVal = a[sortConfig.key];
+      let bVal = b[sortConfig.key];
+      if (typeof aVal === 'string') {
+        aVal = parseFloat(aVal.replace(/[^0-9.]/g, '')) || 0;
+        bVal = parseFloat(bVal.replace(/[^0-9.]/g, '')) || 0;
+      }
+      if (sortConfig.direction === 'asc') return aVal - bVal;
+      return bVal - aVal;
+    });
+  }, [sortConfig]);
 
-    if (sortConfig.direction === 'asc') return aVal - bVal;
-    return bVal - aVal;
-  });
+  const sortedVideos = useMemo(() => {
+    if (!apiData?.topVideos) return [];
+    return [...apiData.topVideos].sort((a, b) => {
+      const aVal = a[sortConfig.key] ?? 0;
+      const bVal = b[sortConfig.key] ?? 0;
+      return sortConfig.direction === "asc" ? aVal - bVal : bVal - aVal;
+    });
+  }, [apiData?.topVideos, sortConfig]);
+
+  const noPlatformConnected = !isLoading && apiData && !apiData.youtubeConnected && !apiData.instagramConnected;
 
   return (
     <div className="space-y-8 pb-12">
@@ -269,11 +654,23 @@ export default function AnalyticsPage() {
             <span className="w-[3px] h-8 bg-gradient-to-b from-[#6366F1] to-[#8B5CF6] rounded-full" />
             <h2 className="text-[32px] font-[800] text-[#0F0F0F] tracking-tight">Analytics</h2>
           </div>
-          <p className="text-neutral-500 text-[14px] font-[400] mt-0.5">Your channel performance at a glance</p>
+          <p className="text-neutral-500 text-[14px] font-[400] mt-0.5">
+            Real-time performance across all your connected platforms
+          </p>
         </div>
-        <div className="flex gap-3 relative">
+
+        <div className="flex gap-3 relative flex-wrap items-center">
+          <button
+            onClick={fetchAnalytics}
+            disabled={isLoading}
+            className="flex items-center gap-2 bg-white border border-black/[0.06] rounded-2xl px-4 py-2.5 text-sm font-bold hover:bg-[#F9FAFB] transition-all text-[#374151] disabled:opacity-50"
+          >
+            <RefreshCw className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`} />
+            Refresh
+          </button>
+
           <div className="relative">
-            <button 
+            <button
               onClick={() => setIsRangeDropdownOpen(!isRangeDropdownOpen)}
               className="flex items-center gap-2 bg-white border border-black/[0.06] rounded-2xl px-6 py-2.5 text-sm font-bold hover:bg-[#F9FAFB] transition-all min-w-[180px] justify-between text-[#374151]"
             >
@@ -287,8 +684,8 @@ export default function AnalyticsPage() {
             <AnimatePresence>
               {isRangeDropdownOpen && (
                 <>
-                  <div 
-                    className="fixed inset-0 z-40" 
+                  <div
+                    className="fixed inset-0 z-40"
                     onClick={() => setIsRangeDropdownOpen(false)}
                   />
                   <motion.div
@@ -307,8 +704,8 @@ export default function AnalyticsPage() {
                           setTimeout(() => setIsLoading(false), 300);
                         }}
                         className={`w-full text-left px-4 py-2.5 rounded-xl text-sm font-bold transition-all ${
-                          timeRange === range 
-                          ? "bg-blue-600 text-white" 
+                          timeRange === range
+                          ? "bg-blue-600 text-white"
                           : "text-neutral-500 hover:bg-[#F3F4F6] hover:text-[#0F0F0F]"
                         }`}
                       >
@@ -320,7 +717,7 @@ export default function AnalyticsPage() {
               )}
             </AnimatePresence>
           </div>
-          
+
           <button className="bg-gradient-to-br from-[#6366F1] to-[#8B5CF6] text-white px-6 py-2.5 rounded-[14px] text-sm font-[600] transition-all shadow-[0_4px_14px_rgba(99,102,241,0.3)] hover:brightness-110 active:scale-95 flex items-center gap-2">
             <Download className="w-4 h-4" />
             Export
@@ -328,9 +725,20 @@ export default function AnalyticsPage() {
         </div>
       </div>
 
+      {/* Error Banner */}
+      {apiError && (
+        <div className="bg-red-50 border border-red-200 rounded-[20px] p-4 flex items-center gap-3 text-red-700 text-sm font-medium">
+          <AlertCircle className="w-5 h-5 shrink-0" />
+          {apiError}
+        </div>
+      )}
+
+      {/* Not Connected Banner */}
+      {noPlatformConnected && <NotConnectedBanner />}
+
       {/* AI Insights Banner */}
       {!isLoading && (
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           className="relative overflow-hidden rounded-[24px] p-8 bg-gradient-to-br from-[#6366F1] to-[#8B5CF6] text-white shadow-[0_10px_40px_rgba(99,102,241,0.2)]"
@@ -356,18 +764,27 @@ export default function AnalyticsPage() {
         </motion.div>
       )}
 
+      {/* Platform Overview Cards (when API returns platform summaries) */}
+      {apiData?.platformSummary?.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {apiData.platformSummary.map((p) => (
+            <PlatformCard key={p.platform} platform={p} isLoading={isLoading} />
+          ))}
+        </div>
+      )}
+
       {/* Section 1: Stat Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {STATS_DATA.map((stat, idx) => (
+        {STATS_DATA.map((stat) => (
           <StatCard key={stat.name} stat={stat} isLoading={isLoading} />
         ))}
       </div>
 
-      {/* Section 2: Main Chart */}
+      {/* Section 2: Main Performance Chart */}
       {isLoading ? (
         <SectionSkeleton height="500px" />
       ) : (
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-[24px] p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)]"
@@ -377,10 +794,10 @@ export default function AnalyticsPage() {
               {Object.keys(MAIN_CHART_DATA).map((tab) => (
                 <button
                   key={tab}
-                  onClick={() => setActiveTab(tab)}
+                  onClick={() => setChartTab(tab)}
                   className={`px-6 py-2 rounded-xl text-sm font-[600] transition-all ${
-                    activeTab === tab 
-                    ? "bg-white text-[#0F0F0F] shadow-sm border border-[#E5E7EB]" 
+                    chartTab === tab
+                    ? "bg-white text-[#0F0F0F] shadow-sm border border-[#E5E7EB]"
                     : "text-neutral-500 hover:text-[#0F0F0F]"
                   }`}
                 >
@@ -391,14 +808,14 @@ export default function AnalyticsPage() {
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-blue-600"></div>
-                <span className="text-xs font-bold text-neutral-500">{activeTab}</span>
+                <span className="text-xs font-bold text-neutral-500">{chartTab}</span>
               </div>
             </div>
           </div>
 
           <div className="h-[400px] w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={MAIN_CHART_DATA[activeTab]}>
+              <AreaChart data={MAIN_CHART_DATA[chartTab] || MAIN_CHART_DATA.Views}>
                 <defs>
                   <linearGradient id="colorPurple" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#7c3aed" stopOpacity={0.2}/>
@@ -406,23 +823,23 @@ export default function AnalyticsPage() {
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(0,0,0,0.04)" />
-                <XAxis 
-                  dataKey="date" 
-                  axisLine={false} 
-                  tickLine={false} 
+                <XAxis
+                  dataKey="date"
+                  axisLine={false}
+                  tickLine={false}
                   tick={{ fill: '#6B7280', fontSize: 12, fontWeight: 700 }}
                   dy={15}
                 />
-                <YAxis 
-                  axisLine={false} 
-                  tickLine={false} 
+                <YAxis
+                  axisLine={false}
+                  tickLine={false}
                   tick={{ fill: '#6B7280', fontSize: 12, fontWeight: 700 }}
                   tickFormatter={formatValue}
                   dx={-10}
                 />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: '#fff', 
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: '#fff',
                     borderColor: 'rgba(0,0,0,0.06)',
                     borderRadius: '16px',
                     boxShadow: '0 10px 30px -10px rgba(0,0,0,0.1)',
@@ -432,18 +849,185 @@ export default function AnalyticsPage() {
                   itemStyle={{ fontSize: '12px', fontWeight: '800', color: '#7c3aed' }}
                   cursor={{ stroke: '#7c3aed', strokeWidth: 2 }}
                 />
-                <Area 
-                  type="monotone" 
-                  dataKey="value" 
-                  stroke="#6366F1" 
+                <Area
+                  type="monotone"
+                  dataKey="value"
+                  stroke="#6366F1"
                   strokeWidth={3}
-                  fillOpacity={1} 
-                  fill="url(#colorPurple)" 
+                  fillOpacity={1}
+                  fill="url(#colorPurple)"
                 />
               </AreaChart>
             </ResponsiveContainer>
           </div>
         </motion.div>
+      )}
+
+      {/* Platform Real Analytics Section (YouTube & Instagram details) */}
+      {!noPlatformConnected && (apiData?.youtubeConnected || apiData?.instagramConnected) && (
+        <div className="space-y-6">
+          <div className="flex items-center gap-1 p-1 bg-[#F4F5F8] rounded-2xl w-fit">
+            {apiData?.youtubeConnected && (
+              <TabButton
+                active={platformTab === "youtube"}
+                icon={FaYoutube}
+                label="YouTube"
+                color="#FF0000"
+                count={apiData?.topVideos?.length}
+                onClick={() => setPlatformTab("youtube")}
+              />
+            )}
+            {apiData?.instagramConnected && (
+              <TabButton
+                active={platformTab === "instagram"}
+                icon={FaInstagram}
+                label="Instagram"
+                color="#E1306C"
+                count={apiData?.instagramTopMedia?.length}
+                onClick={() => setPlatformTab("instagram")}
+              />
+            )}
+          </div>
+
+          <AnimatePresence mode="wait">
+            {platformTab === "youtube" && apiData?.youtubeConnected && (
+              <motion.div
+                key="youtube"
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -12 }}
+                transition={{ duration: 0.2 }}
+                className="space-y-6"
+              >
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  {(apiData?.stats || []).map((s) => (
+                    <StatCard key={s.name} stat={s} isLoading={isLoading} />
+                  ))}
+                </div>
+
+                <div className="bg-white border border-[#E5E7EB] rounded-[24px] p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+                  <div className="flex items-center justify-between mb-2">
+                    <div>
+                      <div className="flex items-center gap-2.5">
+                        <h3 className="text-[20px] font-[800] text-[#0F0F0F]">Top Videos</h3>
+                        <TrendingUp className="w-4 h-4 text-red-400" />
+                      </div>
+                      <p className="text-xs text-neutral-400 font-medium mt-0.5">
+                        {apiData?.topVideos?.length
+                          ? `${apiData.topVideos.length} videos · sorted by ${sortConfig.key}`
+                          : "Connect YouTube to see your videos"}
+                      </p>
+                    </div>
+                    {apiData?.topVideos?.length > 0 && (
+                      <a
+                        href="https://studio.youtube.com"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1.5 text-xs text-red-500 hover:text-red-600 font-bold transition-colors"
+                      >
+                        YouTube Studio <ArrowUpRight className="w-3 h-3" />
+                      </a>
+                    )}
+                  </div>
+                  <TopVideosTable
+                    videos={sortedVideos}
+                    isLoading={isLoading}
+                    sortConfig={sortConfig}
+                    onSort={handleSort}
+                  />
+                </div>
+              </motion.div>
+            )}
+
+            {platformTab === "instagram" && apiData?.instagramConnected && (
+              <motion.div
+                key="instagram"
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -12 }}
+                transition={{ duration: 0.2 }}
+                className="space-y-6"
+              >
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  {(apiData?.instagramStats || []).map((s) => (
+                    <StatCard key={s.name} stat={s} isLoading={isLoading} />
+                  ))}
+                </div>
+
+                <div className="bg-white border border-[#E5E7EB] rounded-[24px] p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+                  <div className="flex items-center justify-between mb-2">
+                    <div>
+                      <div className="flex items-center gap-2.5">
+                        <h3 className="text-[20px] font-[800] text-[#0F0F0F]">Top Posts</h3>
+                        <Heart className="w-4 h-4 text-pink-400" />
+                      </div>
+                      <p className="text-xs text-neutral-400 font-medium mt-0.5">
+                        {apiData?.instagramTopMedia?.length
+                          ? `${apiData.instagramTopMedia.length} posts · sorted by likes`
+                          : "Your top performing posts will appear here"}
+                      </p>
+                    </div>
+                    {apiData?.instagramProfile?.username && (
+                      <a
+                        href={`https://www.instagram.com/${apiData.instagramProfile.username}/`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1.5 text-xs text-pink-500 hover:text-pink-600 font-bold transition-colors"
+                      >
+                        @{apiData.instagramProfile.username} <ArrowUpRight className="w-3 h-3" />
+                      </a>
+                    )}
+                  </div>
+                  <InstagramTopPosts
+                    posts={apiData?.instagramTopMedia}
+                    isLoading={isLoading}
+                  />
+                </div>
+
+                {apiData?.instagramTopMedia?.[0] && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-gradient-to-r from-pink-50 to-purple-50 border border-pink-200/60 rounded-[24px] p-6 flex items-center gap-5"
+                  >
+                    <img
+                      src={apiData.instagramTopMedia[0].thumbnail || apiData.instagramTopMedia[0].mediaUrl}
+                      alt=""
+                      className="w-20 h-20 rounded-2xl object-cover border-2 border-white shadow-lg shrink-0"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1.5">
+                        <Award className="w-4 h-4 text-amber-500" />
+                        <span className="text-[11px] font-black text-amber-600 uppercase tracking-widest">Best Performing Post</span>
+                      </div>
+                      <p className="text-[13px] font-bold text-[#374151] line-clamp-2 leading-snug">
+                        {apiData.instagramTopMedia[0].caption || "Untitled post"}
+                      </p>
+                      <div className="flex items-center gap-4 mt-2">
+                        <span className="flex items-center gap-1 text-[12px] font-bold text-pink-600">
+                          <Heart size={12} /> {fmt(apiData.instagramTopMedia[0].likes)} likes
+                        </span>
+                        <span className="flex items-center gap-1 text-[12px] font-bold text-purple-600">
+                          <MessageSquare size={12} /> {fmt(apiData.instagramTopMedia[0].comments)} comments
+                        </span>
+                        {apiData.instagramTopMedia[0].url && (
+                          <a
+                            href={apiData.instagramTopMedia[0].url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-1 text-[11px] font-bold text-neutral-400 hover:text-pink-500 transition-colors ml-auto"
+                          >
+                            View Post <ExternalLink className="w-3 h-3" />
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       )}
 
       {/* Section 3: Two Column Row */}
@@ -452,7 +1036,7 @@ export default function AnalyticsPage() {
         {isLoading ? (
           <SectionSkeleton />
         ) : (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-[24px] p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)]"
@@ -475,7 +1059,7 @@ export default function AnalyticsPage() {
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
                     </Pie>
-                    <Tooltip 
+                    <Tooltip
                       contentStyle={{ backgroundColor: '#fff', borderColor: 'rgba(0,0,0,0.06)', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }}
                     />
                   </PieChart>
@@ -507,7 +1091,7 @@ export default function AnalyticsPage() {
         {isLoading ? (
           <SectionSkeleton />
         ) : (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-[24px] p-8 flex flex-col shadow-[0_8px_30px_rgb(0,0,0,0.04)]"
@@ -559,7 +1143,7 @@ export default function AnalyticsPage() {
         {isLoading ? (
           <SectionSkeleton />
         ) : (
-          <motion.div 
+          <motion.div
             whileHover={{ y: -5 }}
             className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-[24px] p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)]"
           >
@@ -568,11 +1152,11 @@ export default function AnalyticsPage() {
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={GEOGRAPHY_DATA} layout="vertical" barSize={12}>
                   <XAxis type="number" hide />
-                  <YAxis 
-                    dataKey="name" 
-                    type="category" 
-                    axisLine={false} 
-                    tickLine={false} 
+                  <YAxis
+                    dataKey="name"
+                    type="category"
+                    axisLine={false}
+                    tickLine={false}
                     tick={{ fill: '#6B7280', fontSize: 11, fontWeight: 'bold' }}
                     width={100}
                   />
@@ -588,7 +1172,7 @@ export default function AnalyticsPage() {
         {isLoading ? (
           <SectionSkeleton />
         ) : (
-          <motion.div 
+          <motion.div
             whileHover={{ y: -5 }}
             className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-[24px] p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)]"
           >
@@ -632,7 +1216,7 @@ export default function AnalyticsPage() {
         {isLoading ? (
           <SectionSkeleton />
         ) : (
-          <motion.div 
+          <motion.div
             whileHover={{ y: -5 }}
             className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-[24px] p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)]"
           >
@@ -646,10 +1230,10 @@ export default function AnalyticsPage() {
                 </div>
                 <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(24, minmax(0, 1fr))' }}>
                   {HEATMAP_DATA.map((cell, i) => (
-                    <div 
-                      key={i} 
+                    <div
+                      key={i}
                       className="rounded-[2px] transition-all hover:scale-125 hover:z-10 cursor-help"
-                      style={{ 
+                      style={{
                         backgroundColor: cell.intensity > 80 ? '#7c3aed' : cell.intensity > 50 ? '#8b5cf6' : cell.intensity > 20 ? '#ddd6fe' : '#F3F4F6',
                         aspectRatio: '1/1'
                       }}

@@ -20,7 +20,8 @@ import {
   X,
   Wrench,
   BookOpen,
-  Upload
+  Upload,
+  Film
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useRef, useEffect } from "react";
@@ -53,6 +54,7 @@ export default function DashboardLayout({ children }) {
       label: "CREATE",
       items: [
         { name: "Add Content", href: "/add-content", icon: PlusCircle },
+        { name: "Video Editor", href: "/video-editor", icon: Film, isNew: true },
         { name: "Brief Board", href: "/brief-board", icon: BookOpen },
       ]
     },

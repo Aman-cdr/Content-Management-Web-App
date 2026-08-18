@@ -31,6 +31,30 @@ interface UseDeviceRegisterReturn {
 }
 
 /**
+ * Check whether a JWT is still valid (not expired).
+ * Decodes the base64url payload without a library.
+ * Returns false if the token is expired or will expire within 30 seconds.
+ */
+function isTokenValid(token: string): boolean {
+  try {
+    const parts = token.split(".");
+    if (parts.length !== 3) return false;
+
+    // base64url → base64 → decode
+    const payload = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+    const decoded = JSON.parse(atob(payload));
+
+    if (!decoded.exp) return false;
+
+    // Expired or within 30 s of expiring → treat as invalid
+    const nowInSeconds = Math.floor(Date.now() / 1000);
+    return decoded.exp > nowInSeconds + 30;
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Hook to register the current browser device with the backend.
  * Returns a bearer token that must be used for login/register API calls.
  *
@@ -47,11 +71,16 @@ export function useDeviceRegister(): UseDeviceRegisterReturn {
     // Skip on server-side
     if (typeof window === "undefined") return null;
 
-    // If we already have a bearer token, return it directly
+    // Reuse the cached token only if it is still valid
     const existingToken = TokenStorage.getBearerToken();
-    if (existingToken) {
+    if (existingToken && isTokenValid(existingToken)) {
       setBearerToken(existingToken);
       return existingToken;
+    }
+
+    // Clear the stale / expired token so a fresh one is fetched
+    if (existingToken) {
+      TokenStorage.removeBearerToken();
     }
 
     setIsLoading(true);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import {
   Search, Plus, MoreVertical, Eye, Edit2, Trash2, X,
@@ -45,7 +45,7 @@ const STATUS_META = {
 
 // ─── Card ────────────────────────────────────────────────────────────────────
 
-function ContentCard({ item, view, onPreview, onEdit, onDelete, onPublish, isSelected, onToggleSelect }) {
+function ContentCard({ item, view, onPreview, onEdit, onDelete, onPublish, isSelected, onToggleSelect, jobInfo }) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const thumbObj = item.thumbnails || item.thumbnail || {};
@@ -289,6 +289,81 @@ export default function AllContentPage() {
     scheduled: contents.filter(c => c.status?.toLowerCase() === "scheduled").length,
   }), [contents]);
 
+  // ── Publish-job progress tracking ──────────────────────────────────────────
+  // jobMap: { [contentId]: { status, progress, platform } }
+  const [jobMap, setJobMap] = useState({});
+  const pollRef = useRef(null);
+  const prevJobIdsRef = useRef(new Set());
+
+  const refetchContents = useCallback(() => {
+    router.refresh();
+  }, [router]);
+
+  const pollJobs = useCallback(async () => {
+    try {
+      // Fetch both publishing AND failed jobs so we can show the retry button
+      const [pubRes, failRes] = await Promise.all([
+        httpClient.get(ENDPOINTS.PUBLISH.LIST, { params: { status: "publishing", limit: 50 } }),
+        httpClient.get(ENDPOINTS.PUBLISH.LIST, { params: { status: "failed",     limit: 50 } }),
+      ]);
+      const jobs = [...(pubRes?.data || []), ...(failRes?.data || [])];
+      const map = {};
+      for (const job of jobs) {
+        const cid = job.contentId?.toString?.() || job.contentId;
+        if (!cid) continue;
+        const pr = job.platformResults?.[0] || {};
+        map[cid] = {
+          jobId: job.id || job._id,
+          status: job.status,
+          progress: pr.progress ?? 0,
+          platform: job.platforms?.[0] || "youtube",
+        };
+      }
+      setJobMap(map);
+
+      const currentIds = new Set(Object.keys(map));
+      const prevIds = prevJobIdsRef.current;
+      // Detect if any previously tracked job has disappeared (finished/retried successfully)
+      const someJobResolved = prevIds.size > 0 && [...prevIds].some(id => !currentIds.has(id));
+      if (someJobResolved) {
+        refetchContents();
+      }
+      prevJobIdsRef.current = currentIds;
+
+      // Also check if any scheduled content items on screen have now been published
+      // (catches the case where the scheduler ran a job while user was on the page)
+      const scheduledIds = (apiContents || [])
+        .filter(c => c.status?.toLowerCase() === "scheduled")
+        .map(c => c.id || c._id)
+        .filter(Boolean);
+      if (scheduledIds.length > 0) {
+        const pubRes = await httpClient.get(ENDPOINTS.PUBLISH.LIST, {
+          params: { status: "published", limit: 20 }
+        }).catch(() => null);
+        const pubJobs = pubRes?.data || [];
+        const justPublished = pubJobs.some(j =>
+          scheduledIds.includes(j.contentId?.toString?.() || j.contentId)
+        );
+        if (justPublished) refetchContents();
+      }
+
+      return currentIds.size > 0;
+    } catch { return false; }
+  }, [refetchContents, apiContents]);
+
+  useEffect(() => {
+    let active = true;
+    const run = async () => {
+      if (!active) return;
+      const hasActive = await pollJobs();
+      if (active) {
+        // Poll every 8s while publishing; 20s otherwise to reduce log noise
+        pollRef.current = setTimeout(run, hasActive ? 8000 : 20000);
+      }
+    };
+    run();
+    return () => { active = false; clearTimeout(pollRef.current); };
+  }, [pollJobs]);
   const filtered = useMemo(() => {
     return contents
       .filter(c => {
@@ -560,6 +635,7 @@ export default function AllContentPage() {
                 onEdit={handleEdit}
                 onDelete={handleDelete}
                 onPublish={publishContent}
+                jobInfo={jobMap[item.id || item._id]}
               />
             ))}
           </AnimatePresence>
