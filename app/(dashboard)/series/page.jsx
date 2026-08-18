@@ -231,20 +231,20 @@ export default function SeriesPlannerPage() {
 
         <div className="flex items-center gap-3">
           <div className="flex p-1 bg-white border border-[#E2E4E9] rounded-xl">
-            <button 
+            <button
               onClick={() => setView("grid")}
               className={`p-2 rounded-lg transition-all ${view === "grid" ? "bg-[#F4F5F8] text-indigo-600 shadow-sm" : "text-[#8A91A8] hover:text-[#4B5264]"}`}
             >
               <LayoutGrid className="w-4 h-4" />
             </button>
-            <button 
+            <button
               onClick={() => setView("list")}
               className={`p-2 rounded-lg transition-all ${view === "list" ? "bg-[#F4F5F8] text-indigo-600 shadow-sm" : "text-[#8A91A8] hover:text-[#4B5264]"}`}
             >
               <List className="w-4 h-4" />
             </button>
           </div>
-          <button 
+          <button
             onClick={() => handleOpenModal()}
             className="bg-[#4F46E5] hover:bg-[#4338CA] text-white px-6 py-3 rounded-2xl text-sm font-black uppercase tracking-widest flex items-center gap-2 shadow-lg shadow-indigo-500/20 transition-all active:scale-95"
           >
@@ -257,7 +257,7 @@ export default function SeriesPlannerPage() {
       {/* ── MAIN VIEW ── */}
       <AnimatePresence mode="wait">
         {view === "grid" ? (
-          <motion.div 
+          <motion.div
             key="grid"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -277,7 +277,7 @@ export default function SeriesPlannerPage() {
             ))}
           </motion.div>
         ) : (
-          <motion.div 
+          <motion.div
             key="list"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -344,17 +344,17 @@ export default function SeriesPlannerPage() {
       {/* ── ARCHIVED SECTION ── */}
       {archivedSeries.length > 0 && (
         <div className="mt-12">
-          <button 
+          <button
             onClick={() => setIsArchivedOpen(!isArchivedOpen)}
             className="flex items-center gap-2 text-[#8A91A8] hover:text-[#4B5264] font-bold text-sm transition-colors mb-6"
           >
             {isArchivedOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
             <span>Archived Series ({archivedSeries.length})</span>
           </button>
-          
+
           <AnimatePresence>
             {isArchivedOpen && (
-              <motion.div 
+              <motion.div
                 initial={{ height: 0, opacity: 0 }}
                 animate={{ height: "auto", opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
@@ -383,14 +383,14 @@ export default function SeriesPlannerPage() {
       <AnimatePresence>
         {isModalOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsModalOpen(false)}
               className="absolute inset-0 bg-black/80 backdrop-blur-sm"
             />
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
@@ -409,7 +409,7 @@ export default function SeriesPlannerPage() {
                 <div className="space-y-4">
                   <div>
                     <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-2 block px-2">Series Name</label>
-                    <input 
+                    <input
                       required
                       value={formData.name}
                       onChange={e => setFormData({ ...formData, name: e.target.value })}
@@ -420,7 +420,7 @@ export default function SeriesPlannerPage() {
 
                   <div>
                     <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-2 block px-2">Description</label>
-                    <textarea 
+                    <textarea
                       value={formData.description}
                       onChange={e => setFormData({ ...formData, description: e.target.value })}
                       placeholder="What is this series about?"
@@ -431,7 +431,7 @@ export default function SeriesPlannerPage() {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-2 block px-2">Series Type</label>
-                      <select 
+                      <select
                         value={formData.type}
                         onChange={e => setFormData({ ...formData, type: e.target.value, theme: e.target.value })}
                         className="w-full bg-[#F9FAFB] border border-[#E2E4E9] rounded-2xl px-6 py-4 text-sm font-bold outline-none focus:border-indigo-500 transition-all appearance-none cursor-pointer"
@@ -443,7 +443,7 @@ export default function SeriesPlannerPage() {
                     </div>
                     <div>
                       <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-2 block px-2">Total Episodes</label>
-                      <input 
+                      <input
                         type="number"
                         required
                         value={formData.episodes}
@@ -455,7 +455,7 @@ export default function SeriesPlannerPage() {
 
                   <div>
                     <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-2 block px-2">Estimated Completion</label>
-                    <input 
+                    <input
                       type="date"
                       required
                       value={formData.estCompletion}
@@ -464,7 +464,7 @@ export default function SeriesPlannerPage() {
                     />
                   </div>
                 </div>
-                
+
                 <button type="submit" disabled={isSaving} className="w-full py-4 rounded-2xl text-white text-sm font-black uppercase tracking-widest transition-all disabled:opacity-60 btn-primary">
                   {isSaving ? "Saving…" : editingSeries ? "Save Changes" : "Create Series"}
                 </button>
@@ -485,14 +485,14 @@ export default function SeriesPlannerPage() {
       <AnimatePresence>
         {isDeleteModalOpen && (
           <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsDeleteModalOpen(false)}
               className="absolute inset-0 bg-black/60 backdrop-blur-md"
             />
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
@@ -535,7 +535,7 @@ const EPISODE_TEMPLATES = {
   Shorts: (name, n) => Array.from({ length: n }, (_, i) => ({
     ep: i + 1,
     title: [
-      `${name} #${i+1}: Quick Tip`,
+      `${name} #${i + 1}: Quick Tip`,
       `Did You Know? ${name} Secret`,
       `${name} in 60 Seconds`,
       `Most People Get ${name} Wrong`,
@@ -657,15 +657,13 @@ function AIEpisodeModal({ series, onClose }) {
                 <div
                   key={ep.ep}
                   onClick={() => toggleEp(ep.ep)}
-                  className={`flex items-center gap-3 p-3.5 rounded-xl cursor-pointer border transition-all ${
-                    selected.includes(ep.ep)
+                  className={`flex items-center gap-3 p-3.5 rounded-xl cursor-pointer border transition-all ${selected.includes(ep.ep)
                       ? "border-[var(--t-primary)] bg-[var(--t-primary-light)]"
                       : "border-[#F0F0F0] hover:border-[#E2E4E9] bg-white hover:bg-[#F9FAFB]"
-                  }`}
+                    }`}
                 >
-                  <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-[11px] font-black flex-shrink-0 transition-all ${
-                    selected.includes(ep.ep) ? "text-white" : "bg-[#F4F5F8] text-neutral-500"
-                  }`} style={selected.includes(ep.ep) ? { backgroundColor: "var(--t-primary)" } : {}}>
+                  <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-[11px] font-black flex-shrink-0 transition-all ${selected.includes(ep.ep) ? "text-white" : "bg-[#F4F5F8] text-neutral-500"
+                    }`} style={selected.includes(ep.ep) ? { backgroundColor: "var(--t-primary)" } : {}}>
                     {selected.includes(ep.ep) ? <Check className="w-3.5 h-3.5" /> : ep.ep}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -726,9 +724,9 @@ function SeriesCard({ series: s, onEdit, onDuplicate, onArchive, onDelete, onAIG
 
       {/* Indigo Progress Bar beneath thumbnail */}
       <div className="w-full h-[4px] bg-neutral-100">
-        <motion.div 
-          initial={{ width: 0 }} 
-          animate={{ width: `${progress}%` }} 
+        <motion.div
+          initial={{ width: 0 }}
+          animate={{ width: `${progress}%` }}
           className="h-full bg-indigo-600"
         />
       </div>
@@ -748,7 +746,7 @@ function SeriesCard({ series: s, onEdit, onDuplicate, onArchive, onDelete, onAIG
           </div>
 
           <div className="relative shrink-0">
-            <button 
+            <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="p-1.5 text-neutral-400 hover:text-[#0F0F0F] hover:bg-[#F4F5F8] rounded-lg transition-all"
             >
@@ -758,7 +756,7 @@ function SeriesCard({ series: s, onEdit, onDuplicate, onArchive, onDelete, onAIG
               {isMenuOpen && (
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setIsMenuOpen(false)} />
-                  <motion.div 
+                  <motion.div
                     initial={{ opacity: 0, scale: 0.95, y: 10 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95, y: 10 }}
