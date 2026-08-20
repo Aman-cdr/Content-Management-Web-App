@@ -31,7 +31,7 @@ const CustomSelect = ({ value, onChange, options, className = "" }) => {
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className={`w-full flex items-center justify-between transition-all focus:outline-none focus:ring-2 focus:ring-blue-500/20 ${className}`}
+        className={`w-full flex items-center justify-between transition-all focus:outline-none focus:ring-2 focus:ring-[var(--theme-component-focus)] ${className}`}
       >
         <span className="truncate">{selected?.label}</span>
         <ChevronDown className={`w-4 h-4 text-neutral-400 transition-transform ${isOpen ? "rotate-180" : ""}`} />
@@ -44,7 +44,7 @@ const CustomSelect = ({ value, onChange, options, className = "" }) => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 5 }}
             transition={{ duration: 0.15 }}
-            className="absolute top-full left-0 right-0 mt-1.5 bg-white border border-black/[0.08] shadow-[0_8px_30px_rgb(0,0,0,0.12)] rounded-xl overflow-hidden z-[100] py-1.5"
+            className="absolute top-full left-0 right-0 mt-1.5 bg-white border border-black/[0.08] shadow-[0_20px_60px_-12px_rgba(0,0,0,0.18)] rounded-2xl overflow-hidden z-[100] py-1.5"
           >
             <div className="max-h-60 overflow-y-auto">
               {options.map((opt) => (
@@ -55,10 +55,11 @@ const CustomSelect = ({ value, onChange, options, className = "" }) => {
                     onChange(opt.value);
                     setIsOpen(false);
                   }}
-                  className={`w-full text-left px-3 py-2 text-sm font-medium transition-colors flex items-center justify-between ${value === opt.value ? 'bg-blue-50 text-blue-600' : 'text-[#374151] hover:bg-[#F9FAFB]'}`}
+                  className={`w-full text-left px-3 py-2 text-sm font-medium transition-colors flex items-center justify-between ${value === opt.value ? '' : 'text-[#374151] hover:bg-[#F9FAFB]'}`}
+                  style={value === opt.value ? { background: "var(--theme-component-soft)", color: "var(--theme-component)" } : undefined}
                 >
                   <span className="truncate">{opt.label}</span>
-                  {value === opt.value && <CheckCircle2 className="w-4 h-4 shrink-0 text-blue-600" />}
+                  {value === opt.value && <CheckCircle2 className="w-4 h-4 shrink-0" style={{ color: "var(--theme-component)" }} />}
                 </button>
               ))}
             </div>
@@ -307,26 +308,26 @@ export default function RoadmapPage() {
     <div className="space-y-8 pb-12 bg-[#EEEEF0] min-h-screen px-6 pt-6 -mx-6 -mt-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
-          <h2 className="text-[32px] font-bold tracking-tight mb-2 text-[#0A0A0F]">Content Roadmap</h2>
+          <h2 className="text-[32px] font-medium tracking-tight mb-2 text-[#0A0A0F]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Content Roadmap</h2>
           <p className="text-[#8A91A8] font-medium text-sm">Plan and track your content from idea to publication.</p>
         </div>
-        <div className="flex items-center gap-1.5 bg-[#FFFFFF] p-1.5 rounded-xl border border-[#E2E4E9] shadow-[0_1px_4px_rgba(0,0,0,0.06),_0_4px_16px_rgba(0,0,0,0.04)]">
+        <div className="flex items-center gap-1.5 bg-[#FFFFFF] p-1.5 rounded-full border border-[#E2E4E9] shadow-[0_1px_4px_rgba(0,0,0,0.06),_0_4px_16px_rgba(0,0,0,0.04)]">
           {[
             { id: "board", icon: LayoutList, label: "Board" },
             { id: "timeline", icon: GanttChart, label: "Timeline" },
             { id: "list", icon: AlignLeft, label: "List" },
           ].map((v) => (
-            <button 
+            <button
               key={v.id}
               onClick={() => setView(v.id)}
-              className={`p-2.5 rounded-lg transition-all relative group flex items-center gap-2 ${view === v.id ? "text-[#4F46E5]" : "text-[#8A91A8] hover:text-[#0A0A0F]"}`}
+              className={`p-2.5 rounded-full transition-colors duration-300 relative group flex items-center gap-2 ${view === v.id ? "text-[#4F46E5]" : "text-[#8A91A8] hover:text-[#0A0A0F]"}`}
               title={v.label}
             >
-              <v.icon className="w-4 h-4 relative z-10" />
+              <v.icon className="w-4 h-4 relative z-10" strokeWidth={1.5} />
               {view === v.id && (
-                <motion.div 
+                <motion.div
                   layoutId="roadmap-view"
-                  className="absolute inset-0 bg-[#F4F5F8] rounded-lg border border-[#E2E4E9]"
+                  className="absolute inset-0 bg-[#F4F5F8] rounded-full border border-[#E2E4E9]"
                 />
               )}
             </button>
@@ -336,21 +337,21 @@ export default function RoadmapPage() {
 
       <div className="flex flex-col sm:flex-row gap-4 items-center">
         <div className="relative flex-1 w-full">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8A91A8]" />
-          <input 
-            type="text" 
-            placeholder="Search projects..." 
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8A91A8]" strokeWidth={1.5} />
+          <input
+            type="text"
+            placeholder="Search projects..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-[#F4F5F8] border border-[#E2E4E9] rounded-xl pl-11 pr-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#4F46E5]/20 transition-all text-[#0A0A0F] placeholder:text-[#8A91A8] shadow-sm focus-within:border-[#6366F1]"
+            className="w-full bg-[#F4F5F8] border border-[#E2E4E9] rounded-full pl-11 pr-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-[3px] focus:ring-[#4F46E5]/15 transition-all duration-300 text-[#0A0A0F] placeholder:text-[#8A91A8] shadow-sm focus-within:border-[#6366F1]"
           />
         </div>
         <div className="flex gap-4 w-full sm:w-auto relative">
-          <button 
+          <button
             onClick={() => setIsFilterOpen(!isFilterOpen)}
-            className="flex items-center justify-center gap-2 px-5 py-2.5 bg-[#FFFFFF] border border-[#E2E4E9] rounded-xl text-sm font-semibold text-[#4B5264] hover:bg-[#F9FAFB] transition-all flex-1 sm:flex-none shadow-sm relative"
+            className="flex items-center justify-center gap-2 px-5 py-2.5 bg-[#FFFFFF] border border-[#E2E4E9] rounded-full text-sm font-semibold text-[#4B5264] hover:bg-[#F9FAFB] transition-colors duration-300 flex-1 sm:flex-none shadow-sm relative"
           >
-            <Filter className="w-4 h-4" />
+            <Filter className="w-4 h-4" strokeWidth={1.5} />
             <span>Filter</span>
             {activeFiltersCount > 0 && (
               <span className="absolute -top-1 -right-1 w-4 h-4 bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center rounded-full">
@@ -365,7 +366,7 @@ export default function RoadmapPage() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 10 }}
-                className="absolute top-full right-0 mt-2 w-64 bg-white border border-black/[0.08] shadow-xl rounded-xl p-4 z-20 space-y-4"
+                className="absolute top-full right-0 mt-2 w-64 bg-white border border-black/[0.08] shadow-[0_20px_60px_-12px_rgba(0,0,0,0.18)] rounded-2xl p-4 z-20 space-y-4"
               >
                 <div>
                   <label className="text-xs font-bold text-neutral-500 uppercase tracking-widest mb-2 block">Stage</label>
@@ -373,7 +374,7 @@ export default function RoadmapPage() {
                     value={filterStage} 
                     onChange={setFilterStage} 
                     options={[{value: "All", label: "All Stages"}, ...COLUMNS.map(c => ({value: c.name, label: c.name}))]} 
-                    className="px-3 py-2 bg-[#F5F5F7] border border-black/[0.06] rounded-lg text-sm font-medium" 
+                    className="px-3 py-2 bg-[#F5F5F7] border border-black/[0.06] rounded-full text-sm font-medium"
                   />
                 </div>
                 <div>
@@ -382,7 +383,7 @@ export default function RoadmapPage() {
                     value={filterPriority} 
                     onChange={setFilterPriority} 
                     options={[{value: "All", label: "All Priorities"}, {value: "Low", label: "Low"}, {value: "Medium", label: "Medium"}, {value: "High", label: "High"}, {value: "Urgent", label: "Urgent"}]} 
-                    className="px-3 py-2 bg-[#F5F5F7] border border-black/[0.06] rounded-lg text-sm font-medium" 
+                    className="px-3 py-2 bg-[#F5F5F7] border border-black/[0.06] rounded-full text-sm font-medium"
                   />
                 </div>
                 <div>
@@ -391,18 +392,18 @@ export default function RoadmapPage() {
                     value={filterPlatform} 
                     onChange={setFilterPlatform} 
                     options={[{value: "All", label: "All Platforms"}, {value: "YouTube", label: "YouTube"}, {value: "Instagram", label: "Instagram"}, {value: "TikTok", label: "TikTok"}, {value: "Twitter", label: "Twitter"}]} 
-                    className="px-3 py-2 bg-[#F5F5F7] border border-black/[0.06] rounded-lg text-sm font-medium" 
+                    className="px-3 py-2 bg-[#F5F5F7] border border-black/[0.06] rounded-full text-sm font-medium"
                   />
                 </div>
               </motion.div>
             )}
           </AnimatePresence>
 
-          <button 
+          <button
             onClick={() => setIsNewModalOpen(true)}
-            className="flex items-center justify-center gap-2 px-5 py-2.5 bg-[#4F46E5] text-white rounded-[10px] text-sm font-bold hover:bg-[#4338CA] transition-all shadow-[0_2px_8px_rgba(79,70,229,0.25)] flex-1 sm:flex-none"
+            className="flex items-center justify-center gap-2 px-5 py-2.5 bg-[#4F46E5] text-white rounded-full text-sm font-bold hover:bg-[#4338CA] transition-colors duration-300 shadow-[0_4px_16px_-4px_rgba(79,70,229,0.4)] flex-1 sm:flex-none"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-4 h-4" strokeWidth={1.75} />
             <span>New</span>
           </button>
         </div>
@@ -417,7 +418,7 @@ export default function RoadmapPage() {
             return (
               <div 
                 key={col.name} 
-                className={`flex flex-col gap-4 bg-black/[0.02] p-3 rounded-2xl border-2 transition-colors ${isDragOver ? "border-dashed border-purple-500 bg-purple-500/[0.04]" : "border-transparent"}`}
+                className={`flex flex-col gap-4 bg-black/[0.02] p-3 rounded-[1.75rem] border-2 transition-colors duration-300 ${isDragOver ? "border-dashed border-purple-500 bg-purple-500/[0.04]" : "border-transparent"}`}
                 onDragOver={(e) => handleDragOver(e, col.name)}
                 onDragLeave={handleDragLeave}
                 onDrop={(e) => handleDrop(e, col.name)}
@@ -428,17 +429,17 @@ export default function RoadmapPage() {
                     <h4 className="font-bold text-sm text-[#0A0A0F]">{col.name}</h4>
                     <span className="text-xs font-semibold bg-[#F4F5F8] border border-[#E2E4E9] px-2 py-0.5 rounded-full text-[#8A91A8]">{colItems.length}</span>
                   </div>
-                  <button 
+                  <button
                     onClick={() => setQuickAddColumn(col.name)}
-                    className="p-1 text-[#8A91A8] hover:text-[#4F46E5] hover:bg-blue-50 rounded-lg transition-colors"
+                    className="p-1 text-[#8A91A8] hover:text-[#4F46E5] hover:bg-blue-50 rounded-full transition-colors duration-300"
                   >
-                    <Plus className="w-4 h-4" />
+                    <Plus className="w-4 h-4" strokeWidth={1.5} />
                   </button>
                 </div>
 
                 {quickAddColumn === col.name && (
-                  <div className="p-3 bg-white border border-black/[0.06] rounded-xl shadow-sm mb-2">
-                    <input 
+                  <div className="p-3 bg-white border border-black/[0.06] rounded-2xl shadow-sm mb-2">
+                    <input
                       autoFocus
                       placeholder="What needs to be done?"
                       className="w-full bg-transparent border-none outline-none text-sm font-medium text-[#0F0F0F] placeholder:text-neutral-400 mb-3"
@@ -447,15 +448,15 @@ export default function RoadmapPage() {
                       onKeyDown={(e) => e.key === 'Enter' && handleQuickAdd()}
                     />
                     <div className="flex justify-end gap-2">
-                      <button 
+                      <button
                         onClick={() => { setQuickAddColumn(null); setQuickAddTitle(""); }}
-                        className="px-3 py-1.5 text-xs font-semibold text-neutral-500 hover:bg-[#F3F4F6] rounded-md transition-colors"
+                        className="px-3 py-1.5 text-xs font-semibold text-neutral-500 hover:bg-[#F3F4F6] rounded-full transition-colors duration-300"
                       >
                         Cancel
                       </button>
-                      <button 
+                      <button
                         onClick={handleQuickAdd}
-                        className="px-3 py-1.5 bg-blue-600 rounded-md text-xs font-bold text-white shadow-sm"
+                        className="px-3 py-1.5 bg-blue-600 rounded-full text-xs font-bold text-white shadow-sm"
                       >
                         Add
                       </button>
@@ -464,9 +465,13 @@ export default function RoadmapPage() {
                 )}
                 
                 <div className="flex flex-col gap-3 min-h-[150px]">
-                  {colItems.map((item) => (
-                    <div 
+                  {colItems.map((item, index) => (
+                    <motion.div
                       key={item.id}
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: Math.min(index, 10) * 0.04, ease: [0.32, 0.72, 0, 1] }}
+                      whileHover={{ y: -2 }}
                       draggable
                       onDragStart={(e) => handleDragStart(e, item.id)}
                       onClick={() => setActiveItem(item)}
@@ -476,20 +481,20 @@ export default function RoadmapPage() {
                       <div className="flex justify-between items-start mb-3">
                         <div className="flex gap-1.5 flex-wrap">
                           {item.tags?.map(tag => (
-                            <span key={tag} className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-[#F4F5F8] text-[#4B5264] border border-[#E2E4E9]">
+                            <span key={tag} className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#F4F5F8] text-[#4B5264] border border-[#E2E4E9]">
                               {tag}
                             </span>
                           ))}
                         </div>
-                        <button className="text-[#8A91A8] hover:text-[#0A0A0F] opacity-0 group-hover:opacity-100 transition-opacity">
-                          <MoreVertical className="w-4 h-4" />
+                        <button className="text-[#8A91A8] hover:text-[#0A0A0F] opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                          <MoreVertical className="w-4 h-4" strokeWidth={1.5} />
                         </button>
                       </div>
                       
                       <h5 className="text-[15px] font-semibold text-[#111318] mb-3 leading-snug">{item.title}</h5>
                       
                       <div className="w-full bg-[#E2E4E9] rounded-[3px] h-[6px] mb-4 overflow-hidden">
-                        <div className="h-[6px] rounded-[3px] transition-all" style={{ width: `${item.progress || 0}%`, background: 'linear-gradient(90deg, #6366F1, #8B5CF6)' }}></div>
+                        <div className="h-[6px] rounded-[3px] transition-all" style={{ width: `${item.progress || 0}%`, background: 'linear-gradient(90deg, var(--theme-component), var(--theme-component-hover))' }}></div>
                       </div>
 
                       <div className="flex items-center justify-between">
@@ -505,10 +510,10 @@ export default function RoadmapPage() {
                           <span>{item.due}</span>
                         </div>
                       </div>
-                    </div>
+                    </motion.div>
                   ))}
                   {colItems.length === 0 && !quickAddColumn && (
-                    <div className="flex items-center justify-center h-24 border border-dashed border-black/[0.08] rounded-xl text-neutral-400 text-sm font-medium">
+                    <div className="flex items-center justify-center h-24 border border-dashed border-black/[0.08] rounded-2xl text-neutral-400 text-sm font-medium">
                       {isLoading ? "Loading..." : "Drop cards here"}
                     </div>
                   )}
@@ -537,22 +542,22 @@ export default function RoadmapPage() {
                   <tr key={item.id} onClick={() => setActiveItem(item)} className="hover:bg-[#FAFAFA] cursor-pointer transition-colors group">
                     <td className="px-6 py-4 font-semibold text-[#111318]">{item.title}</td>
                     <td className="px-6 py-4">
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-bold" style={{ color: getColumnColor(item.status), backgroundColor: `${getColumnColor(item.status)}1A` }}>
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold" style={{ color: getColumnColor(item.status), backgroundColor: `${getColumnColor(item.status)}1A` }}>
                         <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: getColumnColor(item.status) }}></div>
                         {item.status}
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`px-2 py-1 rounded-md text-xs font-bold border ${getPriorityColor(item.priority)}`}>
+                      <span className={`px-2 py-1 rounded-full text-xs font-bold border ${getPriorityColor(item.priority)}`}>
                         {item.priority}
                       </span>
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex gap-1">
                         {item.tags?.slice(0, 2).map(t => (
-                          <span key={t} className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-[#F4F5F8] text-[#4B5264] border border-[#E2E4E9]">{t}</span>
+                          <span key={t} className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#F4F5F8] text-[#4B5264] border border-[#E2E4E9]">{t}</span>
                         ))}
-                        {item.tags?.length > 2 && <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-[#F4F5F8] text-[#4B5264] border border-[#E2E4E9]">+{item.tags.length - 2}</span>}
+                        {item.tags?.length > 2 && <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-[#F4F5F8] text-[#4B5264] border border-[#E2E4E9]">+{item.tags.length - 2}</span>}
                       </div>
                     </td>
                     <td className="px-6 py-4 text-[#8A91A8] font-medium flex items-center gap-1.5">
@@ -562,7 +567,7 @@ export default function RoadmapPage() {
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
                         <div className="w-24 bg-[#E2E4E9] rounded-[3px] h-[6px]">
-                          <div className="h-[6px] rounded-[3px]" style={{ width: `${item.progress || 0}%`, background: 'linear-gradient(90deg, #6366F1, #8B5CF6)' }}></div>
+                          <div className="h-[6px] rounded-[3px]" style={{ width: `${item.progress || 0}%`, background: 'linear-gradient(90deg, var(--theme-component), var(--theme-component-hover))' }}></div>
                         </div>
                         <span className="text-xs font-bold text-[#8A91A8]">{item.progress || 0}%</span>
                       </div>
@@ -596,7 +601,7 @@ export default function RoadmapPage() {
                   </h3>
                   <div className="space-y-3">
                     {weekItems.map(item => (
-                      <div key={item.id} onClick={() => setActiveItem(item)} className="flex items-center gap-4 p-3 rounded-xl hover:bg-[#FAFAFA] border border-transparent hover:border-[#E2E4E9] cursor-pointer transition-all">
+                      <div key={item.id} onClick={() => setActiveItem(item)} className="flex items-center gap-4 p-3 rounded-2xl hover:bg-[#FAFAFA] border border-transparent hover:border-[#E2E4E9] cursor-pointer transition-colors duration-300">
                         <div className="w-2 h-10 rounded-full" style={{ backgroundColor: getColumnColor(item.status) }}></div>
                         <div className="flex-1">
                           <h5 className="font-semibold text-[#111318]">{item.title}</h5>
@@ -608,7 +613,7 @@ export default function RoadmapPage() {
                         </div>
                         <div className="w-32 hidden md:block">
                            <div className="w-full bg-[#E2E4E9] rounded-[3px] h-[6px]">
-                            <div className="h-[6px] rounded-[3px]" style={{ width: `${item.progress || 0}%`, background: 'linear-gradient(90deg, #6366F1, #8B5CF6)' }}></div>
+                            <div className="h-[6px] rounded-[3px]" style={{ width: `${item.progress || 0}%`, background: 'linear-gradient(90deg, var(--theme-component), var(--theme-component-hover))' }}></div>
                           </div>
                         </div>
                         <div className="flex -space-x-2 hidden sm:flex">
@@ -635,7 +640,7 @@ export default function RoadmapPage() {
             <motion.div 
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               onClick={() => setActiveItem(null)}
-              className="fixed inset-0 bg-black/20 z-40 backdrop-blur-sm"
+              className="fixed inset-0 bg-black/20 z-40 backdrop-blur-md"
             />
             <motion.div
               initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }}
@@ -645,21 +650,22 @@ export default function RoadmapPage() {
               <div className="px-6 py-4 border-b border-black/[0.06] flex items-start justify-between bg-[#F9FAFB]">
                 <div>
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-widest" style={{ color: getColumnColor(activeItem.status), backgroundColor: `${getColumnColor(activeItem.status)}1A` }}>
+                    <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest" style={{ color: getColumnColor(activeItem.status), backgroundColor: `${getColumnColor(activeItem.status)}1A` }}>
                       {activeItem.status}
                     </span>
-                    <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-widest border ${getPriorityColor(activeItem.priority)}`}>
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest border ${getPriorityColor(activeItem.priority)}`}>
                       {activeItem.priority}
                     </span>
                   </div>
-                  <input 
-                    className="text-2xl font-bold text-[#0F0F0F] bg-transparent outline-none border-none focus:ring-0 w-full p-0"
+                  <input
+                    className="text-2xl font-semibold text-[#0F0F0F] bg-transparent outline-none border-none focus:ring-0 w-full p-0"
+                    style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                     value={activeItem.title}
                     onChange={e => updateItem(activeItem.id, { title: e.target.value })}
                   />
                 </div>
-                <button onClick={() => setActiveItem(null)} className="p-2 hover:bg-neutral-200 rounded-full transition-colors text-neutral-500">
-                  <X className="w-5 h-5" />
+                <button onClick={() => setActiveItem(null)} className="p-2 hover:bg-neutral-200 rounded-full transition-colors duration-300 text-neutral-500">
+                  <X className="w-5 h-5" strokeWidth={1.5} />
                 </button>
               </div>
 
@@ -682,8 +688,8 @@ export default function RoadmapPage() {
                     <div className="grid grid-cols-2 gap-6">
                       <div>
                         <label className="text-xs font-bold text-neutral-500 uppercase tracking-widest mb-2 block">Due Date</label>
-                        <div className="flex items-center gap-2 px-3 py-2 border border-black/[0.06] rounded-xl">
-                          <Clock className="w-4 h-4 text-neutral-400" />
+                        <div className="flex items-center gap-2 px-3 py-2 border border-black/[0.06] rounded-full">
+                          <Clock className="w-4 h-4 text-neutral-400" strokeWidth={1.5} />
                           <input 
                             type="text" 
                             className="text-sm font-semibold outline-none w-full" 
@@ -698,23 +704,23 @@ export default function RoadmapPage() {
                           value={activeItem.priority} 
                           onChange={val => updateItem(activeItem.id, { priority: val })} 
                           options={[{value: "Low", label: "Low"}, {value: "Medium", label: "Medium"}, {value: "High", label: "High"}, {value: "Urgent", label: "Urgent"}]} 
-                          className="px-3 py-2 border border-black/[0.06] rounded-xl text-sm font-semibold" 
+                          className="px-3 py-2 border border-black/[0.06] rounded-full text-sm font-semibold"
                         />
                       </div>
                     </div>
 
                     <div>
                       <label className="text-xs font-bold text-neutral-500 uppercase tracking-widest mb-2 block flex items-center gap-2">
-                        <Tag className="w-4 h-4" /> Tags
+                        <Tag className="w-4 h-4" strokeWidth={1.5} /> Tags
                       </label>
                       <div className="flex gap-2 flex-wrap">
                         {activeItem.tags?.map(tag => (
-                          <span key={tag} className="px-3 py-1 bg-[#F4F5F8] text-[#4B5264] border border-[#E2E4E9] rounded-lg text-xs font-semibold flex items-center gap-1">
+                          <span key={tag} className="px-3 py-1 bg-[#F4F5F8] text-[#4B5264] border border-[#E2E4E9] rounded-full text-xs font-semibold flex items-center gap-1">
                             {tag}
-                            <button className="text-neutral-400 hover:text-red-500 ml-1"><X className="w-3 h-3" /></button>
+                            <button className="text-neutral-400 hover:text-red-500 ml-1 transition-colors duration-300"><X className="w-3 h-3" strokeWidth={1.5} /></button>
                           </span>
                         ))}
-                        <button className="px-3 py-1 border border-dashed border-neutral-300 rounded-lg text-xs font-semibold text-neutral-500 hover:bg-neutral-50">
+                        <button className="px-3 py-1 border border-dashed border-neutral-300 rounded-full text-xs font-semibold text-neutral-500 hover:bg-neutral-50 transition-colors duration-300">
                           + Add Tag
                         </button>
                       </div>
@@ -722,10 +728,10 @@ export default function RoadmapPage() {
 
                     <div>
                       <label className="text-xs font-bold text-neutral-500 uppercase tracking-widest mb-2 block flex items-center gap-2">
-                        <AlignLeft className="w-4 h-4" /> Description
+                        <AlignLeft className="w-4 h-4" strokeWidth={1.5} /> Description
                       </label>
-                      <textarea 
-                        className="w-full min-h-[120px] p-4 bg-[#F9FAFB] border border-black/[0.06] rounded-xl text-sm font-medium resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                      <textarea
+                        className="w-full min-h-[120px] p-4 bg-[#F9FAFB] border border-black/[0.06] rounded-2xl text-sm font-medium resize-none focus:outline-none focus:ring-[3px] focus:ring-blue-500/15 transition-colors duration-300"
                         placeholder="Add a more detailed description..."
                         value={activeItem.notes || ""}
                         onChange={e => updateItem(activeItem.id, { notes: e.target.value })}
@@ -739,14 +745,14 @@ export default function RoadmapPage() {
                     <div className="flex items-center gap-4 mb-6">
                       <span className="text-xs font-bold text-[#8A91A8]">{activeItem.progress || 0}%</span>
                       <div className="flex-1 bg-[#E2E4E9] rounded-[3px] h-[6px]">
-                        <div className="h-[6px] rounded-[3px] transition-all" style={{ width: `${activeItem.progress || 0}%`, background: 'linear-gradient(90deg, #6366F1, #8B5CF6)' }}></div>
+                        <div className="h-[6px] rounded-[3px] transition-all" style={{ width: `${activeItem.progress || 0}%`, background: 'linear-gradient(90deg, var(--theme-component), var(--theme-component-hover))' }}></div>
                       </div>
                     </div>
                     
                     {activeItem.checklist?.map((task, idx) => (
-                      <div key={task.id || idx} className="flex items-center gap-3 p-3 hover:bg-[#F9FAFB] rounded-xl group transition-colors">
-                        <button 
-                          className={`w-5 h-5 rounded flex items-center justify-center border transition-colors ${task.done ? 'bg-blue-600 border-blue-600 text-white' : 'border-neutral-300'}`}
+                      <div key={task.id || idx} className="flex items-center gap-3 p-3 hover:bg-[#F9FAFB] rounded-2xl group transition-colors duration-300">
+                        <button
+                          className={`w-5 h-5 rounded-full flex items-center justify-center border transition-colors duration-300 ${task.done ? 'bg-blue-600 border-blue-600 text-white' : 'border-neutral-300'}`}
                           onClick={() => {
                             const newChecklist = [...activeItem.checklist];
                             newChecklist[idx].done = !newChecklist[idx].done;
@@ -788,7 +794,7 @@ export default function RoadmapPage() {
                         const newProgress = Math.round((doneCount / newChecklist.length) * 100);
                         updateItem(activeItem.id, { checklist: newChecklist, progress: newProgress });
                       }}
-                      className="px-4 py-2 mt-2 bg-neutral-100 hover:bg-neutral-200 text-neutral-600 rounded-xl text-sm font-semibold transition-colors w-full"
+                      className="px-4 py-2 mt-2 bg-neutral-100 hover:bg-neutral-200 text-neutral-600 rounded-full text-sm font-semibold transition-colors duration-300 w-full"
                     >
                       Add an item
                     </button>
@@ -797,7 +803,7 @@ export default function RoadmapPage() {
 
                 {activeTab === "Notes" && (
                    <textarea 
-                   className="w-full h-full min-h-[300px] p-4 bg-[#F9FAFB] border border-black/[0.06] rounded-xl text-sm font-medium resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                   className="w-full h-full min-h-[300px] p-4 bg-[#F9FAFB] border border-black/[0.06] rounded-2xl text-sm font-medium resize-none focus:outline-none focus:ring-[3px] focus:ring-blue-500/15 transition-colors duration-300"
                    placeholder="Scratchpad for random thoughts..."
                    value={activeItem.notes || ""}
                    onChange={e => updateItem(activeItem.id, { notes: e.target.value })}
@@ -835,46 +841,46 @@ export default function RoadmapPage() {
             <motion.div 
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               onClick={() => setIsNewModalOpen(false)}
-              className="fixed inset-0 bg-black/20 z-40 backdrop-blur-sm"
+              className="fixed inset-0 bg-black/20 z-40 backdrop-blur-md"
             />
             <motion.div 
               initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-[500px] bg-white rounded-3xl shadow-2xl p-6 z-50 border border-black/[0.06]"
+              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-[500px] bg-white rounded-[1.75rem] shadow-[0_24px_70px_-16px_rgba(0,0,0,0.25)] p-6 z-50 border border-black/[0.06]"
             >
-              <h3 className="text-xl font-bold mb-6 text-[#0F0F0F]">Create New Project</h3>
+              <h3 className="text-xl font-semibold mb-6 text-[#0F0F0F]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Create New Project</h3>
               <div className="space-y-4">
                 <div>
                   <label className="text-xs font-bold text-neutral-500 uppercase tracking-widest mb-2 block">Title</label>
-                  <input type="text" value={newModalTitle} onChange={e => setNewModalTitle(e.target.value)} className="w-full px-4 py-2.5 bg-[#F9FAFB] border border-black/[0.06] rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20" placeholder="e.g. Next.js 16 Tutorial" />
+                  <input type="text" value={newModalTitle} onChange={e => setNewModalTitle(e.target.value)} className="w-full px-4 py-2.5 bg-[#F9FAFB] border border-black/[0.06] rounded-full text-sm font-medium focus:outline-none focus:ring-[3px] focus:ring-blue-500/15 transition-colors duration-300" placeholder="e.g. Next.js 16 Tutorial" />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="text-xs font-bold text-neutral-500 uppercase tracking-widest mb-2 block">Stage</label>
-                    <CustomSelect 
-                      value={newModalStage} 
-                      onChange={setNewModalStage} 
-                      options={COLUMNS.map(c => ({value: c.name, label: c.name}))} 
-                      className="px-4 py-2.5 bg-[#F9FAFB] border border-black/[0.06] rounded-xl text-sm font-medium" 
+                    <CustomSelect
+                      value={newModalStage}
+                      onChange={setNewModalStage}
+                      options={COLUMNS.map(c => ({value: c.name, label: c.name}))}
+                      className="px-4 py-2.5 bg-[#F9FAFB] border border-black/[0.06] rounded-full text-sm font-medium"
                     />
                   </div>
                   <div>
                     <label className="text-xs font-bold text-neutral-500 uppercase tracking-widest mb-2 block">Priority</label>
-                    <CustomSelect 
-                      value={newModalPriority} 
-                      onChange={setNewModalPriority} 
-                      options={[{value: "Low", label: "Low"}, {value: "Medium", label: "Medium"}, {value: "High", label: "High"}, {value: "Urgent", label: "Urgent"}]} 
-                      className="px-4 py-2.5 bg-[#F9FAFB] border border-black/[0.06] rounded-xl text-sm font-medium" 
+                    <CustomSelect
+                      value={newModalPriority}
+                      onChange={setNewModalPriority}
+                      options={[{value: "Low", label: "Low"}, {value: "Medium", label: "Medium"}, {value: "High", label: "High"}, {value: "Urgent", label: "Urgent"}]}
+                      className="px-4 py-2.5 bg-[#F9FAFB] border border-black/[0.06] rounded-full text-sm font-medium"
                     />
                   </div>
                 </div>
                 <div>
                   <label className="text-xs font-bold text-neutral-500 uppercase tracking-widest mb-2 block">Due Date</label>
-                  <input type="text" value={newModalDue} onChange={e => setNewModalDue(e.target.value)} className="w-full px-4 py-2.5 bg-[#F9FAFB] border border-black/[0.06] rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20" placeholder="e.g. Tomorrow" />
+                  <input type="text" value={newModalDue} onChange={e => setNewModalDue(e.target.value)} className="w-full px-4 py-2.5 bg-[#F9FAFB] border border-black/[0.06] rounded-full text-sm font-medium focus:outline-none focus:ring-[3px] focus:ring-blue-500/15 transition-colors duration-300" placeholder="e.g. Tomorrow" />
                 </div>
               </div>
               <div className="flex justify-end gap-3 mt-8">
-                <button onClick={() => setIsNewModalOpen(false)} className="px-5 py-2.5 text-sm font-bold text-neutral-500 hover:bg-neutral-100 rounded-xl transition-colors">Cancel</button>
-                <button onClick={handleCreateNewProject} className="px-5 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-bold shadow-md shadow-blue-600/20 hover:bg-blue-500 transition-all">Create Project</button>
+                <button onClick={() => setIsNewModalOpen(false)} className="px-5 py-2.5 text-sm font-bold text-neutral-500 hover:bg-neutral-100 rounded-full transition-colors duration-300">Cancel</button>
+                <button onClick={handleCreateNewProject} className="px-5 py-2.5 bg-blue-600 text-white rounded-full text-sm font-bold shadow-md shadow-blue-600/20 hover:bg-blue-500 transition-colors duration-300">Create Project</button>
               </div>
             </motion.div>
           </>

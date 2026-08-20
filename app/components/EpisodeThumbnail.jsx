@@ -94,7 +94,7 @@ export default function EpisodeThumbnail({
       {/* EP badge */}
       {epNumber != null && (
         <div
-          className="absolute top-1.5 left-1.5 text-[8px] font-black px-1.5 py-[3px] rounded-md leading-none"
+          className="absolute top-1.5 left-1.5 text-[8px] font-black px-1.5 py-[3px] rounded-full leading-none"
           style={{ background: `${accent}28`, color: accent, border: `1px solid ${accent}55` }}
         >
           EP {epNumber}
@@ -134,16 +134,16 @@ export default function EpisodeThumbnail({
 
       {/* Duration */}
       {duration && (
-        <div className="absolute bottom-1.5 left-2 text-[8px] font-black px-1.5 py-px rounded bg-black/70 text-white/90 leading-none">
+        <div className="absolute bottom-1.5 left-2 text-[8px] font-black px-1.5 py-px rounded-full bg-black/70 text-white/90 leading-none">
           {duration}
         </div>
       )}
 
       {/* Play hover */}
       {showPlay && (
-        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/thumb:opacity-100 transition-all duration-200 bg-black/40">
+        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/thumb:opacity-100 transition-opacity duration-300 bg-black/40">
           <div className="w-9 h-9 rounded-full flex items-center justify-center shadow-xl" style={{ background: accent }}>
-            <Play className="w-4 h-4 fill-white text-white ml-0.5" />
+            <Play className="w-4 h-4 fill-white text-white ml-0.5" strokeWidth={1.5} />
           </div>
         </div>
       )}

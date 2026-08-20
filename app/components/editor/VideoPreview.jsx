@@ -144,7 +144,7 @@ export default function VideoPreview({ src, clips, currentTime, isPlaying, onTim
   }, [captionTrack, isPlaying, redrawCaption]);
 
   return (
-    <div ref={containerRef} className="relative w-full aspect-video bg-black rounded-2xl overflow-hidden">
+    <div ref={containerRef} className="relative w-full aspect-video bg-black rounded-[1.75rem] overflow-hidden">
       <video
         ref={videoRef}
         src={src}

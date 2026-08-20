@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useRef, useEffect, useMemo } from "react";
+import { useState, useRef, useEffect, useMemo, Suspense } from "react";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import ThemePicker from "@/app/components/ThemePicker";
 import { Paintbrush } from "lucide-react";
 import { 
@@ -59,13 +60,16 @@ const BANNER_GRADIENTS = [
 
 const NICHES = ["Content Creator", "Developer", "Designer", "Educator", "Entertainer", "Fitness", "Business", "Other"];
 
+const VALID_TABS = ["profile", "accounts", "notifications", "billing", "security"];
+
 // ---------- Components ----------
 
-function Toggle({ checked, onChange }) {
+function Toggle({ checked, onChange, disabled }) {
   return (
-    <button 
-      onClick={() => onChange(!checked)}
-      className={`relative w-11 h-6 rounded-full transition-colors duration-200 outline-none ${checked ? 'toggle-checked' : 'bg-[#E2E4E9]'}`}
+    <button
+      onClick={() => !disabled && onChange(!checked)}
+      disabled={disabled}
+      className={`relative w-11 h-6 rounded-full transition-colors duration-200 outline-none disabled:opacity-50 disabled:cursor-not-allowed ${checked ? 'toggle-checked' : 'bg-[#E2E4E9]'}`}
     >
       <div className={`absolute top-1 left-1 bg-white w-4 h-4 rounded-full transition-transform duration-200 ${checked ? 'translate-x-5' : 'translate-x-0'}`} />
     </button>
@@ -75,8 +79,8 @@ function Toggle({ checked, onChange }) {
 function SectionHeading({ children, icon: Icon }) {
   return (
     <div className="flex items-center gap-2 border-bottom border-[#F4F5F8] pb-3 mb-5">
-      {Icon && <Icon className="w-4 h-4 text-[#4B5264]" />}
-      <h4 className="text-base font-semibold text-[#0A0A0F]">{children}</h4>
+      {Icon && <Icon className="w-4 h-4 text-[#4B5264]" strokeWidth={1.5} />}
+      <h4 className="text-base font-semibold text-[#0A0A0F]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{children}</h4>
     </div>
   );
 }
@@ -85,9 +89,36 @@ function SectionHeading({ children, icon: Icon }) {
 //  SETTINGS PAGE
 // ==========================================================
 
-export default function SettingsPage() {
-  const { user, refreshUser } = useAuth();
-  const [activeTab, setActiveTab] = useState("profile");
+function SettingsPageContent() {
+  const { user, refreshUser, logout } = useAuth();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const tabFromUrl = searchParams.get("tab");
+  const [activeTab, setActiveTabState] = useState(
+    VALID_TABS.includes(tabFromUrl) ? tabFromUrl : "profile"
+  );
+
+  // Keep the tab in sync with the URL — covers direct links (/settings?tab=security)
+  // and browser back/forward, which only change searchParams, not component state.
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    setActiveTabState(VALID_TABS.includes(tab) ? tab : "profile");
+  }, [searchParams]);
+
+  const setActiveTab = (tabId) => {
+    setActiveTabState(tabId);
+    const params = new URLSearchParams(searchParams.toString());
+    if (tabId === "profile") {
+      params.delete("tab");
+    } else {
+      params.set("tab", tabId);
+    }
+    const qs = params.toString();
+    router.push(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+  };
+
   const [showToast, setShowToast] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
   const fileInputRef = useRef(null);
@@ -316,6 +347,19 @@ export default function SettingsPage() {
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [usernameError, setUsernameError] = useState("");
 
+  // Notification preferences — hydrated from GET /user/profile, saved individually
+  // per-toggle via PUT /user/notifications (optimistic, reverted on failure).
+  const [notifPrefs, setNotifPrefs] = useState({
+    weeklyReport: true,
+    subscriberMilestone: true,
+    schedulerReminders: true,
+    aiInsightAlerts: true,
+    episodeDueReminders: true,
+    roadmapDeadlineAlerts: true,
+    teamMentions: false,
+  });
+  const [savingNotifKey, setSavingNotifKey] = useState(null);
+
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -338,6 +382,9 @@ export default function SettingsPage() {
           twitter: p.socialLinks?.twitter || "",
           avatar: p.avatar || null,
         });
+        if (p.notificationPreferences) {
+          setNotifPrefs(prev => ({ ...prev, ...p.notificationPreferences }));
+        }
       } catch (err) {
         console.error("Failed to load profile:", err);
       } finally {
@@ -346,6 +393,24 @@ export default function SettingsPage() {
     })();
     return () => { cancelled = true; };
   }, []);
+
+  const handleToggleNotification = async (key) => {
+    const nextValue = !notifPrefs[key];
+    setNotifPrefs(prev => ({ ...prev, [key]: nextValue }));
+    setSavingNotifKey(key);
+    try {
+      await httpClient.put(ENDPOINTS.USER.NOTIFICATIONS, { [key]: nextValue });
+    } catch (err) {
+      // Revert on failure
+      setNotifPrefs(prev => ({ ...prev, [key]: !nextValue }));
+      setToastMessage(err.message || "Failed to update notification preference");
+      setToastType("error");
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3000);
+    } finally {
+      setSavingNotifKey(null);
+    }
+  };
 
   const handleProfileChange = (field, value) => {
     setProfileData(prev => ({ ...prev, [field]: value }));
@@ -431,6 +496,80 @@ export default function SettingsPage() {
     }
   };
 
+  // Security tab — change password
+  const [passwordForm, setPasswordForm] = useState({ current: "", next: "", confirm: "" });
+  const [passwordError, setPasswordError] = useState("");
+  const [isSavingPassword, setIsSavingPassword] = useState(false);
+
+  const passwordStrength = useMemo(() => {
+    const p = passwordForm.next;
+    if (!p) return 0;
+    let score = 0;
+    if (p.length >= 8) score++;
+    if (/[A-Z]/.test(p) && /[a-z]/.test(p)) score++;
+    if (/\d/.test(p) || /[^A-Za-z0-9]/.test(p)) score++;
+    return score;
+  }, [passwordForm.next]);
+
+  const handlePasswordFormChange = (field, value) => {
+    setPasswordForm(prev => ({ ...prev, [field]: value }));
+    setPasswordError("");
+  };
+
+  const handleUpdatePassword = async () => {
+    if (isSavingPassword) return;
+    if (!passwordForm.current || !passwordForm.next) {
+      setPasswordError("Fill in both password fields.");
+      return;
+    }
+    if (passwordForm.next.length < 8) {
+      setPasswordError("New password must be at least 8 characters.");
+      return;
+    }
+    if (passwordForm.next !== passwordForm.confirm) {
+      setPasswordError("New passwords don't match.");
+      return;
+    }
+    setIsSavingPassword(true);
+    try {
+      await httpClient.put(ENDPOINTS.USER.PASSWORD, {
+        currentPassword: passwordForm.current,
+        newPassword: passwordForm.next,
+      });
+      setPasswordForm({ current: "", next: "", confirm: "" });
+      setToastMessage("Password updated successfully");
+      setToastType("success");
+      setShowToast(true);
+    } catch (err) {
+      setPasswordError(err.message || "Failed to update password");
+    } finally {
+      setIsSavingPassword(false);
+      setTimeout(() => setShowToast(false), 3000);
+    }
+  };
+
+  // Security tab — delete account
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deletePassword, setDeletePassword] = useState("");
+  const [deleteError, setDeleteError] = useState("");
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+
+  const handleDeleteAccount = async () => {
+    if (isDeletingAccount) return;
+    if (!deletePassword) {
+      setDeleteError("Enter your password to confirm.");
+      return;
+    }
+    setIsDeletingAccount(true);
+    try {
+      await httpClient.delete(ENDPOINTS.USER.DELETE_ACCOUNT, { data: { password: deletePassword } });
+      logout();
+    } catch (err) {
+      setDeleteError(err.message || "Failed to delete account");
+      setIsDeletingAccount(false);
+    }
+  };
+
   const initials = profileData.name.split(" ").map(n => n[0]).join("").substring(0, 2).toUpperCase();
 
   const tabs = [
@@ -445,7 +584,7 @@ export default function SettingsPage() {
     <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-          <h2 className="text-3xl font-black text-[#0F0F0F] mb-1">Settings</h2>
+          <h2 className="text-3xl font-medium text-[#0F0F0F] mb-1" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Settings</h2>
           <p className="text-neutral-500 text-sm">Manage your account preferences and creator identity.</p>
         </div>
         {isDirty && (
@@ -466,10 +605,10 @@ export default function SettingsPage() {
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`pb-4 text-sm font-semibold transition-all relative ${activeTab === tab.id ? "text-[#4F46E5]" : "text-neutral-500 hover:text-neutral-700"}`}
+            className={`pb-4 text-sm font-semibold transition-colors duration-300 relative ${activeTab === tab.id ? "text-[#4F46E5]" : "text-neutral-500 hover:text-neutral-700"}`}
           >
             <div className="flex items-center gap-2 px-1">
-              <tab.icon className="w-4 h-4" />
+              <tab.icon className="w-4 h-4" strokeWidth={1.5} />
               <span>{tab.name}</span>
             </div>
             {activeTab === tab.id && (
@@ -490,7 +629,7 @@ export default function SettingsPage() {
               className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8"
             >
               {/* Profile Form */}
-              <div className="bg-white border border-[#E2E4E9] rounded-[24px] p-8 shadow-sm space-y-10">
+              <div className="bg-white border border-[#E2E4E9] rounded-[1.75rem] p-8 shadow-sm space-y-10">
                 {/* Banner & Avatar */}
                 <div className="space-y-6">
                   <SectionHeading icon={Camera}>Identity Design</SectionHeading>
@@ -687,7 +826,7 @@ export default function SettingsPage() {
                   <button
                     onClick={handleSave}
                     disabled={isSavingProfile || profileLoading}
-                    className="flex items-center gap-2 px-10 py-3.5 bg-gradient-to-r from-[#4F46E5] to-[#7C3AED] text-white rounded-xl text-sm font-black uppercase tracking-widest shadow-lg shadow-indigo-600/20 hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:hover:scale-100"
+                    className="flex items-center gap-2 px-10 py-3.5 bg-gradient-to-r from-[#4F46E5] to-[#7C3AED] text-white rounded-full text-sm font-black uppercase tracking-widest shadow-[0_4px_16px_-4px_rgba(79,70,229,0.4)] hover:scale-105 active:scale-95 transition-all duration-300 disabled:opacity-50 disabled:hover:scale-100"
                   >
                     {isSavingProfile && <Loader2 className="w-4 h-4 animate-spin" />}
                     {isSavingProfile ? "Saving..." : "Save Changes"}
@@ -701,7 +840,7 @@ export default function SettingsPage() {
                   <Eye className="w-3.5 h-3.5" />
                   Profile Preview
                 </div>
-                <div className="bg-white border border-[#E2E4E9] rounded-[24px] overflow-hidden shadow-sm sticky top-24 transition-all hover:shadow-xl hover:-translate-y-1 duration-500 group">
+                <div className="bg-white border border-[#E2E4E9] rounded-[1.75rem] overflow-hidden shadow-sm sticky top-24 transition-all hover:shadow-xl hover:-translate-y-1 duration-500 group">
                   <div className="h-20 transition-all duration-500" style={{ background: profileData.banner }} />
                   <div className="px-6 pb-6 text-center">
                     <div className="relative -mt-8 mb-4 inline-block">
@@ -795,10 +934,10 @@ export default function SettingsPage() {
                   },
                   { name: "LinkedIn", icon: FaLinkedin, color: "text-blue-700", connected: false, onConnect: () => handleUnsupportedConnect("LinkedIn") }
                 ].map((acc) => (
-                  <div key={acc.name} className="bg-white border border-[#E2E4E9] rounded-2xl p-6 shadow-sm hover:shadow-md transition-all group">
+                  <div key={acc.name} className="bg-white border border-[#E2E4E9] rounded-[1.75rem] p-6 shadow-sm hover:shadow-md transition-all group">
                     <div className="flex justify-between items-start mb-6">
                       <div className="flex items-center gap-4">
-                        <div className={`w-12 h-12 rounded-xl bg-neutral-50 border border-neutral-100 flex items-center justify-center ${acc.color}`}>
+                        <div className={`w-12 h-12 rounded-full bg-neutral-50 border border-neutral-100 flex items-center justify-center ${acc.color}`}>
                           <acc.icon className="w-6 h-6" />
                         </div>
                         <div>
@@ -850,7 +989,7 @@ export default function SettingsPage() {
 
               <div className="mt-10">
                 <SectionHeading icon={FileText}>Clip Download Quality</SectionHeading>
-                <div className="bg-white border border-[#E2E4E9] rounded-2xl p-6 shadow-sm">
+                <div className="bg-white border border-[#E2E4E9] rounded-[1.75rem] p-6 shadow-sm">
                   <div className="flex items-start justify-between gap-6 flex-wrap">
                     <div className="max-w-lg">
                       <p className="text-sm font-bold text-[#111318] mb-1.5">YouTube cookies for higher-quality downloads</p>
@@ -919,22 +1058,26 @@ export default function SettingsPage() {
               exit={{ opacity: 0, y: -10 }}
               className="space-y-10"
             >
-              <div className="bg-white border border-[#E2E4E9] rounded-2xl p-8 shadow-sm space-y-8">
+              <div className="bg-white border border-[#E2E4E9] rounded-[1.75rem] p-8 shadow-sm space-y-8">
                 <div>
                   <SectionHeading icon={Mail}>Email Notifications</SectionHeading>
                   <div className="space-y-6">
                     {[
-                      { id: "weekly", label: "Weekly performance report", desc: "Get a summary of your stats every Monday." },
-                      { id: "milestone", label: "New subscriber milestone", desc: "Notification when you reach subscriber goals." },
-                      { id: "scheduler", label: "Content scheduled reminders", desc: "Alerts for upcoming scheduled posts." },
-                      { id: "insights", label: "AI insight alerts", desc: "Get notified when AI finds new growth opportunities." }
+                      { id: "weeklyReport", label: "Weekly performance report", desc: "Get a summary of your stats every Monday." },
+                      { id: "subscriberMilestone", label: "New subscriber milestone", desc: "Notification when you reach subscriber goals." },
+                      { id: "schedulerReminders", label: "Content scheduled reminders", desc: "Alerts for upcoming scheduled posts." },
+                      { id: "aiInsightAlerts", label: "AI insight alerts", desc: "Get notified when AI finds new growth opportunities." }
                     ].map((row) => (
                       <div key={row.id} className="flex items-center justify-between group">
                         <div className="flex-1">
                           <p className="text-sm font-bold text-[#111318] group-hover:text-indigo-600 transition-colors">{row.label}</p>
                           <p className="text-xs text-neutral-400">{row.desc}</p>
                         </div>
-                        <Toggle checked={true} onChange={() => {}} />
+                        <Toggle
+                          checked={notifPrefs[row.id]}
+                          onChange={() => handleToggleNotification(row.id)}
+                          disabled={savingNotifKey === row.id}
+                        />
                       </div>
                     ))}
                   </div>
@@ -944,16 +1087,20 @@ export default function SettingsPage() {
                   <SectionHeading icon={Smartphone}>In-App Notifications</SectionHeading>
                   <div className="space-y-6">
                     {[
-                      { id: "due", label: "Series episode due reminders", desc: "Desktop notification 1h before deadline." },
-                      { id: "roadmap", label: "Roadmap deadline alerts", desc: "Alerts when projects are overdue." },
-                      { id: "mentions", label: "Team mentions", desc: "Notify when a collaborator tags you." }
+                      { id: "episodeDueReminders", label: "Series episode due reminders", desc: "Desktop notification 1h before deadline." },
+                      { id: "roadmapDeadlineAlerts", label: "Roadmap deadline alerts", desc: "Alerts when projects are overdue." },
+                      { id: "teamMentions", label: "Team mentions", desc: "Notify when a collaborator tags you." }
                     ].map((row) => (
                       <div key={row.id} className="flex items-center justify-between group">
                         <div className="flex-1">
                           <p className="text-sm font-bold text-[#111318] group-hover:text-indigo-600 transition-colors">{row.label}</p>
                           <p className="text-xs text-neutral-400">{row.desc}</p>
                         </div>
-                        <Toggle checked={row.id !== "mentions"} onChange={() => {}} />
+                        <Toggle
+                          checked={notifPrefs[row.id]}
+                          onChange={() => handleToggleNotification(row.id)}
+                          disabled={savingNotifKey === row.id}
+                        />
                       </div>
                     ))}
                   </div>
@@ -971,7 +1118,7 @@ export default function SettingsPage() {
               className="space-y-8"
             >
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="col-span-2 bg-white border border-[#E2E4E9] rounded-2xl p-8 shadow-sm flex flex-col md:flex-row justify-between gap-8">
+                <div className="col-span-2 bg-white border border-[#E2E4E9] rounded-[1.75rem] p-8 shadow-sm flex flex-col md:flex-row justify-between gap-8">
                   <div className="space-y-4">
                     <span className="px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase tracking-widest border border-indigo-100">
                       Current Plan
@@ -995,7 +1142,7 @@ export default function SettingsPage() {
                   </div>
                 </div>
                 
-                <div className="bg-white border border-[#E2E4E9] rounded-2xl p-8 shadow-sm space-y-6">
+                <div className="bg-white border border-[#E2E4E9] rounded-[1.75rem] p-8 shadow-sm space-y-6">
                   <SectionHeading icon={Zap}>Usage Meter</SectionHeading>
                   <div className="space-y-6">
                     <div className="space-y-2">
@@ -1020,7 +1167,7 @@ export default function SettingsPage() {
                 </div>
               </div>
 
-              <div className="bg-white border border-[#E2E4E9] rounded-2xl p-8 shadow-sm space-y-6">
+              <div className="bg-white border border-[#E2E4E9] rounded-[1.75rem] p-8 shadow-sm space-y-6">
                 <SectionHeading icon={History}>Billing History</SectionHeading>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
@@ -1064,33 +1211,69 @@ export default function SettingsPage() {
               className="space-y-8"
             >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="bg-white border border-[#E2E4E9] rounded-2xl p-8 shadow-sm space-y-6">
+                <div className="bg-white border border-[#E2E4E9] rounded-[1.75rem] p-8 shadow-sm space-y-6">
                   <SectionHeading icon={Lock}>Change Password</SectionHeading>
                   <div className="space-y-4">
                     <div className="space-y-2">
                       <p className="text-[10px] font-black text-neutral-400 uppercase tracking-widest">Current Password</p>
-                      <input type="password" placeholder="••••••••" className="w-full h-11 bg-[#F9FAFB] border border-[#E2E4E9] rounded-xl px-4 text-sm outline-none focus:border-indigo-500" />
+                      <input
+                        type="password"
+                        placeholder="••••••••"
+                        value={passwordForm.current}
+                        onChange={(e) => handlePasswordFormChange("current", e.target.value)}
+                        className="w-full h-11 bg-[#F9FAFB] border border-[#E2E4E9] rounded-xl px-4 text-sm outline-none focus:border-indigo-500"
+                      />
                     </div>
                     <div className="space-y-2">
                       <p className="text-[10px] font-black text-neutral-400 uppercase tracking-widest">New Password</p>
-                      <input type="password" placeholder="••••••••" className="w-full h-11 bg-[#F9FAFB] border border-[#E2E4E9] rounded-xl px-4 text-sm outline-none focus:border-indigo-500" />
-                      <div className="h-1 w-full bg-[#F4F5F8] rounded-full mt-2 overflow-hidden flex gap-1">
-                        <div className="h-full bg-emerald-500 flex-1 rounded-full" />
-                        <div className="h-full bg-emerald-500 flex-1 rounded-full" />
-                        <div className="h-full bg-neutral-200 flex-1 rounded-full" />
-                      </div>
-                      <p className="text-[9px] font-bold text-emerald-500 uppercase">Strength: Strong</p>
+                      <input
+                        type="password"
+                        placeholder="••••••••"
+                        value={passwordForm.next}
+                        onChange={(e) => handlePasswordFormChange("next", e.target.value)}
+                        className="w-full h-11 bg-[#F9FAFB] border border-[#E2E4E9] rounded-xl px-4 text-sm outline-none focus:border-indigo-500"
+                      />
+                      {passwordForm.next && (
+                        <>
+                          <div className="h-1 w-full bg-[#F4F5F8] rounded-full mt-2 overflow-hidden flex gap-1">
+                            {[0, 1, 2].map(i => (
+                              <div key={i} className={`h-full flex-1 rounded-full ${i < passwordStrength ? (passwordStrength === 1 ? 'bg-red-500' : passwordStrength === 2 ? 'bg-amber-500' : 'bg-emerald-500') : 'bg-neutral-200'}`} />
+                            ))}
+                          </div>
+                          <p className={`text-[9px] font-bold uppercase ${passwordStrength === 1 ? 'text-red-500' : passwordStrength === 2 ? 'text-amber-500' : 'text-emerald-500'}`}>
+                            Strength: {passwordStrength === 1 ? 'Weak' : passwordStrength === 2 ? 'Fair' : 'Strong'}
+                          </p>
+                        </>
+                      )}
                     </div>
                     <div className="space-y-2">
                       <p className="text-[10px] font-black text-neutral-400 uppercase tracking-widest">Confirm New Password</p>
-                      <input type="password" placeholder="••••••••" className="w-full h-11 bg-[#F9FAFB] border border-[#E2E4E9] rounded-xl px-4 text-sm outline-none focus:border-indigo-500" />
+                      <input
+                        type="password"
+                        placeholder="••••••••"
+                        value={passwordForm.confirm}
+                        onChange={(e) => handlePasswordFormChange("confirm", e.target.value)}
+                        className="w-full h-11 bg-[#F9FAFB] border border-[#E2E4E9] rounded-xl px-4 text-sm outline-none focus:border-indigo-500"
+                      />
                     </div>
-                    <button className="w-full mt-4 py-3.5 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all btn-primary">Update Password</button>
+                    {passwordError && (
+                      <p className="flex items-center gap-1.5 text-[11px] text-red-600 font-semibold">
+                        <AlertCircle className="w-3.5 h-3.5" /> {passwordError}
+                      </p>
+                    )}
+                    <button
+                      onClick={handleUpdatePassword}
+                      disabled={isSavingPassword}
+                      className="w-full mt-4 py-3.5 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all btn-primary disabled:opacity-50 disabled:hover:scale-100 flex items-center justify-center gap-2"
+                    >
+                      {isSavingPassword && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                      {isSavingPassword ? "Updating..." : "Update Password"}
+                    </button>
                   </div>
                 </div>
 
                 <div className="space-y-8">
-                  <div className="bg-white border border-[#E2E4E9] rounded-2xl p-8 shadow-sm space-y-6">
+                  <div className="bg-white border border-[#E2E4E9] rounded-[1.75rem] p-8 shadow-sm space-y-6">
                     <div className="flex justify-between items-center">
                       <SectionHeading icon={Smartphone}>Two-Factor Authentication</SectionHeading>
                       <Toggle checked={false} onChange={() => {}} />
@@ -1107,12 +1290,17 @@ export default function SettingsPage() {
                   <div className="bg-red-50/50 border border-red-100 rounded-2xl p-8 space-y-6">
                     <SectionHeading icon={AlertTriangle}>Danger Zone</SectionHeading>
                     <p className="text-xs text-red-600/60 leading-relaxed font-medium">Permanently delete your account and all associated data. This action is not reversible.</p>
-                    <button className="w-full py-3.5 bg-white border border-red-200 text-red-600 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-red-50 transition-all">Delete Account</button>
+                    <button
+                      onClick={() => { setShowDeleteModal(true); setDeletePassword(""); setDeleteError(""); }}
+                      className="w-full py-3.5 bg-white border border-red-200 text-red-600 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-red-50 transition-all"
+                    >
+                      Delete Account
+                    </button>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white border border-[#E2E4E9] rounded-2xl p-8 shadow-sm space-y-6">
+              <div className="bg-white border border-[#E2E4E9] rounded-[1.75rem] p-8 shadow-sm space-y-6">
                 <SectionHeading icon={History}>Active Sessions</SectionHeading>
                 <div className="space-y-4">
                   {[
@@ -1142,6 +1330,70 @@ export default function SettingsPage() {
         </AnimatePresence>
       </main>
 
+      {/* ── DELETE ACCOUNT MODAL ── */}
+      <AnimatePresence>
+        {showDeleteModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[110] bg-black/50 flex items-center justify-center p-4"
+            onClick={() => !isDeletingAccount && setShowDeleteModal(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, y: 16, filter: "blur(4px)" }}
+              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              exit={{ opacity: 0, y: 16, filter: "blur(4px)" }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white rounded-[1.75rem] p-8 w-full max-w-md shadow-2xl space-y-6"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center">
+                  <AlertTriangle className="w-5 h-5 text-red-500" />
+                </div>
+                <h3 className="text-lg font-black text-[#0F0F0F]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Delete your account?</h3>
+              </div>
+              <p className="text-sm text-neutral-500 leading-relaxed">
+                This permanently deactivates your account. Enter your password to confirm — this action cannot be undone.
+              </p>
+              <div className="space-y-2">
+                <input
+                  type="password"
+                  autoFocus
+                  placeholder="Enter your password"
+                  value={deletePassword}
+                  onChange={(e) => { setDeletePassword(e.target.value); setDeleteError(""); }}
+                  onKeyDown={(e) => e.key === "Enter" && handleDeleteAccount()}
+                  className="w-full h-11 bg-[#F9FAFB] border border-[#E2E4E9] rounded-xl px-4 text-sm outline-none focus:border-red-400"
+                />
+                {deleteError && (
+                  <p className="flex items-center gap-1.5 text-[11px] text-red-600 font-semibold">
+                    <AlertCircle className="w-3.5 h-3.5" /> {deleteError}
+                  </p>
+                )}
+              </div>
+              <div className="flex gap-3 pt-2">
+                <button
+                  onClick={() => setShowDeleteModal(false)}
+                  disabled={isDeletingAccount}
+                  className="flex-1 py-3 rounded-xl border border-[#E2E4E9] text-sm font-bold text-neutral-500 hover:bg-neutral-50 transition-all disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDeleteAccount}
+                  disabled={isDeletingAccount}
+                  className="flex-1 py-3 rounded-xl bg-red-600 text-white text-sm font-black uppercase tracking-widest hover:bg-red-700 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {isDeletingAccount && <Loader2 className="w-4 h-4 animate-spin" />}
+                  {isDeletingAccount ? "Deleting..." : "Delete"}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* ── TOAST ── */}
       <AnimatePresence>
         {showToast && (
@@ -1159,5 +1411,13 @@ export default function SettingsPage() {
         )}
       </AnimatePresence>
     </div>
+  );
+}
+
+export default function SettingsPage() {
+  return (
+    <Suspense fallback={null}>
+      <SettingsPageContent />
+    </Suspense>
   );
 }

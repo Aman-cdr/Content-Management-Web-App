@@ -44,20 +44,20 @@ export default function RecentActivityWidget() {
   }, []);
 
   return (
-    <div className="bg-white border border-[#E5E7EB] rounded-[20px] p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex flex-col h-full sm:col-span-2">
+    <div className="bg-white border border-[#E5E7EB] rounded-[1.75rem] p-5 shadow-[0_1px_4px_rgba(0,0,0,0.03),0_12px_32px_-12px_rgba(0,0,0,0.08)] flex flex-col h-full sm:col-span-2">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "rgba(99,102,241,0.10)" }}>
-            <History className="w-4 h-4" style={{ color: "#6366F1" }} />
+          <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: "rgba(99,102,241,0.10)" }}>
+            <History className="w-4 h-4" style={{ color: "#6366F1" }} strokeWidth={1.5} />
           </div>
-          <h3 className="text-[13px] font-bold text-[#0A0A0F]">Recent Activity</h3>
+          <h3 className="text-[13px] font-semibold text-[#0A0A0F]">Recent Activity</h3>
         </div>
       </div>
 
       <div className="flex-1 space-y-1 min-h-[44px]">
         {loading ? (
           [1, 2, 3].map((i) => (
-            <div key={i} className="h-9 rounded-lg bg-black/[0.03] animate-pulse" />
+            <div key={i} className="h-9 rounded-full bg-black/[0.03] animate-pulse" />
           ))
         ) : jobs.length === 0 ? (
           <p className="text-[12px] text-neutral-400 py-2">No publish activity yet.</p>
@@ -71,12 +71,13 @@ export default function RecentActivityWidget() {
                 key={job._id || job.id}
                 onClick={() => router.push("/all-content")}
                 title={job.status === "failed" ? failedResult?.error || "Publish failed" : undefined}
-                className="w-full flex items-center justify-between gap-3 px-2.5 py-2 rounded-lg hover:bg-[#F9FAFB] transition-colors text-left"
+                className="w-full flex items-center justify-between gap-3 px-2.5 py-2 rounded-full hover:bg-[#F9FAFB] transition-colors duration-300 text-left"
               >
                 <div className="flex items-center gap-2.5 min-w-0">
                   <StatusIcon
                     className={`w-4 h-4 shrink-0 ${job.status === "publishing" ? "animate-spin" : ""}`}
                     style={{ color: meta.color }}
+                    strokeWidth={1.5}
                   />
                   <span className="text-[12px] font-semibold text-[#374151] truncate">{job.title}</span>
                   <span className="flex items-center gap-1 shrink-0">
@@ -97,9 +98,9 @@ export default function RecentActivityWidget() {
 
       <button
         onClick={() => router.push("/all-content")}
-        className="mt-3 pt-3 border-t border-[#F4F5F8] w-full flex items-center justify-center gap-1 text-[11px] font-bold text-neutral-400 hover:text-[#4F46E5] transition-colors"
+        className="mt-3 pt-3 border-t border-[#F4F5F8] w-full flex items-center justify-center gap-1 text-[11px] font-semibold text-neutral-400 hover:text-[#4F46E5] transition-colors duration-300"
       >
-        View all <ChevronRight className="w-3 h-3" />
+        View all <ChevronRight className="w-3 h-3" strokeWidth={1.5} />
       </button>
     </div>
   );

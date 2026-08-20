@@ -72,14 +72,14 @@ export default function Modal({ isOpen, onClose, title, children, maxWidth = "ma
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.2 }}
+          transition={{ duration: 0.3 }}
           className="fixed inset-0 z-[100] flex items-center justify-center p-4"
           onClick={(e) => {
             if (e.target === overlayRef.current) onClose();
           }}
         >
           {/* Backdrop */}
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-md" />
 
           {/* Modal */}
           <motion.div
@@ -88,17 +88,21 @@ export default function Modal({ isOpen, onClose, title, children, maxWidth = "ma
             aria-modal="true"
             aria-labelledby="modal-title"
             tabIndex="-1"
-            className={`relative w-full ${maxWidth} bg-white border border-black/[0.06] rounded-3xl shadow-2xl shadow-black/10 overflow-hidden`}
+            initial={{ opacity: 0, scale: 0.96, y: 16, filter: "blur(4px)" }}
+            animate={{ opacity: 1, scale: 1, y: 0, filter: "blur(0px)" }}
+            exit={{ opacity: 0, scale: 0.96, y: 16, filter: "blur(4px)" }}
+            transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
+            className={`relative w-full ${maxWidth} bg-white border border-black/[0.06] rounded-[1.75rem] shadow-[0_24px_70px_-16px_rgba(0,0,0,0.25)] overflow-hidden`}
           >
             {/* Header */}
             <div className="flex items-center justify-between p-6 border-b border-black/[0.04]">
-              <h3 id="modal-title" className="text-xl font-bold text-[#0F0F0F]">{title}</h3>
+              <h3 id="modal-title" className="text-xl font-medium text-[#0F0F0F]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{title}</h3>
               <button
                 onClick={onClose}
-                className="p-2 rounded-xl hover:bg-[#F3F4F6] text-neutral-400 hover:text-[#0F0F0F] transition-colors"
+                className="p-2 rounded-full hover:bg-[#F3F4F6] text-neutral-400 hover:text-[#0F0F0F] transition-colors duration-300"
                 aria-label="Close modal"
               >
-                <X className="w-5 h-5" />
+                <X className="w-5 h-5" strokeWidth={1.5} />
               </button>
             </div>
 

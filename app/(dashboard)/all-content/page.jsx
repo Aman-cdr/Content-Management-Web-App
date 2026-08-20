@@ -37,6 +37,23 @@ const JOB_PLATFORM_LABEL = {
   tiktok: "TikTok",
 };
 
+// Translates the raw backend error (often a multi-line yt-dlp/ffmpeg stderr dump)
+// into a short, actionable message. Falls back to a trimmed raw string so nothing
+// is ever silently swallowed, even for error shapes not explicitly handled here.
+function friendlyPublishError(raw) {
+  if (!raw) return null;
+  if (/403 Forbidden|access denied/i.test(raw)) {
+    return { text: "YouTube blocked this download", hint: "Add cookies in Settings → Connected Accounts to fix this." };
+  }
+  if (/timed out/i.test(raw)) {
+    return { text: "Download timed out", hint: "YouTube took too long to respond — try again." };
+  }
+  if (/quota|429/i.test(raw)) {
+    return { text: "Rate limit hit", hint: "Too many requests right now — try again shortly." };
+  }
+  return { text: raw.split("\n")[0].slice(0, 80), hint: null };
+}
+
 const TYPE_CONFIG = {
   video:   { icon: Video,       label: "Video",   color: "text-blue-500",   bg: "bg-blue-50",   border: "border-blue-100" },
   short:   { icon: Video,       label: "Short",   color: "text-pink-500",   bg: "bg-pink-50",   border: "border-pink-100" },
@@ -116,14 +133,14 @@ function CrossPostModal({ item, onClose }) {
       />
       <motion.div
         initial={{ opacity: 0, scale: 0.92, y: 16 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.92, y: 16 }}
-        className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 space-y-5"
+        className="relative bg-white rounded-[1.75rem] shadow-2xl w-full max-w-sm p-6 space-y-5"
       >
         {success ? (
           <div className="text-center py-6">
             <div className="w-14 h-14 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-4">
               <CheckCircle2 size={28} className="text-emerald-500" />
             </div>
-            <h3 className="text-[16px] font-bold text-[#0F0F0F] mb-1">
+            <h3 className="text-[16px] font-semibold text-[#0F0F0F] mb-1" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
               {publishType === "now" ? "Cross-post started!" : "Cross-post scheduled!"}
             </h3>
             <p className="text-[12px] text-neutral-400">Track progress in the Scheduler page.</p>
@@ -136,15 +153,15 @@ function CrossPostModal({ item, onClose }) {
                 <h3 className="text-[15px] font-bold text-[#0F0F0F]">Cross-post</h3>
                 <p className="text-[11px] text-neutral-400 mt-0.5 line-clamp-1">{item.title}</p>
               </div>
-              <button onClick={onClose} className="p-1.5 hover:bg-neutral-100 rounded-xl transition-all shrink-0">
-                <X size={15} className="text-neutral-400" />
+              <button onClick={onClose} className="p-1.5 hover:bg-neutral-100 rounded-full transition-colors duration-300 shrink-0">
+                <X size={15} className="text-neutral-400" strokeWidth={1.5} />
               </button>
             </div>
 
             {/* No video warning */}
             {!hasVideo && (
-              <div className="flex items-center gap-2 text-[11px] text-amber-700 bg-amber-50 border border-amber-200 px-3 py-2.5 rounded-xl">
-                <AlertTriangle size={13} className="shrink-0" />
+              <div className="flex items-center gap-2 text-[11px] text-amber-700 bg-amber-50 border border-amber-200 px-3 py-2.5 rounded-2xl">
+                <AlertTriangle size={13} className="shrink-0" strokeWidth={1.5} />
                 No staged video found. Edit this content and upload a video first.
               </div>
             )}
@@ -160,7 +177,7 @@ function CrossPostModal({ item, onClose }) {
                       key={p.slug}
                       onClick={() => toggle(p.slug)}
                       disabled={!hasVideo}
-                      className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border text-[12px] font-semibold transition-all disabled:opacity-40 disabled:cursor-not-allowed
+                      className={`flex items-center gap-2 px-3 py-2.5 rounded-2xl border text-[12px] font-semibold transition-colors duration-300 disabled:opacity-40 disabled:cursor-not-allowed
                         ${active
                           ? "border-[var(--t-primary)] bg-[var(--t-primary-light)] text-[var(--t-primary)]"
                           : "border-[#E2E4E9] text-neutral-600 hover:border-neutral-300 hover:bg-neutral-50"
@@ -182,7 +199,7 @@ function CrossPostModal({ item, onClose }) {
                   <button
                     key={o.id}
                     onClick={() => setPublishType(o.id)}
-                    className={`flex-1 py-2 rounded-xl text-[12px] font-semibold border transition-all
+                    className={`flex-1 py-2 rounded-full text-[12px] font-semibold border transition-colors duration-300
                       ${publishType === o.id
                         ? "border-[var(--t-primary)] bg-[var(--t-primary-light)] text-[var(--t-primary)]"
                         : "border-[#E2E4E9] text-neutral-500 hover:border-neutral-300"
@@ -198,19 +215,19 @@ function CrossPostModal({ item, onClose }) {
                   value={scheduleDate}
                   onChange={e => setScheduleDate(e.target.value)}
                   min={new Date().toISOString().slice(0, 16)}
-                  className="w-full px-3 py-2 border border-[#E2E4E9] rounded-xl text-sm text-[#0F0F0F] focus:outline-none focus:border-[var(--t-primary)] transition-all"
+                  className="w-full px-3 py-2 border border-[#E2E4E9] rounded-full text-sm text-[#0F0F0F] focus:outline-none focus:border-[var(--t-primary)] transition-colors duration-300"
                 />
               )}
             </div>
 
             {error && (
-              <p className="text-[11px] text-red-600 bg-red-50 border border-red-100 px-3 py-2 rounded-lg">{error}</p>
+              <p className="text-[11px] text-red-600 bg-red-50 border border-red-100 px-3 py-2 rounded-2xl">{error}</p>
             )}
 
             <button
               onClick={handleSubmit}
               disabled={!canSubmit}
-              className="w-full py-3 text-white rounded-xl text-[13px] font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 btn-primary"
+              className="w-full py-3 text-white rounded-full text-[13px] font-bold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 btn-primary"
             >
               {loading
                 ? <><Loader2 size={14} className="animate-spin" /> Cross-posting…</>
@@ -226,7 +243,7 @@ function CrossPostModal({ item, onClose }) {
 
 // ─── Card ────────────────────────────────────────────────────────────────────
 
-function ContentCard({ item, view, onPreview, onEdit, onDelete, onPublish, onCrossPost, isSelected, onToggleSelect, publishJob, onRetry }) {
+function ContentCard({ item, view, index = 0, onPreview, onEdit, onDelete, onPublish, onCrossPost, isSelected, onToggleSelect, publishJob, onRetry }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [thumbFallback, setThumbFallback] = useState(0); // fallback level for broken thumbnails
   const [retrying, setRetrying] = useState(false);
@@ -298,6 +315,7 @@ function ContentCard({ item, view, onPreview, onEdit, onDelete, onPublish, onCro
     return (
       <motion.div
         layout initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+        transition={{ duration: 0.3, delay: Math.min(index, 12) * 0.03 }}
         className={`relative group bg-white border rounded-2xl p-4 flex items-center gap-4 transition-all hover:shadow-sm overflow-hidden
           ${isSelected ? "border-[var(--t-primary)] bg-[var(--t-primary-light)]" : "border-[#E5E7EB] hover:border-[#D1D5DB]"}`}
       >
@@ -390,6 +408,7 @@ function ContentCard({ item, view, onPreview, onEdit, onDelete, onPublish, onCro
   return (
     <motion.div
       layout initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, delay: Math.min(index, 12) * 0.04, ease: [0.32, 0.72, 0, 1] }}
       className={`group bg-white border rounded-2xl overflow-hidden flex flex-col transition-all duration-200 hover:shadow-[0_8px_24px_rgba(0,0,0,0.07)] hover:-translate-y-0.5
         ${isSelected ? "border-[var(--t-primary)] shadow-[0_0_0_3px_var(--t-primary-light)]" : "border-[#E5E7EB]"}`}
     >
@@ -425,11 +444,19 @@ function ContentCard({ item, view, onPreview, onEdit, onDelete, onPublish, onCro
         )}
 
         {/* Failed overlay with retry button */}
-        {publishJob?.status === "failed" && (
-          <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/70 backdrop-blur-[2px]">
-            <div className="flex flex-col items-center gap-2 px-4 w-full">
+        {publishJob?.status === "failed" && (() => {
+          const reason = friendlyPublishError(publishJob.error);
+          return (
+          <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/70 backdrop-blur-[2px]" title={publishJob.error || undefined}>
+            <div className="flex flex-col items-center gap-2 px-4 w-full text-center">
               <AlertTriangle className="w-5 h-5 text-red-400" />
               <span className="text-white text-[11px] font-bold tracking-wider uppercase">Failed</span>
+              {reason && (
+                <div className="max-w-[180px]">
+                  <p className="text-white/90 text-[10px] font-semibold leading-snug">{reason.text}</p>
+                  {reason.hint && <p className="text-white/60 text-[9px] leading-snug mt-0.5">{reason.hint}</p>}
+                </div>
+              )}
               <button
                 onClick={(e) => { e.stopPropagation(); onRetry && onRetry(publishJob.jobId); }}
                 disabled={retrying}
@@ -442,7 +469,8 @@ function ContentCard({ item, view, onPreview, onEdit, onDelete, onPublish, onCro
               </button>
             </div>
           </div>
-        )}
+          );
+        })()}
 
         {/* Checkbox */}
         <button
@@ -501,7 +529,7 @@ function ContentCard({ item, view, onPreview, onEdit, onDelete, onPublish, onCro
                   <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(false)} />
                   <motion.div
                     initial={{ opacity: 0, scale: 0.95, y: 6 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 6 }}
-                    className="absolute right-0 top-full mt-1.5 w-36 bg-white border border-[#E2E4E9] rounded-xl shadow-xl z-50 p-1"
+                    className="absolute right-0 top-full mt-1.5 w-36 bg-white border border-[#E2E4E9] rounded-2xl shadow-[0_20px_60px_-12px_rgba(0,0,0,0.18)] z-50 p-1"
                   >
                     <button onClick={() => { setMenuOpen(false); onEdit(item); }} className="w-full flex items-center gap-2 px-3 py-2 text-[11px] font-semibold text-neutral-600 hover:bg-neutral-50 rounded-lg transition-all">
                       <Edit2 size={13} /> Edit
@@ -618,7 +646,9 @@ export default function AllContentPage() {
         // on the backend runs platforms sequentially); fall back to the first
         // result while the shared download/conversion phase is still running
         // and nothing has started uploading yet.
-        const active = job.platformResults?.find((p) => p.status === "publishing") || job.platformResults?.[0] || {};
+        const active = job.platformResults?.find((p) => p.status === "publishing")
+          || job.platformResults?.find((p) => p.status === "failed" && p.error)
+          || job.platformResults?.[0] || {};
         map[cid] = {
           jobId: job.id || job._id,
           status: job.status,
@@ -626,6 +656,7 @@ export default function AllContentPage() {
           stage: active.stage || "uploading",
           platform: active.platform || job.platforms?.[0] || "youtube",
           totalPlatforms: job.platforms?.length || 1,
+          error: active.error || null,
         };
       }
       setJobMap(map);
@@ -737,7 +768,7 @@ export default function AllContentPage() {
       {/* ── HEADER ── */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-[26px] font-[800] text-[var(--t-text)] tracking-tight">Content Hub</h2>
+          <h2 className="text-[26px] font-medium text-[var(--t-text)] tracking-tight" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Content Hub</h2>
           <p className="text-[var(--t-text-3)] text-[13px] mt-0.5">Create, manage, and publish across all platforms.</p>
         </div>
 
@@ -749,8 +780,8 @@ export default function AllContentPage() {
               { label: "Published", val: stats.published, color: "text-emerald-600", bg: "bg-emerald-50" },
               { label: "Drafts",    val: stats.drafts,    color: "text-amber-600",  bg: "bg-amber-50"  },
             ].map(s => (
-              <div key={s.label} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl ${s.bg}`}>
-                <span className={`text-[18px] font-[800] leading-none ${s.color}`}>{s.val}</span>
+              <div key={s.label} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full ${s.bg}`}>
+                <span className={`text-[18px] font-bold leading-none ${s.color}`} style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{s.val}</span>
                 <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">{s.label}</span>
               </div>
             ))}
@@ -758,18 +789,18 @@ export default function AllContentPage() {
 
           <button
             onClick={() => router.push("/add-content")}
-            className="flex items-center gap-2 px-5 py-2.5 text-white rounded-xl text-[13px] font-[600] transition-all hover:brightness-110 active:scale-95 btn-primary"
+            className="flex items-center gap-2 px-5 py-2.5 text-white rounded-full text-[13px] font-semibold transition-all duration-300 hover:brightness-110 active:scale-[0.98] btn-primary"
           >
-            <Plus size={16} /> New Content
+            <Plus size={16} strokeWidth={1.5} /> New Content
           </button>
         </div>
       </div>
 
       {/* ── TABS ── */}
-      <div className="flex gap-1 p-1 bg-[#F4F5F8] border border-[#E5E7EB] rounded-2xl w-fit">
+      <div className="flex gap-1 p-1 bg-[#F4F5F8] border border-[#E5E7EB] rounded-full w-fit">
         <button
           onClick={() => setActiveTab("youtube")}
-          className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${
+          className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold transition-colors duration-300 ${
             activeTab === "youtube"
               ? "bg-white text-[#0F0F0F] shadow-sm border border-[#E5E7EB]"
               : "text-neutral-400 hover:text-neutral-600"
@@ -780,7 +811,7 @@ export default function AllContentPage() {
         </button>
         <button
           onClick={() => setActiveTab("shorts")}
-          className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${
+          className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold transition-colors duration-300 ${
             activeTab === "shorts"
               ? "bg-white text-[#0F0F0F] shadow-sm border border-[#E5E7EB]"
               : "text-neutral-400 hover:text-neutral-600"
@@ -795,17 +826,17 @@ export default function AllContentPage() {
       </div>
 
       {/* ── FILTER BAR ── */}
-      <div className="bg-white border border-[#E5E7EB] rounded-2xl p-3 space-y-3 shadow-sm">
+      <div className="bg-white border border-[#E5E7EB] rounded-[1.75rem] p-3 space-y-3 shadow-sm">
 
         {/* Row 1: Search + View + Sort */}
         <div className="flex items-center gap-3">
           <div className="relative flex-1 max-w-xs">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" strokeWidth={1.5} />
             <input
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Search content..."
-              className="w-full pl-9 pr-4 py-2 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl text-[13px] text-[#0F0F0F] placeholder:text-neutral-400 focus:outline-none focus:border-[var(--t-primary)] transition-all"
+              className="w-full pl-9 pr-4 py-2 bg-[#F9FAFB] border border-[#E5E7EB] rounded-full text-[13px] text-[#0F0F0F] placeholder:text-neutral-400 focus:outline-none focus:border-[var(--t-primary)] focus:ring-[3px] focus:ring-[var(--t-primary-light)] transition-all duration-300"
             />
             {search && (
               <button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600">
@@ -828,20 +859,20 @@ export default function AllContentPage() {
             <select
               value={sortBy}
               onChange={e => setSortBy(e.target.value)}
-              className="appearance-none pl-3 pr-8 py-2 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl text-[12px] font-semibold text-[#4B5264] outline-none cursor-pointer hover:bg-neutral-100 transition-all"
+              className="appearance-none pl-3 pr-8 py-2 bg-[#F9FAFB] border border-[#E5E7EB] rounded-full text-[12px] font-semibold text-[#4B5264] outline-none cursor-pointer hover:bg-neutral-100 transition-colors duration-300"
             >
               {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
             </select>
-            <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-neutral-400 pointer-events-none" />
+            <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-neutral-400 pointer-events-none" strokeWidth={1.5} />
           </div>
 
           {/* View toggle */}
-          <div className="flex p-1 bg-[#F4F5F8] border border-[#E5E7EB] rounded-xl">
-            <button onClick={() => setView("grid")} className={`p-1.5 rounded-lg transition-all ${view === "grid" ? "bg-white shadow-sm text-[var(--t-primary)]" : "text-neutral-400 hover:text-neutral-600"}`}>
-              <LayoutGrid size={15} />
+          <div className="flex p-1 bg-[#F4F5F8] border border-[#E5E7EB] rounded-full">
+            <button onClick={() => setView("grid")} className={`p-1.5 rounded-full transition-colors duration-300 ${view === "grid" ? "bg-white shadow-sm text-[var(--t-primary)]" : "text-neutral-400 hover:text-neutral-600"}`}>
+              <LayoutGrid size={15} strokeWidth={1.5} />
             </button>
-            <button onClick={() => setView("list")} className={`p-1.5 rounded-lg transition-all ${view === "list" ? "bg-white shadow-sm text-[var(--t-primary)]" : "text-neutral-400 hover:text-neutral-600"}`}>
-              <List size={15} />
+            <button onClick={() => setView("list")} className={`p-1.5 rounded-full transition-colors duration-300 ${view === "list" ? "bg-white shadow-sm text-[var(--t-primary)]" : "text-neutral-400 hover:text-neutral-600"}`}>
+              <List size={15} strokeWidth={1.5} />
             </button>
           </div>
         </div>
@@ -855,7 +886,7 @@ export default function AllContentPage() {
               <button
                 key={t}
                 onClick={() => setTypeFilter(t)}
-                className={`px-3 py-1.5 rounded-xl text-[12px] font-semibold transition-all ${
+                className={`px-3 py-1.5 rounded-full text-[12px] font-semibold transition-colors duration-300 ${
                   typeFilter === t
                     ? "text-white shadow-sm"
                     : "bg-[#F4F5F8] text-neutral-500 hover:bg-neutral-200"
@@ -885,7 +916,7 @@ export default function AllContentPage() {
                 <button
                   key={s}
                   onClick={() => setStatusFilter(s)}
-                  className={`px-3 py-1.5 rounded-xl text-[12px] font-semibold transition-all ${
+                  className={`px-3 py-1.5 rounded-full text-[12px] font-semibold transition-colors duration-300 ${
                     isActive
                       ? s === "All" ? "text-white shadow-sm" : colorMap[s].bg + " font-bold"
                       : "bg-[#F4F5F8] text-neutral-500 hover:bg-neutral-200"
@@ -931,9 +962,9 @@ export default function AllContentPage() {
             initial={{ y: 80, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 80, opacity: 0 }}
             className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[60] px-4 w-full max-w-lg"
           >
-            <div className="bg-[#0F0F0F] text-white rounded-2xl p-3 shadow-2xl flex items-center justify-between gap-4 border border-white/10">
+            <div className="bg-[#0F0F0F] text-white rounded-[1.75rem] p-3 shadow-2xl flex items-center justify-between gap-4 border border-white/10">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-xl flex items-center justify-center font-black text-sm" style={{ backgroundColor: "var(--t-primary)" }}>
+                <div className="w-8 h-8 rounded-full flex items-center justify-center font-black text-sm" style={{ backgroundColor: "var(--t-primary)" }}>
                   {selectedIds.length}
                 </div>
                 <span className="text-[13px] font-semibold">item{selectedIds.length > 1 ? "s" : ""} selected</span>
@@ -941,18 +972,18 @@ export default function AllContentPage() {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => bulkUpdate(selectedIds, { status: "published" })}
-                  className="flex items-center gap-1.5 px-3 py-2 bg-white/10 hover:bg-white/20 rounded-xl text-[11px] font-bold transition-all"
+                  className="flex items-center gap-1.5 px-3 py-2 bg-white/10 hover:bg-white/20 rounded-full text-[11px] font-bold transition-colors duration-300"
                 >
-                  <Rocket size={13} /> Publish
+                  <Rocket size={13} strokeWidth={1.5} /> Publish
                 </button>
                 <button
                   onClick={async () => { if (confirm(`Delete ${selectedIds.length} items?`)) { await bulkDelete(selectedIds); setSelectedIds([]); } }}
-                  className="p-2 bg-red-500/20 hover:bg-red-500 text-red-400 hover:text-white rounded-xl transition-all"
+                  className="p-2 bg-red-500/20 hover:bg-red-500 text-red-400 hover:text-white rounded-full transition-colors duration-300"
                 >
-                  <Trash2 size={15} />
+                  <Trash2 size={15} strokeWidth={1.5} />
                 </button>
-                <button onClick={() => setSelectedIds([])} className="p-2 bg-white/5 hover:bg-white/10 text-white/40 hover:text-white rounded-xl transition-all">
-                  <X size={15} />
+                <button onClick={() => setSelectedIds([])} className="p-2 bg-white/5 hover:bg-white/10 text-white/40 hover:text-white rounded-full transition-colors duration-300">
+                  <X size={15} strokeWidth={1.5} />
                 </button>
               </div>
             </div>
@@ -968,23 +999,23 @@ export default function AllContentPage() {
           ))}
         </div>
       ) : filtered.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-24 bg-white border border-[#E5E7EB] rounded-2xl text-center">
+        <div className="flex flex-col items-center justify-center py-24 bg-white border border-[#E5E7EB] rounded-[1.75rem] text-center">
           <div className="w-16 h-16 bg-[#F9FAFB] rounded-full flex items-center justify-center mb-5 border border-[#E5E7EB]">
-            <Files size={28} className="text-[#D1D5DB]" />
+            <Files size={28} className="text-[#D1D5DB]" strokeWidth={1.5} />
           </div>
-          <h3 className="text-[20px] font-[800] text-[#111318] mb-1">No content found</h3>
+          <h3 className="text-[20px] font-semibold text-[#111318] mb-1" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>No content found</h3>
           <p className="text-[#6B7280] text-[13px] mb-6 max-w-xs">
             {hasActiveFilter ? "Try adjusting your filters or search terms." : "Start by creating your first piece of content."}
           </p>
           <div className="flex gap-3">
             {hasActiveFilter && (
-              <button onClick={clearFilters} className="px-5 py-2.5 bg-white border border-[#E5E7EB] rounded-xl text-[13px] font-semibold text-[#374151] hover:bg-[#F9FAFB] transition-all">
+              <button onClick={clearFilters} className="px-5 py-2.5 bg-white border border-[#E5E7EB] rounded-full text-[13px] font-semibold text-[#374151] hover:bg-[#F9FAFB] transition-colors duration-300">
                 Clear Filters
               </button>
             )}
             <button
               onClick={() => router.push("/add-content")}
-              className="px-5 py-2.5 text-white rounded-xl text-[13px] font-semibold hover:brightness-110 transition-all btn-primary"
+              className="px-5 py-2.5 text-white rounded-full text-[13px] font-semibold hover:brightness-110 transition-colors duration-300 btn-primary"
             >
               Create Content
             </button>
@@ -997,11 +1028,12 @@ export default function AllContentPage() {
             : "space-y-2"
         }>
           <AnimatePresence mode="popLayout">
-            {filtered.map(item => (
+            {filtered.map((item, index) => (
               <ContentCard
                 key={item.id}
                 item={item}
                 view={view}
+                index={index}
                 isSelected={selectedIds.includes(item.id)}
                 onToggleSelect={toggleSelect}
                 onPreview={setPreview}
@@ -1043,17 +1075,17 @@ export default function AllContentPage() {
         {deleteTarget && (
           <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setDeleteTarget(null)} className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
-            <motion.div initial={{ opacity: 0, scale: 0.9, y: 16 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 16 }} className="relative bg-white rounded-2xl p-7 shadow-2xl w-full max-w-sm text-center">
+            <motion.div initial={{ opacity: 0, scale: 0.9, y: 16 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 16 }} className="relative bg-white rounded-[1.75rem] p-7 shadow-2xl w-full max-w-sm text-center">
               <div className="w-14 h-14 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-5">
-                <AlertTriangle size={28} />
+                <AlertTriangle size={28} strokeWidth={1.5} />
               </div>
-              <h3 className="text-xl font-black text-[#0F0F0F] mb-1">Delete content?</h3>
+              <h3 className="text-xl font-semibold text-[#0F0F0F] mb-1" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Delete content?</h3>
               <p className="text-[13px] text-neutral-400 mb-6 leading-relaxed">
-                "<span className="text-[#0F0F0F] font-semibold">{deleteTarget.title}</span>" will be permanently removed.
+                &ldquo;<span className="text-[#0F0F0F] font-semibold">{deleteTarget.title}</span>&rdquo; will be permanently removed.
               </p>
               <div className="flex gap-2">
-                <button onClick={() => setDeleteTarget(null)} className="flex-1 py-3 rounded-xl border border-[#E2E4E9] text-[13px] font-semibold text-[#4B5264] hover:bg-neutral-50 transition-all">Cancel</button>
-                <button onClick={() => { deleteContent(deleteTarget.id); setDeleteTarget(null); }} className="flex-1 py-3 rounded-xl bg-red-500 hover:bg-red-600 text-white text-[13px] font-semibold transition-all">Delete</button>
+                <button onClick={() => setDeleteTarget(null)} className="flex-1 py-3 rounded-full border border-[#E2E4E9] text-[13px] font-semibold text-[#4B5264] hover:bg-neutral-50 transition-colors duration-300">Cancel</button>
+                <button onClick={() => { deleteContent(deleteTarget.id); setDeleteTarget(null); }} className="flex-1 py-3 rounded-full bg-red-500 hover:bg-red-600 text-white text-[13px] font-semibold transition-colors duration-300">Delete</button>
               </div>
             </motion.div>
           </div>
@@ -1114,6 +1146,9 @@ function PreviewPanel({ item, onClose, onEdit, onDelete, onPublish, onCrossPost 
     if (!item.id && !item._id) return;
 
     let interval = null;
+    let cancelled = false;
+    const isTerminal = (j) => !j || j.status === "published" || j.status === "cancelled"
+      || (j.status === "failed" && j.platformResults?.every(p => p.status !== "publishing"));
 
     const fetchJob = async (showLoading = true) => {
       if (showLoading) setLoadingJob(true);
@@ -1121,19 +1156,32 @@ function PreviewPanel({ item, onClose, onEdit, onDelete, onPublish, onCrossPost 
         const res = await httpClient.get(ENDPOINTS.PUBLISH.LIST, {
           params: { contentId: item.id || item._id }
         });
-        if (res.success && Array.isArray(res.data) && res.data.length > 0) {
-          setJob(res.data[0]);
-        } else {
-          setJob(null);
+        if (cancelled) return;
+        const nextJob = res.success && Array.isArray(res.data) && res.data.length > 0 ? res.data[0] : null;
+        setJob(nextJob);
+
+        // Keep polling while the job is scheduled/publishing so a Retry (which
+        // resets status to "scheduled" and waits up to 60s for the backend
+        // scheduler's next tick) is reflected here instead of freezing on
+        // whatever was fetched the moment the panel opened.
+        if (!isTerminal(nextJob) && !interval) {
+          interval = setInterval(() => fetchJob(false), 3000);
+        } else if (isTerminal(nextJob) && interval) {
+          clearInterval(interval);
+          interval = null;
         }
       } catch (err) {
         console.error("Failed to fetch publish job details:", err);
       } finally {
-        setLoadingJob(false);
+        if (!cancelled) setLoadingJob(false);
       }
     };
 
     fetchJob();
+    return () => {
+      cancelled = true;
+      if (interval) clearInterval(interval);
+    };
   }, [item.id, item._id]);
 
   return (
@@ -1147,7 +1195,7 @@ function PreviewPanel({ item, onClose, onEdit, onDelete, onPublish, onCrossPost 
             <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--t-text-3)] mb-0.5">Content Preview</p>
             <h3 className="text-[15px] font-bold text-[#0F0F0F] line-clamp-1">{item.title}</h3>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-[#F4F5F8] rounded-xl transition-all"><X size={18} className="text-neutral-500" /></button>
+          <button onClick={onClose} className="p-2 hover:bg-[#F4F5F8] rounded-full transition-colors duration-300"><X size={18} className="text-neutral-500" strokeWidth={1.5} /></button>
         </div>
 
         {/* Thumbnail */}
@@ -1297,24 +1345,24 @@ function PreviewPanel({ item, onClose, onEdit, onDelete, onPublish, onCrossPost 
         {/* Actions */}
         <div className="sticky bottom-0 p-5 bg-white/90 backdrop-blur-md border-t border-[#F4F5F8] space-y-2">
           <div className="flex gap-2">
-            <button onClick={() => onEdit(item)} className="flex-1 py-3 bg-[#F4F5F8] hover:bg-[#E5E7EB] rounded-xl text-[12px] font-bold text-[#374151] transition-all flex items-center justify-center gap-2 border border-[#E2E4E9]">
-              <Edit2 size={14} /> Edit
+            <button onClick={() => onEdit(item)} className="flex-1 py-3 bg-[#F4F5F8] hover:bg-[#E5E7EB] rounded-full text-[12px] font-bold text-[#374151] transition-colors duration-300 flex items-center justify-center gap-2 border border-[#E2E4E9]">
+              <Edit2 size={14} strokeWidth={1.5} /> Edit
             </button>
             {item.status?.toLowerCase() === "draft" && (
-              <button onClick={() => { onPublish(item.id); onClose(); }} className="flex-1 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-[12px] font-bold transition-all flex items-center justify-center gap-2">
-                <Rocket size={14} /> Publish
+              <button onClick={() => { onPublish(item.id); onClose(); }} className="flex-1 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full text-[12px] font-bold transition-colors duration-300 flex items-center justify-center gap-2">
+                <Rocket size={14} strokeWidth={1.5} /> Publish
               </button>
             )}
-            <button onClick={() => onDelete(item)} className="p-3 bg-white border border-red-100 hover:bg-red-50 text-red-500 rounded-xl transition-all">
-              <Trash2 size={16} />
+            <button onClick={() => onDelete(item)} className="p-3 bg-white border border-red-100 hover:bg-red-50 text-red-500 rounded-full transition-colors duration-300">
+              <Trash2 size={16} strokeWidth={1.5} />
             </button>
           </div>
           {item.type === "video" && (
             <button
               onClick={() => onCrossPost(item)}
-              className="w-full py-2.5 rounded-xl text-[12px] font-bold text-indigo-600 border border-indigo-100 bg-indigo-50 hover:bg-indigo-100 transition-all flex items-center justify-center gap-2"
+              className="w-full py-2.5 rounded-full text-[12px] font-bold text-indigo-600 border border-indigo-100 bg-indigo-50 hover:bg-indigo-100 transition-colors duration-300 flex items-center justify-center gap-2"
             >
-              <Share2 size={14} /> Cross-post to another platform
+              <Share2 size={14} strokeWidth={1.5} /> Cross-post to another platform
             </button>
           )}
         </div>

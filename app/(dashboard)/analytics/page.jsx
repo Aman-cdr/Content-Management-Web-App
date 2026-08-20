@@ -63,7 +63,7 @@ function StatCard({ stat, isLoading }) {
 
   if (isLoading) {
     return (
-      <div className="bg-white border border-[#E5E7EB] rounded-[24px] p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+      <div className="bg-white border border-[#E5E7EB] rounded-[1.75rem] p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
         <div className="flex items-center justify-between mb-4">
           <Skeleton className="w-10 h-10" />
         </div>
@@ -76,13 +76,14 @@ function StatCard({ stat, isLoading }) {
   return (
     <motion.div
       whileHover={{ y: -4 }}
-      className="bg-white border border-[#E5E7EB] rounded-[24px] p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all"
+      transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
+      className="bg-white border border-[#E5E7EB] rounded-[1.75rem] p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_16px_40px_-12px_rgba(0,0,0,0.1)] transition-shadow duration-300"
     >
       <div className="flex items-center justify-between mb-4">
-        <div className={`p-2.5 rounded-xl ${bg}`}>
-          <Icon className={`w-5 h-5 ${clr}`} />
+        <div className={`p-2.5 rounded-full ${bg}`}>
+          <Icon className={`w-5 h-5 ${clr}`} strokeWidth={1.5} />
         </div>
-        <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg">LIVE</span>
+        <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full">LIVE</span>
       </div>
       <p className="text-sm text-neutral-500 mb-1">{stat.name}</p>
       <p className="text-3xl font-bold tracking-tight text-[#0F0F0F]">
@@ -95,8 +96,8 @@ function StatCard({ stat, isLoading }) {
 // ── Not connected banner ──────────────────────────────────────────────────────
 function NotConnectedBanner({ platform = "YouTube" }) {
   return (
-    <div className="bg-amber-50 border border-amber-200 rounded-[20px] p-6 flex items-start gap-4">
-      <AlertCircle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+    <div className="bg-amber-50 border border-amber-200 rounded-[1.75rem] p-6 flex items-start gap-4">
+      <AlertCircle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" strokeWidth={1.5} />
       <div>
         <p className="font-bold text-amber-800 mb-1">{platform} not connected</p>
         <p className="text-sm text-amber-700">
@@ -112,8 +113,8 @@ function NotConnectedBanner({ platform = "YouTube" }) {
 // ── Analytics API locked banner ──────────────────────────────────────────────
 function AnalyticsApiBanner() {
   return (
-    <div className="flex items-center gap-3 bg-[#F3F4F6] border border-black/[0.06] rounded-2xl px-5 py-3">
-      <Lock className="w-4 h-4 text-neutral-400 shrink-0" />
+    <div className="flex items-center gap-3 bg-[#F3F4F6] border border-black/[0.06] rounded-full px-5 py-3">
+      <Lock className="w-4 h-4 text-neutral-400 shrink-0" strokeWidth={1.5} />
       <p className="text-xs text-neutral-500 font-medium">
         Time-series charts, CTR, Revenue, Watch Time and Geography require the{" "}
         <span className="font-bold text-neutral-700">YouTube Analytics API</span>{" "}
@@ -183,7 +184,7 @@ function TopVideosTable({ videos, isLoading, sortConfig, onSort }) {
                     <img
                       src={v.thumbnail}
                       alt={v.title}
-                      className="w-20 h-12 rounded-lg object-cover bg-neutral-100"
+                      className="w-20 h-12 rounded-xl object-cover bg-neutral-100"
                     />
                     {v.duration && (
                       <span className="absolute bottom-1 right-1 bg-black/80 text-white text-[9px] font-bold px-1 rounded">
@@ -289,7 +290,7 @@ function TopInstagramTable({ posts, isLoading, sortConfig, onSort }) {
                     <img
                       src={p.thumbnail}
                       alt={p.caption}
-                      className="w-12 h-12 rounded-lg object-cover bg-neutral-100"
+                      className="w-12 h-12 rounded-xl object-cover bg-neutral-100"
                     />
                   </div>
                   <div className="min-w-0">
@@ -380,7 +381,7 @@ export default function AnalyticsPage() {
         <div>
           <div className="flex items-center gap-3 mb-1">
             <span className="w-[3px] h-8 bg-gradient-to-b from-[#6366F1] to-[#8B5CF6] rounded-full" />
-            <h2 className="text-[32px] font-[800] text-[#0F0F0F] tracking-tight">Analytics</h2>
+            <h2 className="text-[32px] font-medium text-[#0F0F0F] tracking-tight" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Analytics</h2>
           </div>
           <p className="text-neutral-500 text-[14px] mt-0.5">
             {activeTab === "youtube" && data?.channelName ? (
@@ -403,23 +404,23 @@ export default function AnalyticsPage() {
         <button
           onClick={fetchAnalytics}
           disabled={isLoading}
-          className="flex items-center gap-2 bg-white border border-black/[0.06] rounded-2xl px-5 py-2.5 text-sm font-bold hover:bg-[#F9FAFB] transition-all text-[#374151] disabled:opacity-50"
+          className="flex items-center gap-2 bg-white border border-black/[0.06] rounded-full px-5 py-2.5 text-sm font-bold hover:bg-[#F9FAFB] transition-colors duration-300 text-[#374151] disabled:opacity-50"
         >
-          <RefreshCw className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`} />
+          <RefreshCw className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`} strokeWidth={1.5} />
           Refresh
         </button>
       </div>
 
       {/* Error */}
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-[20px] p-4 flex items-center gap-3 text-red-700 text-sm font-medium">
-          <AlertCircle className="w-5 h-5 shrink-0" />
+        <div className="bg-red-50 border border-red-200 rounded-2xl p-4 flex items-center gap-3 text-red-700 text-sm font-medium">
+          <AlertCircle className="w-5 h-5 shrink-0" strokeWidth={1.5} />
           {error}
         </div>
       )}
 
       {/* Platform tabs */}
-      <div className="flex items-center gap-1.5 bg-white p-1.5 rounded-xl border border-[#E5E7EB] shadow-[0_1px_4px_rgba(0,0,0,0.06),_0_4px_16px_rgba(0,0,0,0.04)] w-fit">
+      <div className="flex items-center gap-1.5 bg-white p-1.5 rounded-full border border-[#E5E7EB] shadow-[0_1px_4px_rgba(0,0,0,0.06),_0_4px_16px_rgba(0,0,0,0.04)] w-fit">
         {[
           { id: "youtube", label: "YouTube" },
           { id: "instagram", label: "Instagram" },
@@ -427,14 +428,14 @@ export default function AnalyticsPage() {
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`relative flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold transition-colors ${
+            className={`relative flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-bold transition-colors duration-300 ${
               activeTab === tab.id ? "text-[#0F0F0F]" : "text-neutral-400 hover:text-neutral-600"
             }`}
           >
             {activeTab === tab.id && (
               <motion.div
                 layoutId="analytics-tab"
-                className="absolute inset-0 bg-[#F4F5F8] rounded-lg border border-[#E2E4E9]"
+                className="absolute inset-0 bg-[#F4F5F8] rounded-full border border-[#E2E4E9]"
               />
             )}
             <span className="relative z-10 flex items-center gap-2">
@@ -470,11 +471,11 @@ export default function AnalyticsPage() {
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-white border border-[#E5E7EB] rounded-[24px] p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)]"
+            className="bg-white border border-[#E5E7EB] rounded-[1.75rem] p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)]"
           >
             <div className="flex items-center justify-between mb-2">
               <div>
-                <h3 className="text-[20px] font-[800] text-[#0F0F0F]">Top Videos</h3>
+                <h3 className="text-[20px] font-semibold text-[#0F0F0F]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Top Videos</h3>
                 <p className="text-xs text-neutral-400 font-medium mt-0.5">
                   {data?.topVideos?.length
                     ? `${data.topVideos.length} videos · sorted by views`
@@ -506,17 +507,17 @@ export default function AnalyticsPage() {
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-white border border-[#E5E7EB] rounded-[24px] p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)]"
+              className="bg-white border border-[#E5E7EB] rounded-[1.75rem] p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)]"
             >
               <div className="flex items-center gap-3 mb-6">
-                <h3 className="text-[20px] font-[800] text-[#0F0F0F]">Performance Over Time</h3>
+                <h3 className="text-[20px] font-semibold text-[#0F0F0F]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Performance Over Time</h3>
                 <span className="text-[10px] font-black text-indigo-600 bg-indigo-50 px-2 py-1 rounded-full uppercase tracking-widest">
                   Coming Soon
                 </span>
               </div>
               <div className="h-[220px] flex flex-col items-center justify-center gap-3 bg-[#F9FAFB] rounded-2xl border border-dashed border-black/[0.08]">
-                <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center">
-                  <Sparkles className="w-6 h-6 text-indigo-400" />
+                <div className="w-12 h-12 rounded-full bg-indigo-50 flex items-center justify-center">
+                  <Sparkles className="w-6 h-6 text-indigo-400" strokeWidth={1.5} />
                 </div>
                 <p className="text-sm font-bold text-[#374151]">Views, Watch Time & CTR over time</p>
                 <p className="text-xs text-neutral-400 text-center max-w-xs">
@@ -546,11 +547,11 @@ export default function AnalyticsPage() {
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-white border border-[#E5E7EB] rounded-[24px] p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)]"
+            className="bg-white border border-[#E5E7EB] rounded-[1.75rem] p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)]"
           >
             <div className="flex items-center justify-between mb-2">
               <div>
-                <h3 className="text-[20px] font-[800] text-[#0F0F0F]">Top Instagram Posts</h3>
+                <h3 className="text-[20px] font-semibold text-[#0F0F0F]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Top Instagram Posts</h3>
                 <p className="text-xs text-neutral-400 font-medium mt-0.5">
                   {data?.topInstagramPosts?.length
                     ? `${data.topInstagramPosts.length} posts · sorted by likes`

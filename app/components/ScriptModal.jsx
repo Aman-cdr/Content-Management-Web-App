@@ -52,7 +52,7 @@ export default function ScriptModal({ isOpen, onClose }) {
                 if (validationError) setValidationError("");
               }}
               placeholder="e.g., React Server Components explained..."
-              className={`w-full px-4 py-3 bg-[#F9FAFB] border ${validationError ? 'border-red-500/50 focus:border-red-500/50 focus:ring-red-500/20' : 'border-black/[0.06] focus:border-purple-500/50 focus:ring-purple-500/20'} rounded-2xl text-[#0F0F0F] placeholder:text-neutral-400 outline-none focus:ring-1 transition-all`}
+              className={`w-full px-4 py-3 bg-[#F9FAFB] border ${validationError ? 'border-red-500/50 focus:border-red-500/50 focus:ring-red-500/20' : 'border-black/[0.06] focus:border-purple-500/50 focus:ring-purple-500/20'} rounded-full text-[#0F0F0F] placeholder:text-neutral-400 outline-none focus:ring-[3px] transition-all duration-300`}
             />
             {validationError && (
               <p className="text-red-600 text-xs mt-2">{validationError}</p>
@@ -60,7 +60,7 @@ export default function ScriptModal({ isOpen, onClose }) {
           </div>
 
           <div className="flex items-center gap-3 p-4 rounded-2xl bg-purple-50 border border-purple-100">
-            <Sparkles className="w-5 h-5 text-purple-600 flex-shrink-0" />
+            <Sparkles className="w-5 h-5 text-purple-600 flex-shrink-0" strokeWidth={1.5} />
             <p className="text-sm text-neutral-600">
               Our AI will generate a full video script outline with timestamps, hooks, and CTAs.
             </p>
@@ -68,7 +68,7 @@ export default function ScriptModal({ isOpen, onClose }) {
 
           {error && (
             <div className="flex items-center gap-3 p-4 rounded-2xl bg-red-50 border border-red-100">
-              <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
+              <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" strokeWidth={1.5} />
               <p className="text-sm text-red-600">{error}</p>
             </div>
           )}
@@ -76,16 +76,16 @@ export default function ScriptModal({ isOpen, onClose }) {
           <button
             onClick={handleGenerate}
             disabled={loading || !topic.trim()}
-            className="w-full py-3 bg-purple-600 hover:bg-purple-500 disabled:bg-purple-600/30 disabled:cursor-not-allowed text-white rounded-2xl font-semibold transition-all flex items-center justify-center gap-2 shadow-lg shadow-purple-600/20"
+            className="w-full py-3 bg-purple-600 hover:bg-purple-500 disabled:bg-purple-600/30 disabled:cursor-not-allowed text-white rounded-full font-semibold transition-all duration-300 flex items-center justify-center gap-2 shadow-lg shadow-purple-600/20"
           >
             {loading ? (
               <>
-                <Loader2 className="w-5 h-5 animate-spin" />
+                <Loader2 className="w-5 h-5 animate-spin" strokeWidth={1.5} />
                 Generating Script...
               </>
             ) : (
               <>
-                <Sparkles className="w-5 h-5" />
+                <Sparkles className="w-5 h-5" strokeWidth={1.5} />
                 Generate Script
               </>
             )}
@@ -99,9 +99,9 @@ export default function ScriptModal({ isOpen, onClose }) {
           {/* Script Header */}
           <div className="p-5 rounded-2xl bg-gradient-to-br from-purple-50 to-blue-50 border border-purple-100">
             <div className="flex items-start gap-3">
-              <FileText className="w-6 h-6 text-purple-600 flex-shrink-0 mt-0.5" />
+              <FileText className="w-6 h-6 text-purple-600 flex-shrink-0 mt-0.5" strokeWidth={1.5} />
               <div className="flex-1">
-                <h4 className="font-bold text-lg text-[#0F0F0F] mb-1">{script.script.title}</h4>
+                <h4 className="font-semibold text-lg text-[#0F0F0F] mb-1" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{script.script.title}</h4>
                 <div className="flex items-center gap-3 text-xs text-neutral-500 font-medium">
                   <span>Est. {script.script.estimatedLength}</span>
                   <span>•</span>
@@ -113,7 +113,7 @@ export default function ScriptModal({ isOpen, onClose }) {
               {script.script.tags.map((tag) => (
                 <span
                   key={tag}
-                  className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg bg-purple-100 text-purple-600 border border-purple-200"
+                  className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-purple-100 text-purple-600 border border-purple-200"
                 >
                   {tag}
                 </span>
@@ -132,13 +132,13 @@ export default function ScriptModal({ isOpen, onClose }) {
                   <h5 className="font-bold text-sm text-purple-600">{section.heading}</h5>
                   <button
                     onClick={() => handleCopySection(section.content, i)}
-                    className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg hover:bg-[#F3F4F6] transition-all"
+                    className="opacity-0 group-hover:opacity-100 p-1.5 rounded-full hover:bg-[#F3F4F6] transition-all duration-300"
                     title="Copy section"
                   >
                     {copiedIndex === i ? (
-                      <Check className="w-3.5 h-3.5 text-emerald-600" />
+                      <Check className="w-3.5 h-3.5 text-emerald-600" strokeWidth={1.75} />
                     ) : (
-                      <Copy className="w-3.5 h-3.5 text-neutral-400" />
+                      <Copy className="w-3.5 h-3.5 text-neutral-400" strokeWidth={1.5} />
                     )}
                   </button>
                 </div>
@@ -153,13 +153,13 @@ export default function ScriptModal({ isOpen, onClose }) {
               onClick={() => {
                 reset();
               }}
-              className="flex-1 py-3 bg-[#F3F4F6] hover:bg-[#E5E7EB] border border-black/[0.04] rounded-2xl text-sm font-semibold text-[#374151] transition-all"
+              className="flex-1 py-3 bg-[#F3F4F6] hover:bg-[#E5E7EB] border border-black/[0.04] rounded-full text-sm font-semibold text-[#374151] transition-all duration-300"
             >
               Regenerate
             </button>
             <button
               onClick={handleClose}
-              className="flex-1 py-3 bg-purple-600 hover:bg-purple-500 text-white rounded-2xl text-sm font-semibold transition-all shadow-lg shadow-purple-600/20"
+              className="flex-1 py-3 bg-purple-600 hover:bg-purple-500 text-white rounded-full text-sm font-semibold transition-all duration-300 shadow-lg shadow-purple-600/20"
             >
               Save to Drafts
             </button>

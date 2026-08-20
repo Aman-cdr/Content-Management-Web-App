@@ -166,10 +166,10 @@ function Field({ label, required, optional, hint, action, children }) {
   );
 }
 
-const inputCls = "w-full px-4 py-3 bg-white border border-[#E2E4E9] rounded-xl text-sm text-[#111318] placeholder:text-[#B8BCC8] focus:outline-none focus:border-[#6366F1] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.08)] transition-all";
+const inputCls = "w-full px-4 py-3 bg-white border border-[#E2E4E9] rounded-2xl text-sm text-[#111318] placeholder:text-[#B8BCC8] focus:outline-none focus:border-[#6366F1] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.08)] transition-all duration-300";
 
 // ─── AI pill button ───────────────────────────────────────────────────────────
-const aiBtnCls = "flex items-center gap-1.5 bg-gradient-to-br from-[#6366F1] to-[#8B5CF6] text-white rounded-full px-4 py-1.5 text-[11px] font-semibold hover:opacity-90 transition-opacity shadow-sm shadow-indigo-500/20";
+const aiBtnCls = "flex items-center gap-1.5 bg-gradient-to-br from-[#6366F1] to-[#8B5CF6] text-white rounded-full px-4 py-1.5 text-[11px] font-semibold hover:opacity-90 transition-opacity duration-300 shadow-sm shadow-indigo-500/20";
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function AddContentPage() {
@@ -501,7 +501,7 @@ export default function AddContentPage() {
             initial={{ opacity: 0, y: -20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -20, scale: 0.95 }}
-            className={`fixed top-6 right-6 z-50 flex items-center gap-3 px-5 py-4 rounded-xl border shadow-lg max-w-md ${
+            className={`fixed top-6 right-6 z-50 flex items-center gap-3 px-5 py-4 rounded-2xl border shadow-[0_20px_60px_-12px_rgba(0,0,0,0.18)] max-w-md ${
               notification.type === "success" 
                 ? "bg-white text-emerald-800 border-emerald-100 shadow-emerald-100/30" 
                 : "bg-white text-red-800 border-red-100 shadow-red-100/30"
@@ -530,22 +530,22 @@ export default function AddContentPage() {
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
-            className="fixed top-6 left-[280px] right-6 z-40 flex items-center justify-between gap-4 px-5 py-3.5 rounded-xl border border-amber-200 bg-amber-50 shadow-sm"
+            className="fixed top-6 left-[280px] right-6 z-40 flex items-center justify-between gap-4 px-5 py-3.5 rounded-2xl border border-amber-200 bg-amber-50 shadow-sm"
           >
             <div className="flex items-center gap-2.5">
-              <Clock className="w-4 h-4 text-amber-600 shrink-0" />
+              <Clock className="w-4 h-4 text-amber-600 shrink-0" strokeWidth={1.5} />
               <span className="text-sm font-medium text-amber-800">You have an unsaved draft — restore it to continue where you left off.</span>
             </div>
             <div className="flex items-center gap-2 shrink-0">
               <button
                 onClick={restoreDraft}
-                className="px-3 py-1.5 bg-amber-600 text-white rounded-lg text-xs font-bold hover:bg-amber-700 transition-colors"
+                className="px-3 py-1.5 bg-amber-600 text-white rounded-full text-xs font-bold hover:bg-amber-700 transition-colors duration-300"
               >
                 Restore
               </button>
               <button
                 onClick={() => { setShowRestoreBanner(false); clearDraft(); }}
-                className="px-3 py-1.5 bg-white text-amber-700 border border-amber-200 rounded-lg text-xs font-semibold hover:bg-amber-50 transition-colors"
+                className="px-3 py-1.5 bg-white text-amber-700 border border-amber-200 rounded-full text-xs font-semibold hover:bg-amber-50 transition-colors duration-300"
               >
                 Discard
               </button>
@@ -616,7 +616,7 @@ export default function AddContentPage() {
                     <div className="relative">
                       <AISuggestButton type="title" context={title} onSelect={setTitle}
                         buttonClass={aiBtnCls}
-                        dropdownClass="absolute right-0 top-[calc(100%+8px)] w-[300px] bg-white border border-[#E2E4E9] rounded-xl shadow-[0_12px_40px_rgba(0,0,0,0.10)] z-50 overflow-hidden"
+                        dropdownClass="absolute right-0 top-[calc(100%+8px)] w-[300px] bg-white border border-[#E2E4E9] rounded-2xl shadow-[0_20px_60px_-12px_rgba(0,0,0,0.18)] z-50 overflow-hidden"
                       />
                     </div>
                   }
@@ -719,7 +719,7 @@ export default function AddContentPage() {
                       <div className="relative">
                         <AISuggestButton type="description" context={title} wordCount={descWordCount} onSelect={setDescription}
                           buttonClass={aiBtnCls}
-                          dropdownClass="absolute right-0 top-[calc(100%+8px)] w-[380px] bg-white border border-[#E2E4E9] rounded-xl shadow-[0_12px_40px_rgba(0,0,0,0.10)] z-50 overflow-hidden"
+                          dropdownClass="absolute right-0 top-[calc(100%+8px)] w-[380px] bg-white border border-[#E2E4E9] rounded-2xl shadow-[0_20px_60px_-12px_rgba(0,0,0,0.18)] z-50 overflow-hidden"
                         />
                       </div>
                     </div>
@@ -741,19 +741,19 @@ export default function AddContentPage() {
                   optional
                   hint="Add keywords to categorize your content and help search algorithms find it."
                 >
-                  <div className="bg-white border border-[#E2E4E9] rounded-xl p-3 flex flex-wrap gap-2 items-center">
+                  <div className="bg-white border border-[#E2E4E9] rounded-2xl p-3 flex flex-wrap gap-2 items-center">
                     {tags.map((tag, idx) => (
                       <span
                         key={idx}
-                        className="bg-neutral-50 border border-[#E2E4E9] px-2.5 py-1 rounded-lg text-xs font-bold text-neutral-700 flex items-center gap-1.5 shadow-sm"
+                        className="bg-neutral-50 border border-[#E2E4E9] px-2.5 py-1 rounded-full text-xs font-bold text-neutral-700 flex items-center gap-1.5 shadow-sm"
                       >
                         {tag}
                         <button
                           type="button"
                           onClick={() => setTags(tags.filter((_, idx2) => idx2 !== idx))}
-                          className="text-neutral-400 hover:text-red-500 transition-colors"
+                          className="text-neutral-400 hover:text-red-500 transition-colors duration-300"
                         >
-                          <X className="w-3 h-3" />
+                          <X className="w-3 h-3" strokeWidth={1.5} />
                         </button>
                       </span>
                     ))}
@@ -802,8 +802,8 @@ export default function AddContentPage() {
                           onChange={(e) => { if (e.target.files?.[0]) handleVideoUpload(e.target.files[0]); }}
                           className="hidden"
                         />
-                        <div className="w-10 h-10 rounded-xl bg-white border border-[#E5E7EB] shadow-sm flex items-center justify-center text-neutral-400 group-hover:scale-105 transition-transform">
-                          <Upload className="w-5 h-5 text-neutral-500" />
+                        <div className="w-10 h-10 rounded-full bg-white border border-[#E5E7EB] shadow-sm flex items-center justify-center text-neutral-400 group-hover:scale-105 transition-transform duration-300">
+                          <Upload className="w-5 h-5 text-neutral-500" strokeWidth={1.5} />
                         </div>
                         <div className="text-center">
                           <p className="text-[13px] font-semibold text-[#374151]">Drag & drop video here, or <span className="text-[#6366F1] hover:underline">browse</span></p>
@@ -843,10 +843,10 @@ export default function AddContentPage() {
                         <button
                           type="button"
                           onClick={handleRemoveVideo}
-                          className="p-1.5 hover:bg-neutral-100 rounded-lg text-neutral-400 hover:text-red-500 transition-colors"
+                          className="p-1.5 hover:bg-neutral-100 rounded-full text-neutral-400 hover:text-red-500 transition-colors duration-300"
                           title="Remove Video"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Trash2 className="w-4 h-4" strokeWidth={1.5} />
                         </button>
                       </div>
                     )}
@@ -882,11 +882,11 @@ export default function AddContentPage() {
                 <div className="space-y-4">
                   <div className="flex items-start justify-between">
                     <div>
-                      <h3 className="text-[20px] font-bold text-[#0F0F0F] leading-tight">{title || "Untitled"}</h3>
+                      <h3 className="text-[20px] font-semibold text-[#0F0F0F] leading-tight" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{title || "Untitled"}</h3>
                       <div className="flex flex-wrap gap-2 mt-2.5">
-                        {type && <span className="px-2.5 py-1 bg-indigo-50 text-indigo-600 text-[11px] font-bold rounded-lg border border-indigo-100 capitalize">{type}</span>}
+                        {type && <span className="px-2.5 py-1 bg-indigo-50 text-indigo-600 text-[11px] font-bold rounded-full border border-indigo-100 capitalize">{type}</span>}
                         {platforms.map((p) => (
-                          <span key={p} className="px-2.5 py-1 bg-[#F3F4F6] text-[#374151] text-[11px] font-medium rounded-lg border border-[#E5E7EB]">{p}</span>
+                          <span key={p} className="px-2.5 py-1 bg-[#F3F4F6] text-[#374151] text-[11px] font-medium rounded-full border border-[#E5E7EB]">{p}</span>
                         ))}
                       </div>
                     </div>
@@ -916,11 +916,11 @@ export default function AddContentPage() {
                   <p className="text-[11px] font-bold text-neutral-400 uppercase tracking-widest mb-4">Checklist</p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                     {checklist.map((c, i) => (
-                      <div key={i} className={`flex items-center gap-3 px-4 py-3 rounded-xl border transition-all
+                      <div key={i} className={`flex items-center gap-3 px-4 py-3 rounded-2xl border transition-colors duration-300
                         ${c.ok ? "border-emerald-200 bg-emerald-50/60" : "border-[#E2E4E9] bg-white"}`}
                       >
                         <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${c.ok ? "bg-emerald-500" : "bg-[#E5E7EB]"}`}>
-                          {c.ok ? <Check className="w-3 h-3 text-white" /> : <span className="text-[9px] text-[#9CA3AF] font-bold">–</span>}
+                          {c.ok ? <Check className="w-3 h-3 text-white" strokeWidth={2} /> : <span className="text-[9px] text-[#9CA3AF] font-bold">–</span>}
                         </div>
                         <span className={`text-[13px] ${c.ok ? "text-[#111318] font-medium" : "text-[#9CA3AF]"}`}>{c.label}</span>
                       </div>
@@ -943,8 +943,8 @@ export default function AddContentPage() {
                             : "border-neutral-200 bg-white text-neutral-700 hover:bg-[#F9FAFB]"
                         }`}
                       >
-                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${publishType === 'now' ? 'bg-[#6366F1]/10 text-[#6366F1]' : 'bg-neutral-100 text-neutral-400'}`}>
-                          <Play className="w-4 h-4" />
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${publishType === 'now' ? 'bg-[#6366F1]/10 text-[#6366F1]' : 'bg-neutral-100 text-neutral-400'}`}>
+                          <Play className="w-4 h-4" strokeWidth={1.5} />
                         </div>
                         <div>
                           <p className="text-sm font-bold">Publish Immediately</p>
@@ -961,8 +961,8 @@ export default function AddContentPage() {
                             : "border-neutral-200 bg-white text-neutral-700 hover:bg-[#F9FAFB]"
                         }`}
                       >
-                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${publishType === 'schedule' ? 'bg-[#6366F1]/10 text-[#6366F1]' : 'bg-neutral-100 text-neutral-400'}`}>
-                          <Clock className="w-4 h-4" />
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${publishType === 'schedule' ? 'bg-[#6366F1]/10 text-[#6366F1]' : 'bg-neutral-100 text-neutral-400'}`}>
+                          <Clock className="w-4 h-4" strokeWidth={1.5} />
                         </div>
                         <div>
                           <p className="text-sm font-bold">Schedule for Later</p>
@@ -986,7 +986,7 @@ export default function AddContentPage() {
                           value={scheduleDate}
                           onChange={(e) => setScheduleDate(e.target.value)}
                           min={new Date().toISOString().slice(0, 16)}
-                          className="bg-white border border-[#E2E4E9] rounded-xl px-4 py-2.5 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#6366F1]/20 focus:border-[#6366F1] transition-all text-[#0A0A0F]"
+                          className="bg-white border border-[#E2E4E9] rounded-full px-4 py-2.5 text-sm font-semibold focus:outline-none focus:ring-[3px] focus:ring-[#6366F1]/15 focus:border-[#6366F1] transition-all duration-300 text-[#0A0A0F]"
                         />
                       </div>
                     )}
@@ -998,14 +998,14 @@ export default function AddContentPage() {
                   <button
                     onClick={() => save("draft")}
                     disabled={isSubmitting}
-                    className="flex-1 py-3.5 rounded-2xl text-[14px] font-semibold text-[#374151] border border-[#E2E4E9] bg-white hover:bg-[#F9FAFB] transition-colors disabled:opacity-50"
+                    className="flex-1 py-3.5 rounded-full text-[14px] font-semibold text-[#374151] border border-[#E2E4E9] bg-white hover:bg-[#F9FAFB] transition-colors duration-300 disabled:opacity-50"
                   >
                     Save Plan / Draft
                   </button>
                   <button
                     onClick={() => save(publishType)}
                     disabled={isSubmitting || !title.trim() || platforms.length === 0 || (type === "video" && !uploadedVideo)}
-                    className={`flex-1 py-3.5 rounded-2xl text-[14px] font-semibold text-white transition-all flex items-center justify-center gap-2
+                    className={`flex-1 py-3.5 rounded-full text-[14px] font-semibold text-white transition-all duration-300 flex items-center justify-center gap-2
                       ${isSubmitting || !title.trim() || platforms.length === 0 || (type === "video" && !uploadedVideo)
                         ? "bg-neutral-300 text-neutral-400 cursor-not-allowed"
                         : "bg-[#6366F1] hover:brightness-110 shadow-[0_4px_16px_rgba(99,102,241,0.25)]"
@@ -1038,9 +1038,9 @@ export default function AddContentPage() {
               {step > 0 ? (
                 <button
                   onClick={() => setStep(step - 1)}
-                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-semibold text-[#4B5264] hover:bg-[#F3F4F6] transition-colors"
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-full text-[13px] font-semibold text-[#4B5264] hover:bg-[#F3F4F6] transition-colors duration-300"
                 >
-                  <ArrowLeft className="w-4 h-4" /> Back
+                  <ArrowLeft className="w-4 h-4" strokeWidth={1.5} /> Back
                 </button>
               ) : (
                 <span className="text-[13px] text-neutral-400 font-medium">Step {step + 1} of {STEPS.length} — {STEPS[step].label}</span>
@@ -1064,14 +1064,14 @@ export default function AddContentPage() {
               <button
                 onClick={() => setStep(step + 1)}
                 disabled={!canContinue}
-                className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-[14px] font-semibold transition-all
+                className={`flex items-center gap-2 px-6 py-2.5 rounded-full text-[14px] font-semibold transition-all duration-300
                   ${!canContinue
                     ? "bg-[#F3F4F6] text-[#9CA3AF] cursor-not-allowed"
                     : "text-white hover:brightness-110"
                   }`}
                   style={canContinue ? { backgroundColor: "var(--t-primary)", boxShadow: "0 2px 12px var(--t-primary-glow)" } : {}}
               >
-                Continue <ArrowRight className="w-4 h-4" />
+                Continue <ArrowRight className="w-4 h-4" strokeWidth={1.5} />
               </button>
             </div>
           </div>

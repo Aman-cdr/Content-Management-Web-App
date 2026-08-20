@@ -70,36 +70,36 @@ function ClipCard({ clip, job }) {
           <p className="text-[13px] font-bold text-[#111318] truncate">{clip.title}</p>
           <p className="text-[11px] text-neutral-400">{clip.timestampStart} – {clip.timestampEnd}</p>
         </div>
-        {cardDone && <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />}
-        {cardFailed && <XCircle className="w-4 h-4 text-red-500 shrink-0" />}
+        {cardDone && <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" strokeWidth={1.5} />}
+        {cardFailed && <XCircle className="w-4 h-4 text-red-500 shrink-0" strokeWidth={1.5} />}
       </div>
 
       <div className="space-y-1.5">
         <div className="flex items-center gap-2">
-          {ytStatus === "active" ? <Loader2 className="w-3 h-3 text-indigo-500 animate-spin shrink-0" /> :
-           ytStatus === "done" ? <CheckCircle2 className="w-3 h-3 text-emerald-500 shrink-0" /> :
-           ytStatus === "failed" ? <XCircle className="w-3 h-3 text-red-500 shrink-0" /> :
+          {ytStatus === "active" ? <Loader2 className="w-3 h-3 text-indigo-500 animate-spin shrink-0" strokeWidth={1.5} /> :
+           ytStatus === "done" ? <CheckCircle2 className="w-3 h-3 text-emerald-500 shrink-0" strokeWidth={1.5} /> :
+           ytStatus === "failed" ? <XCircle className="w-3 h-3 text-red-500 shrink-0" strokeWidth={1.5} /> :
            <div className="w-3 h-3 flex items-center justify-center shrink-0"><div className="w-1.5 h-1.5 rounded-full bg-neutral-300" /></div>}
           <span className={`text-[11px] font-medium ${ytStatus === "done" ? "text-emerald-700" : ytStatus === "failed" ? "text-red-600" : "text-neutral-500"}`}>
             {platformLabel(yt, "YouTube Shorts")}
           </span>
           {yt?.liveUrl && (
-            <a href={yt.liveUrl} target="_blank" rel="noopener noreferrer" className="ml-auto text-red-500 hover:text-red-600">
-              <ExternalLink className="w-3 h-3" />
+            <a href={yt.liveUrl} target="_blank" rel="noopener noreferrer" className="ml-auto text-red-500 hover:text-red-600 transition-colors duration-300">
+              <ExternalLink className="w-3 h-3" strokeWidth={1.5} />
             </a>
           )}
         </div>
         <div className="flex items-center gap-2">
-          {igStatus === "active" ? <Loader2 className="w-3 h-3 text-indigo-500 animate-spin shrink-0" /> :
-           igStatus === "done" ? <CheckCircle2 className="w-3 h-3 text-emerald-500 shrink-0" /> :
-           igStatus === "failed" ? <XCircle className="w-3 h-3 text-red-500 shrink-0" /> :
+          {igStatus === "active" ? <Loader2 className="w-3 h-3 text-indigo-500 animate-spin shrink-0" strokeWidth={1.5} /> :
+           igStatus === "done" ? <CheckCircle2 className="w-3 h-3 text-emerald-500 shrink-0" strokeWidth={1.5} /> :
+           igStatus === "failed" ? <XCircle className="w-3 h-3 text-red-500 shrink-0" strokeWidth={1.5} /> :
            <div className="w-3 h-3 flex items-center justify-center shrink-0"><div className="w-1.5 h-1.5 rounded-full bg-neutral-300" /></div>}
           <span className={`text-[11px] font-medium ${igStatus === "done" ? "text-emerald-700" : igStatus === "failed" ? "text-red-600" : "text-neutral-500"}`}>
             {platformLabel(ig, "Instagram Reels")}
           </span>
           {ig?.liveUrl && (
-            <a href={ig.liveUrl} target="_blank" rel="noopener noreferrer" className="ml-auto text-pink-500 hover:text-pink-600">
-              <ExternalLink className="w-3 h-3" />
+            <a href={ig.liveUrl} target="_blank" rel="noopener noreferrer" className="ml-auto text-pink-500 hover:text-pink-600 transition-colors duration-300">
+              <ExternalLink className="w-3 h-3" strokeWidth={1.5} />
             </a>
           )}
         </div>
@@ -338,23 +338,24 @@ export default function AutoPublishPanel({ isOpen, onClose }) {
     <AnimatePresence>
       <div className="fixed inset-0 z-[300] flex items-center justify-center p-6 bg-[#0A0A0F]/80 backdrop-blur-md">
         <motion.div
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          exit={{ scale: 0.9, opacity: 0 }}
-          className="bg-white w-full max-w-xl rounded-[32px] overflow-hidden p-8 shadow-2xl max-h-[90vh] overflow-y-auto"
+          initial={{ scale: 0.96, opacity: 0, y: 16, filter: "blur(4px)" }}
+          animate={{ scale: 1, opacity: 1, y: 0, filter: "blur(0px)" }}
+          exit={{ scale: 0.96, opacity: 0, y: 16, filter: "blur(4px)" }}
+          transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
+          className="bg-white w-full max-w-xl rounded-[1.75rem] overflow-hidden p-8 shadow-[0_24px_70px_-16px_rgba(0,0,0,0.25)] max-h-[90vh] overflow-y-auto"
         >
           <div className="flex items-start justify-between mb-2">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#F59E0B] to-[#EF4444] flex items-center justify-center shadow-lg shadow-orange-500/20">
-                <Rocket className="w-6 h-6 text-white" />
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#F59E0B] to-[#EF4444] flex items-center justify-center shadow-lg shadow-orange-500/20">
+                <Rocket className="w-6 h-6 text-white" strokeWidth={1.5} />
               </div>
               <div>
-                <h3 className="text-xl font-black text-[#0A0A0F]">Auto-Publish Top 3</h3>
+                <h3 className="text-xl font-semibold text-[#0A0A0F]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Auto-Publish Top 3</h3>
                 <p className="text-neutral-400 text-xs font-medium">AI picks 3 clips → cuts & publishes all of them, unattended</p>
               </div>
             </div>
-            <button onClick={handleClose} className="p-2 hover:bg-black/5 rounded-xl text-neutral-400 transition">
-              <X className="w-4 h-4" />
+            <button onClick={handleClose} className="p-2 hover:bg-black/5 rounded-full text-neutral-400 transition-colors duration-300">
+              <X className="w-4 h-4" strokeWidth={1.5} />
             </button>
           </div>
 
@@ -381,16 +382,16 @@ export default function AutoPublishPanel({ isOpen, onClose }) {
                   onChange={(e) => setUrl(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleGo()}
                   placeholder="Paste any YouTube URL — full video, no prep needed"
-                  className="w-full bg-[#F9FAFB] border border-[#E2E4E9] rounded-xl pl-10 pr-4 py-3.5 text-sm font-medium outline-none focus:border-[#4F46E5] transition-all placeholder:text-neutral-300"
+                  className="w-full bg-[#F9FAFB] border border-[#E2E4E9] rounded-full pl-10 pr-4 py-3.5 text-sm font-medium outline-none focus:border-[#4F46E5] focus:ring-[3px] focus:ring-indigo-500/10 transition-all duration-300 placeholder:text-neutral-300"
                 />
               </div>
 
               {videoPreview && (
-                <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-3 p-3 mt-3 bg-[#F9FAFB] border border-[#E2E4E9] rounded-xl">
+                <motion.div initial={{ opacity: 0, y: -6, filter: "blur(4px)" }} animate={{ opacity: 1, y: 0, filter: "blur(0px)" }} transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }} className="flex items-center gap-3 p-3 mt-3 bg-[#F9FAFB] border border-[#E2E4E9] rounded-2xl">
                   <img
                     src={`https://img.youtube.com/vi/${videoPreview.videoId}/mqdefault.jpg`}
                     alt=""
-                    className="w-16 h-9 rounded-lg object-cover bg-neutral-200 shrink-0"
+                    className="w-16 h-9 rounded-xl object-cover bg-neutral-200 shrink-0"
                   />
                   <div className="min-w-0">
                     <p className="text-[12px] font-bold text-[#111318] truncate">{videoPreview.title}</p>
@@ -401,13 +402,13 @@ export default function AutoPublishPanel({ isOpen, onClose }) {
 
               <div className="flex items-center gap-2 mt-4">
                 <span className="text-[11px] font-bold text-neutral-400 uppercase tracking-widest whitespace-nowrap">Clip Length</span>
-                <div className="flex p-1 bg-[#F4F5F8] border border-[#E2E4E9] rounded-xl">
+                <div className="flex p-1 bg-[#F4F5F8] border border-[#E2E4E9] rounded-full">
                   {DURATION_OPTIONS.map((opt) => (
                     <button
                       key={opt.value}
                       type="button"
                       onClick={() => setMaxDuration(opt.value)}
-                      className={`px-3 py-1.5 rounded-lg text-[12px] font-bold transition-all ${
+                      className={`px-3 py-1.5 rounded-full text-[12px] font-bold transition-all duration-300 ${
                         maxDuration === opt.value ? "bg-white text-[#0F0F0F] shadow-sm border border-[#E2E4E9]" : "text-[#8A91A8] hover:text-[#4B5264]"
                       }`}
                     >
@@ -418,8 +419,8 @@ export default function AutoPublishPanel({ isOpen, onClose }) {
               </div>
 
               {!connCheck.loading && anyMissingConnection && (
-                <div className="mt-4 p-3 rounded-xl bg-amber-50 border border-amber-200 flex items-center gap-2.5">
-                  <AlertCircle className="w-4 h-4 text-amber-500 shrink-0" />
+                <div className="mt-4 p-3 rounded-2xl bg-amber-50 border border-amber-200 flex items-center gap-2.5">
+                  <AlertCircle className="w-4 h-4 text-amber-500 shrink-0" strokeWidth={1.5} />
                   <p className="text-[12px] text-amber-700 font-medium">
                     {!connCheck.youtube && !connCheck.instagram ? "YouTube and Instagram aren't" : !connCheck.youtube ? "YouTube isn't" : "Instagram isn't"} connected — connect in Settings before running this live.
                   </p>
@@ -429,16 +430,16 @@ export default function AutoPublishPanel({ isOpen, onClose }) {
               <button
                 onClick={handleGo}
                 disabled={!url.trim() || connCheck.loading}
-                className="w-full mt-5 flex items-center justify-center gap-2 py-4 bg-gradient-to-r from-[#F59E0B] to-[#EF4444] text-white rounded-2xl text-sm font-black uppercase tracking-widest hover:brightness-110 transition-all shadow-lg shadow-orange-600/25 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full mt-5 flex items-center justify-center gap-2 py-4 bg-gradient-to-r from-[#F59E0B] to-[#EF4444] text-white rounded-full text-sm font-black uppercase tracking-widest hover:brightness-110 transition-all duration-300 shadow-lg shadow-orange-600/25 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <Rocket className="w-4 h-4" /> Launch
+                <Rocket className="w-4 h-4" strokeWidth={1.5} /> Launch
               </button>
             </div>
           )}
 
           {phase !== "idle" && clips.length === 0 && (
-            <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-indigo-50 border border-indigo-100">
-              <Loader2 className="w-4 h-4 text-indigo-500 animate-spin shrink-0" />
+            <div className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-indigo-50 border border-indigo-100">
+              <Loader2 className="w-4 h-4 text-indigo-500 animate-spin shrink-0" strokeWidth={1.5} />
               <p className="text-[13px] font-semibold text-indigo-700">Analyzing video…</p>
             </div>
           )}
@@ -453,23 +454,23 @@ export default function AutoPublishPanel({ isOpen, onClose }) {
 
           {error && (
             <div className="mt-5 p-4 rounded-2xl bg-red-50 border border-red-100 flex items-start gap-3">
-              <XCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+              <XCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" strokeWidth={1.5} />
               <p className="text-sm font-bold text-red-700">{error}</p>
             </div>
           )}
 
           {phase === "done" && (
             <div className="mt-6 flex items-center gap-2 justify-center text-emerald-600 font-black text-sm">
-              <CheckCircle2 className="w-5 h-5" /> {publishedCount}/{jobs.length} live in {formatElapsed(elapsedMs)}
+              <CheckCircle2 className="w-5 h-5" strokeWidth={1.5} /> {publishedCount}/{jobs.length} live in {formatElapsed(elapsedMs)}
             </div>
           )}
 
           {(phase === "done" || phase === "error") && (
             <button
               onClick={handleReset}
-              className="w-full mt-4 flex items-center justify-center gap-2 py-3 bg-[#F4F5F8] text-[#4B5264] rounded-xl text-xs font-black uppercase tracking-widest hover:bg-[#E2E4E9] transition-all"
+              className="w-full mt-4 flex items-center justify-center gap-2 py-3 bg-[#F4F5F8] text-[#4B5264] rounded-full text-xs font-black uppercase tracking-widest hover:bg-[#E2E4E9] transition-colors duration-300"
             >
-              <RefreshCw className="w-3.5 h-3.5" /> Run Again
+              <RefreshCw className="w-3.5 h-3.5" strokeWidth={1.5} /> Run Again
             </button>
           )}
         </motion.div>

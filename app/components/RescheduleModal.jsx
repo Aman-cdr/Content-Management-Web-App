@@ -77,7 +77,7 @@ export default function RescheduleModal({ isOpen, onClose }) {
         <div className="space-y-6">
           {/* Info */}
           <div className="flex items-center gap-3 p-4 rounded-2xl bg-blue-50 border border-blue-100">
-            <Clock className="w-5 h-5 text-blue-600 flex-shrink-0" />
+            <Clock className="w-5 h-5 text-blue-600 flex-shrink-0" strokeWidth={1.5} />
             <p className="text-sm text-neutral-600">
               Based on analytics, <span className="text-blue-600 font-bold">Sunday 4:00 PM UTC</span> is your best performing slot.
             </p>
@@ -91,7 +91,7 @@ export default function RescheduleModal({ isOpen, onClose }) {
                 <button
                   key={qd.label}
                   onClick={() => setQuickDate(qd.offset)}
-                  className="py-2.5 px-3 bg-[#F3F4F6] hover:bg-[#E5E7EB] border border-black/[0.04] rounded-xl text-sm font-medium transition-all text-[#374151] hover:text-[#0F0F0F]"
+                  className="py-2.5 px-3 bg-[#F3F4F6] hover:bg-[#E5E7EB] border border-black/[0.04] rounded-full text-sm font-medium transition-all duration-300 text-[#374151] hover:text-[#0F0F0F]"
                 >
                   {qd.label}
                 </button>
@@ -105,12 +105,12 @@ export default function RescheduleModal({ isOpen, onClose }) {
               Date
             </label>
             <div className="relative">
-              <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+              <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" strokeWidth={1.5} />
               <input
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                className="w-full pl-11 pr-4 py-3 bg-[#F9FAFB] border border-black/[0.06] rounded-2xl text-[#0F0F0F] outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/20 transition-all [color-scheme:light]"
+                className="w-full pl-11 pr-4 py-3 bg-[#F9FAFB] border border-black/[0.06] rounded-full text-[#0F0F0F] outline-none focus:border-blue-500/50 focus:ring-[3px] focus:ring-blue-500/15 transition-all duration-300 [color-scheme:light]"
               />
             </div>
           </div>
@@ -126,25 +126,25 @@ export default function RescheduleModal({ isOpen, onClose }) {
               )}
             </div>
             <div className="relative">
-              <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+              <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" strokeWidth={1.5} />
               <input
                 type="time"
                 value={time}
                 onChange={(e) => setTime(e.target.value)}
-                className="w-full pl-11 pr-4 py-3 bg-[#F9FAFB] border border-black/[0.06] rounded-2xl text-[#0F0F0F] outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/20 transition-all [color-scheme:light]"
+                className="w-full pl-11 pr-4 py-3 bg-[#F9FAFB] border border-black/[0.06] rounded-full text-[#0F0F0F] outline-none focus:border-blue-500/50 focus:ring-[3px] focus:ring-blue-500/15 transition-all duration-300 [color-scheme:light]"
               />
             </div>
           </div>
 
           {utcEquivalent && (
-             <div className="text-sm text-blue-600 bg-blue-50 p-3 rounded-xl border border-blue-100 text-center font-medium">
+             <div className="text-sm text-blue-600 bg-blue-50 p-3 rounded-full border border-blue-100 text-center font-medium">
                Will be published at: <strong>{utcEquivalent}</strong>
              </div>
           )}
 
           {error && (
             <div className="flex items-center gap-3 p-4 rounded-2xl bg-red-50 border border-red-100">
-              <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
+              <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" strokeWidth={1.5} />
               <p className="text-sm text-red-600">{error}</p>
             </div>
           )}
@@ -152,16 +152,16 @@ export default function RescheduleModal({ isOpen, onClose }) {
           <button
             onClick={handleReschedule}
             disabled={loading || !date}
-            className="w-full py-3 bg-blue-600 hover:bg-blue-500 disabled:bg-blue-600/30 disabled:cursor-not-allowed text-white rounded-2xl font-semibold transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-600/20"
+            className="w-full py-3 bg-blue-600 hover:bg-blue-500 disabled:bg-blue-600/30 disabled:cursor-not-allowed text-white rounded-full font-semibold transition-all duration-300 flex items-center justify-center gap-2 shadow-lg shadow-blue-600/20"
           >
             {loading ? (
               <>
-                <Loader2 className="w-5 h-5 animate-spin" />
+                <Loader2 className="w-5 h-5 animate-spin" strokeWidth={1.5} />
                 Rescheduling...
               </>
             ) : (
               <>
-                <Calendar className="w-5 h-5" />
+                <Calendar className="w-5 h-5" strokeWidth={1.5} />
                 Confirm Reschedule
               </>
             )}
@@ -171,13 +171,13 @@ export default function RescheduleModal({ isOpen, onClose }) {
         /* Success State */
         <div className="text-center space-y-4 py-4">
           <div className="w-16 h-16 mx-auto rounded-full bg-emerald-50 flex items-center justify-center">
-            <CheckCircle2 className="w-8 h-8 text-emerald-600" />
+            <CheckCircle2 className="w-8 h-8 text-emerald-600" strokeWidth={1.5} />
           </div>
-          <h4 className="text-lg font-bold text-[#0F0F0F]">Rescheduled Successfully!</h4>
+          <h4 className="text-lg font-semibold text-[#0F0F0F]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Rescheduled Successfully!</h4>
           <p className="text-sm text-neutral-500">{result.message}</p>
           <button
             onClick={handleClose}
-            className="mt-4 px-8 py-3 bg-[#F3F4F6] hover:bg-[#E5E7EB] border border-black/[0.04] rounded-2xl text-sm font-semibold transition-all text-[#374151]"
+            className="mt-4 px-8 py-3 bg-[#F3F4F6] hover:bg-[#E5E7EB] border border-black/[0.04] rounded-full text-sm font-semibold transition-all duration-300 text-[#374151]"
           >
             Done
           </button>

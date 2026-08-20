@@ -125,9 +125,9 @@ const TYPE_ICONS = {
 
 function StatPill({ label, count, icon: Icon }) {
   return (
-    <div className="flex items-center gap-3 px-4 py-2 bg-white border border-[#E2E4E9] rounded-xl shadow-sm">
-      <div className="p-1.5 rounded-lg bg-[#F4F5F8]">
-        <Icon className="w-3.5 h-3.5 text-[#4B5264]" />
+    <div className="flex items-center gap-3 px-4 py-2 bg-white border border-[#E2E4E9] rounded-full shadow-sm">
+      <div className="p-1.5 rounded-full bg-[#F4F5F8]">
+        <Icon className="w-3.5 h-3.5 text-[#4B5264]" strokeWidth={1.5} />
       </div>
       <div>
         <p className="text-[10px] font-black text-neutral-400 uppercase tracking-widest leading-none mb-1">{label}</p>
@@ -351,13 +351,13 @@ export default function MediaLibraryPage() {
       {/* ---------- Header ---------- */}
       <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
-          <h2 className="text-3xl font-black text-[#0A0A0F] mb-1">Media Library</h2>
+          <h2 className="text-3xl font-medium text-[#0A0A0F] mb-1" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Media Library</h2>
           <p className="text-neutral-500 text-sm font-medium">Manage all your creative assets in one place</p>
         </div>
-        
+
         <div className="flex items-center gap-6">
-          <div className="flex items-center gap-3 px-4 py-2.5 bg-white border border-[#E2E4E9] rounded-2xl shadow-sm">
-            <HardDrive className="w-4 h-4 text-indigo-600" />
+          <div className="flex items-center gap-3 px-4 py-2.5 bg-white border border-[#E2E4E9] rounded-full shadow-sm">
+            <HardDrive className="w-4 h-4 text-indigo-600" strokeWidth={1.5} />
             <div className="space-y-1">
               <div className="flex justify-between text-[9px] font-black uppercase tracking-widest text-neutral-400">
                 <span>Storage Used</span>
@@ -370,23 +370,23 @@ export default function MediaLibraryPage() {
           </div>
           <button
             onClick={fetchAssets}
-            className="flex items-center gap-2 px-4 py-3 bg-white border border-[#E2E4E9] text-[#4B5264] rounded-xl text-sm font-black hover:bg-[#F4F5F8] transition-all"
+            className="flex items-center gap-2 px-4 py-3 bg-white border border-[#E2E4E9] text-[#4B5264] rounded-full text-sm font-black hover:bg-[#F4F5F8] transition-colors duration-300"
             title="Refresh"
           >
-            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} strokeWidth={1.5} />
           </button>
           <button
             onClick={() => { setAiError(null); setIsAiOpen(true); }}
-            className="flex items-center gap-2 px-6 py-3 bg-white border border-[#E2E4E9] text-[#4B5264] rounded-xl text-sm font-black uppercase tracking-widest hover:bg-[#F4F5F8] transition-all"
+            className="flex items-center gap-2 px-6 py-3 bg-white border border-[#E2E4E9] text-[#4B5264] rounded-full text-sm font-black uppercase tracking-widest hover:bg-[#F4F5F8] transition-colors duration-300"
           >
-            <Sparkles className="w-4 h-4 text-indigo-600" />
+            <Sparkles className="w-4 h-4 text-indigo-600" strokeWidth={1.5} />
             Generate with AI
           </button>
           <button
             onClick={() => setIsUploadOpen(!isUploadOpen)}
-            className="flex items-center gap-2 px-6 py-3 bg-[#4F46E5] text-white rounded-xl text-sm font-black uppercase tracking-widest hover:bg-[#4338CA] transition-all shadow-lg shadow-indigo-600/20"
+            className="flex items-center gap-2 px-6 py-3 bg-[#4F46E5] text-white rounded-full text-sm font-black uppercase tracking-widest hover:bg-[#4338CA] transition-colors duration-300 shadow-[0_4px_16px_-4px_rgba(79,70,229,0.4)]"
           >
-            <Upload className="w-4 h-4" />
+            <Upload className="w-4 h-4" strokeWidth={1.5} />
             Upload Files
           </button>
         </div>
@@ -420,8 +420,8 @@ export default function MediaLibraryPage() {
                 multiple 
                 onChange={(e) => handleUpload(e.target.files)} 
               />
-              <div className="w-16 h-16 rounded-2xl bg-indigo-50 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                <Upload className="w-8 h-8 text-indigo-600" />
+              <div className="w-16 h-16 rounded-full bg-indigo-50 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                <Upload className="w-8 h-8 text-indigo-600" strokeWidth={1.5} />
               </div>
               <p className="text-lg font-bold text-[#0A0A0F] mb-1">Drag files here or click to browse</p>
               <p className="text-sm text-neutral-400">Support images, videos, audio and documents up to 50MB</p>
@@ -431,8 +431,8 @@ export default function MediaLibraryPage() {
               <div className="space-y-3 mb-8">
                 {uploadingFiles.map(u => (
                   <div key={u.id} className="bg-white border border-[#E2E4E9] p-4 rounded-2xl shadow-sm flex items-center gap-4 animate-in fade-in slide-in-from-bottom-2">
-                    <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center">
-                      <Clock className="w-4 h-4 text-indigo-600" />
+                    <div className="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center">
+                      <Clock className="w-4 h-4 text-indigo-600" strokeWidth={1.5} />
                     </div>
                     <div className="flex-1">
                       <div className="flex justify-between text-xs font-bold mb-1.5">
@@ -456,25 +456,25 @@ export default function MediaLibraryPage() {
       </AnimatePresence>
 
       {/* ---------- Toolbar ---------- */}
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 bg-white p-4 rounded-2xl border border-[#E2E4E9] shadow-sm">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 bg-white p-4 rounded-[1.75rem] border border-[#E2E4E9] shadow-sm">
         <div className="flex flex-wrap items-center gap-4 flex-1">
           <div className="relative w-full max-w-sm">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
-            <input 
-              type="text" 
-              placeholder="Search files..." 
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" strokeWidth={1.5} />
+            <input
+              type="text"
+              placeholder="Search files..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full h-11 bg-[#F9FAFB] border border-[#E2E4E9] rounded-xl pl-11 pr-4 text-sm font-medium outline-none focus:border-[#4F46E5] transition-all"
+              className="w-full h-11 bg-[#F9FAFB] border border-[#E2E4E9] rounded-full pl-11 pr-4 text-sm font-medium outline-none focus:border-[#4F46E5] focus:ring-[3px] focus:ring-[#4F46E5]/15 transition-all duration-300"
             />
           </div>
-          
-          <div className="flex gap-1 bg-[#F4F5F8] p-1 rounded-xl">
+
+          <div className="flex gap-1 bg-[#F4F5F8] p-1 rounded-full">
             {["All", "Images", "Videos", "Audio", "Documents", "Other"].map(tab => (
               <button
                 key={tab}
                 onClick={() => setFilter(tab)}
-                className={`px-4 py-1.5 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${filter === tab ? 'bg-white text-indigo-600 shadow-sm' : 'text-neutral-400 hover:text-neutral-600'}`}
+                className={`px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest transition-colors duration-300 ${filter === tab ? 'bg-white text-indigo-600 shadow-sm' : 'text-neutral-400 hover:text-neutral-600'}`}
               >
                 {tab}
               </button>
@@ -500,7 +500,7 @@ export default function MediaLibraryPage() {
                     initial={{ opacity: 0, y: 10, scale: 0.95 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                    className="absolute right-0 mt-3 w-44 bg-white border border-[#E2E4E9] rounded-xl shadow-xl z-50 overflow-hidden py-1.5"
+                    className="absolute right-0 mt-3 w-44 bg-white border border-[#E2E4E9] rounded-2xl shadow-[0_20px_60px_-12px_rgba(0,0,0,0.18)] z-50 overflow-hidden py-1.5"
                   >
                     {["Date Added", "Name", "Size", "Type"].map(option => (
                       <button
@@ -517,18 +517,18 @@ export default function MediaLibraryPage() {
             </div>
           </div>
           
-          <div className="flex gap-1 bg-[#F4F5F8] p-1 rounded-xl">
-            <button 
+          <div className="flex gap-1 bg-[#F4F5F8] p-1 rounded-full">
+            <button
               onClick={() => setViewMode("grid")}
-              className={`p-1.5 rounded-lg transition-all ${viewMode === "grid" ? 'bg-white text-indigo-600 shadow-sm' : 'text-neutral-400 hover:text-neutral-600'}`}
+              className={`p-1.5 rounded-full transition-colors duration-300 ${viewMode === "grid" ? 'bg-white text-indigo-600 shadow-sm' : 'text-neutral-400 hover:text-neutral-600'}`}
             >
-              <Grid className="w-4 h-4" />
+              <Grid className="w-4 h-4" strokeWidth={1.5} />
             </button>
-            <button 
+            <button
               onClick={() => setViewMode("list")}
-              className={`p-1.5 rounded-lg transition-all ${viewMode === "list" ? 'bg-white text-indigo-600 shadow-sm' : 'text-neutral-400 hover:text-neutral-600'}`}
+              className={`p-1.5 rounded-full transition-colors duration-300 ${viewMode === "list" ? 'bg-white text-indigo-600 shadow-sm' : 'text-neutral-400 hover:text-neutral-600'}`}
             >
-              <List className="w-4 h-4" />
+              <List className="w-4 h-4" strokeWidth={1.5} />
             </button>
           </div>
         </div>
@@ -536,31 +536,31 @@ export default function MediaLibraryPage() {
 
       {/* ---------- Content View ---------- */}
       {loading ? (
-        <div className="flex flex-col items-center justify-center py-24 bg-white rounded-3xl border border-[#E2E4E9]">
-          <RefreshCw className="w-10 h-10 text-indigo-300 animate-spin mb-4" />
+        <div className="flex flex-col items-center justify-center py-24 bg-white rounded-[1.75rem] border border-[#E2E4E9]">
+          <RefreshCw className="w-10 h-10 text-indigo-300 animate-spin mb-4" strokeWidth={1.5} />
           <p className="text-neutral-400 text-sm font-medium">Loading your files…</p>
         </div>
       ) : error ? (
-        <div className="flex flex-col items-center justify-center py-24 bg-white rounded-3xl border border-red-100">
+        <div className="flex flex-col items-center justify-center py-24 bg-white rounded-[1.75rem] border border-red-100">
           <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center mb-4">
-            <AlertCircle className="w-8 h-8 text-red-400" />
+            <AlertCircle className="w-8 h-8 text-red-400" strokeWidth={1.5} />
           </div>
           <p className="text-[#0A0A0F] font-bold mb-1">Could not load files</p>
           <p className="text-neutral-400 text-sm mb-6">{error}</p>
-          <button onClick={fetchAssets} className="px-6 py-2.5 bg-indigo-50 text-indigo-600 rounded-xl text-sm font-black uppercase tracking-widest hover:bg-indigo-100 transition-all">
+          <button onClick={fetchAssets} className="px-6 py-2.5 bg-indigo-50 text-indigo-600 rounded-full text-sm font-black uppercase tracking-widest hover:bg-indigo-100 transition-colors duration-300">
             Try Again
           </button>
         </div>
       ) : filteredAssets.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-24 bg-white rounded-3xl border border-[#E2E4E9] border-dashed">
+        <div className="flex flex-col items-center justify-center py-24 bg-white rounded-[1.75rem] border border-[#E2E4E9] border-dashed">
           <div className="w-24 h-24 rounded-full bg-neutral-50 flex items-center justify-center mb-6">
-            <File className="w-10 h-10 text-neutral-300" />
+            <File className="w-10 h-10 text-neutral-300" strokeWidth={1.5} />
           </div>
-          <h3 className="text-xl font-bold text-[#0A0A0F] mb-2">No files found</h3>
+          <h3 className="text-xl font-semibold text-[#0A0A0F] mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>No files found</h3>
           <p className="text-neutral-400 text-sm mb-8">No creative assets match your current filters or search.</p>
-          <button 
+          <button
             onClick={() => setIsUploadOpen(true)}
-            className="px-8 py-3 bg-indigo-50 text-indigo-600 rounded-xl text-sm font-black uppercase tracking-widest hover:bg-indigo-100 transition-all"
+            className="px-8 py-3 bg-indigo-50 text-indigo-600 rounded-full text-sm font-black uppercase tracking-widest hover:bg-indigo-100 transition-colors duration-300"
           >
             Upload your first file
           </button>
@@ -569,10 +569,13 @@ export default function MediaLibraryPage() {
         <>
           {viewMode === "grid" ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-              {filteredAssets.map(asset => (
+              {filteredAssets.map((asset, index) => (
                 <motion.div
                   key={asset.id}
                   layout
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.35, delay: Math.min(index, 12) * 0.04, ease: [0.32, 0.72, 0, 1] }}
                   className="bg-white border border-[#E2E4E9] rounded-2xl overflow-hidden group hover:shadow-xl hover:border-indigo-200 transition-all duration-300"
                 >
                   <div className="relative aspect-square bg-[#F9FAFB] overflow-hidden">
@@ -607,11 +610,11 @@ export default function MediaLibraryPage() {
 
                     {/* Checkbox Overlay */}
                     <div className="absolute top-3 left-3 z-10">
-                      <button 
+                      <button
                         onClick={(e) => { e.stopPropagation(); toggleSelection(asset.id); }}
-                        className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${selectedFiles.has(asset.id) ? 'bg-[#4F46E5] border-[#4F46E5]' : 'bg-white/40 border-white opacity-0 group-hover:opacity-100'}`}
+                        className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${selectedFiles.has(asset.id) ? 'bg-[#4F46E5] border-[#4F46E5]' : 'bg-white/40 border-white opacity-0 group-hover:opacity-100'}`}
                       >
-                        <Check className={`w-4 h-4 text-white ${selectedFiles.has(asset.id) ? 'opacity-100' : 'opacity-0'}`} />
+                        <Check className={`w-4 h-4 text-white ${selectedFiles.has(asset.id) ? 'opacity-100' : 'opacity-0'}`} strokeWidth={1.75} />
                       </button>
                     </div>
 
@@ -622,7 +625,7 @@ export default function MediaLibraryPage() {
                           onClick={(e) => { e.stopPropagation(); handleEditVideo(asset.id); }}
                           disabled={editingId === asset.id}
                           title="Edit video"
-                          className="p-2.5 bg-white rounded-xl text-[#0A0A0F] hover:bg-indigo-600 hover:text-white transition-all transform translate-y-4 group-hover:translate-y-0 duration-300 disabled:opacity-60"
+                          className="p-2.5 bg-white rounded-full text-[#0A0A0F] hover:bg-indigo-600 hover:text-white transition-all transform translate-y-4 group-hover:translate-y-0 duration-300 disabled:opacity-60"
                         >
                           {editingId === asset.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Scissors className="w-4 h-4" />}
                         </button>
@@ -633,19 +636,19 @@ export default function MediaLibraryPage() {
                         target="_blank"
                         rel="noreferrer"
                         onClick={(e) => e.stopPropagation()}
-                        className="p-2.5 bg-white rounded-xl text-[#0A0A0F] hover:bg-indigo-600 hover:text-white transition-all transform translate-y-4 group-hover:translate-y-0 duration-300"
+                        className="p-2.5 bg-white rounded-full text-[#0A0A0F] hover:bg-indigo-600 hover:text-white transition-all transform translate-y-4 group-hover:translate-y-0 duration-300"
                       >
                         <Download className="w-4 h-4" />
                       </a>
                       <button
                         onClick={(e) => { e.stopPropagation(); handleCopyUrl(asset.url, asset.id); }}
-                        className="p-2.5 bg-white rounded-xl text-[#0A0A0F] hover:bg-indigo-600 hover:text-white transition-all transform translate-y-4 group-hover:translate-y-0 delay-75 duration-300"
+                        className="p-2.5 bg-white rounded-full text-[#0A0A0F] hover:bg-indigo-600 hover:text-white transition-all transform translate-y-4 group-hover:translate-y-0 delay-75 duration-300"
                       >
                         {copiedId === asset.id ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
                       </button>
                       <button
                         onClick={(e) => { e.stopPropagation(); handleDelete(asset.id); }}
-                        className="p-2.5 bg-white rounded-xl text-[#0A0A0F] hover:bg-red-600 hover:text-white transition-all transform translate-y-4 group-hover:translate-y-0 delay-150 duration-300"
+                        className="p-2.5 bg-white rounded-full text-[#0A0A0F] hover:bg-red-600 hover:text-white transition-all transform translate-y-4 group-hover:translate-y-0 delay-150 duration-300"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -670,7 +673,7 @@ export default function MediaLibraryPage() {
                     <th className="p-4 w-12 text-center">
                       <button 
                         onClick={() => setSelectedFiles(selectedFiles.size === filteredAssets.length ? new Set() : new Set(filteredAssets.map(a => a.id)))}
-                        className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${selectedFiles.size === filteredAssets.length ? 'bg-[#4F46E5] border-[#4F46E5]' : 'bg-white border-neutral-300'}`}
+                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors duration-300 ${selectedFiles.size === filteredAssets.length ? 'bg-[#4F46E5] border-[#4F46E5]' : 'bg-white border-neutral-300'}`}
                       >
                         <Check className="w-3.5 h-3.5 text-white" />
                       </button>
@@ -692,14 +695,14 @@ export default function MediaLibraryPage() {
                       <td className="p-4 text-center" onClick={(e) => e.stopPropagation()}>
                         <button 
                           onClick={() => toggleSelection(asset.id)}
-                          className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all mx-auto ${selectedFiles.has(asset.id) ? 'bg-[#4F46E5] border-[#4F46E5]' : 'bg-white border-neutral-300 group-hover:border-neutral-400'}`}
+                          className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors duration-300 mx-auto ${selectedFiles.has(asset.id) ? 'bg-[#4F46E5] border-[#4F46E5]' : 'bg-white border-neutral-300 group-hover:border-neutral-400'}`}
                         >
                           <Check className="w-3.5 h-3.5 text-white" />
                         </button>
                       </td>
                       <td className="py-3">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-lg bg-[#F3F4F6] overflow-hidden flex items-center justify-center">
+                          <div className="w-10 h-10 rounded-xl bg-[#F3F4F6] overflow-hidden flex items-center justify-center">
                             {asset.type === 'image' ? (
                               <img src={asset.url} className="w-full h-full object-cover" />
                             ) : (
@@ -713,7 +716,7 @@ export default function MediaLibraryPage() {
                         </div>
                       </td>
                       <td className="py-3">
-                        <span className={`px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest ${TYPE_COLORS[asset.type]}`}>
+                        <span className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest ${TYPE_COLORS[asset.type]}`}>
                           {asset.extension}
                         </span>
                       </td>
@@ -754,32 +757,32 @@ export default function MediaLibraryPage() {
             initial={{ y: 100 }}
             animate={{ y: 0 }}
             exit={{ y: 100 }}
-            className="fixed bottom-12 left-1/2 -translate-x-1/2 z-[60] bg-[#0A0A0F] text-white px-8 py-5 rounded-[24px] shadow-2xl flex items-center gap-12"
+            className="fixed bottom-12 left-1/2 -translate-x-1/2 z-[60] bg-[#0A0A0F] text-white px-8 py-5 rounded-[1.75rem] shadow-2xl flex items-center gap-12"
           >
             <div className="flex items-center gap-4 border-r border-white/10 pr-12">
-              <span className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center font-black text-sm">
+              <span className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center font-black text-sm">
                 {selectedFiles.size}
               </span>
               <span className="text-sm font-bold tracking-tight">Files selected</span>
             </div>
-            
+
             <div className="flex items-center gap-4">
-              <button className="flex items-center gap-2 px-6 py-2.5 bg-white/10 hover:bg-white/20 rounded-xl text-xs font-black uppercase tracking-widest transition-all">
-                <Download className="w-4 h-4" />
+              <button className="flex items-center gap-2 px-6 py-2.5 bg-white/10 hover:bg-white/20 rounded-full text-xs font-black uppercase tracking-widest transition-colors duration-300">
+                <Download className="w-4 h-4" strokeWidth={1.5} />
                 Download Selected
               </button>
-              <button 
+              <button
                 onClick={handleDeleteSelected}
-                className="flex items-center gap-2 px-6 py-2.5 bg-red-600/20 text-red-500 hover:bg-red-600 hover:text-white rounded-xl text-xs font-black uppercase tracking-widest transition-all"
+                className="flex items-center gap-2 px-6 py-2.5 bg-red-600/20 text-red-500 hover:bg-red-600 hover:text-white rounded-full text-xs font-black uppercase tracking-widest transition-colors duration-300"
               >
-                <Trash2 className="w-4 h-4" />
+                <Trash2 className="w-4 h-4" strokeWidth={1.5} />
                 Delete Selected
               </button>
-              <button 
+              <button
                 onClick={() => setSelectedFiles(new Set())}
-                className="ml-4 text-white/40 hover:text-white p-2 transition-colors"
+                className="ml-4 text-white/40 hover:text-white p-2 rounded-full transition-colors duration-300"
               >
-                <X className="w-5 h-5" />
+                <X className="w-5 h-5" strokeWidth={1.5} />
               </button>
             </div>
           </motion.div>
@@ -794,14 +797,14 @@ export default function MediaLibraryPage() {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white w-full max-w-6xl h-full max-h-[800px] rounded-[32px] overflow-hidden flex flex-col md:flex-row relative"
+              className="bg-white w-full max-w-6xl h-full max-h-[800px] rounded-[1.75rem] overflow-hidden flex flex-col md:flex-row relative"
             >
               {/* Close button */}
-              <button 
+              <button
                 onClick={() => setPreviewFile(null)}
-                className="absolute top-6 right-6 z-[110] p-2 bg-white/20 hover:bg-white text-white hover:text-[#0A0A0F] rounded-xl backdrop-blur-md transition-all shadow-xl"
+                className="absolute top-6 right-6 z-[110] p-2 bg-white/20 hover:bg-white text-white hover:text-[#0A0A0F] rounded-full backdrop-blur-md transition-colors duration-300 shadow-xl"
               >
-                <X className="w-6 h-6" />
+                <X className="w-6 h-6" strokeWidth={1.5} />
               </button>
 
               {/* Main Preview Area */}
@@ -854,27 +857,27 @@ export default function MediaLibraryPage() {
                   <section className="space-y-4">
                     <p className="text-[10px] font-black text-neutral-400 uppercase tracking-widest mb-2">Properties</p>
                     <div className="grid grid-cols-2 gap-4">
-                      <div className="bg-[#F9FAFB] p-4 rounded-2xl">
+                      <div className="bg-[#F9FAFB] p-4 rounded-xl">
                         <p className="text-[10px] font-bold text-neutral-400 uppercase mb-1">Type</p>
                         <p className="text-sm font-black text-[#111318]">{previewFile.extension.toUpperCase()}</p>
                       </div>
-                      <div className="bg-[#F9FAFB] p-4 rounded-2xl">
+                      <div className="bg-[#F9FAFB] p-4 rounded-xl">
                         <p className="text-[10px] font-bold text-neutral-400 uppercase mb-1">Size</p>
                         <p className="text-sm font-black text-[#111318]">{previewFile.size}</p>
                       </div>
                       {previewFile.dimensions && (
-                        <div className="bg-[#F9FAFB] p-4 rounded-2xl">
+                        <div className="bg-[#F9FAFB] p-4 rounded-xl">
                           <p className="text-[10px] font-bold text-neutral-400 uppercase mb-1">Resolution</p>
                           <p className="text-sm font-black text-[#111318]">{previewFile.dimensions}</p>
                         </div>
                       )}
                       {previewFile.duration && (
-                        <div className="bg-[#F9FAFB] p-4 rounded-2xl">
+                        <div className="bg-[#F9FAFB] p-4 rounded-xl">
                           <p className="text-[10px] font-bold text-neutral-400 uppercase mb-1">Duration</p>
                           <p className="text-sm font-black text-[#111318]">{previewFile.duration}</p>
                         </div>
                       )}
-                      <div className="bg-[#F9FAFB] p-4 rounded-2xl col-span-2">
+                      <div className="bg-[#F9FAFB] p-4 rounded-xl col-span-2">
                         <p className="text-[10px] font-bold text-neutral-400 uppercase mb-1">Uploaded On</p>
                         <p className="text-sm font-black text-[#111318]">{previewFile.dateAdded}</p>
                       </div>
@@ -885,12 +888,12 @@ export default function MediaLibraryPage() {
                     <p className="text-[10px] font-black text-neutral-400 uppercase tracking-widest mb-4">Tags</p>
                     <div className="flex flex-wrap gap-2">
                       {previewFile.tags.map(tag => (
-                        <span key={tag} className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase tracking-widest rounded-lg border border-indigo-100">
-                          {tag} <X className="w-3 h-3 cursor-pointer" />
+                        <span key={tag} className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase tracking-widest rounded-full border border-indigo-100">
+                          {tag} <X className="w-3 h-3 cursor-pointer" strokeWidth={1.5} />
                         </span>
                       ))}
-                      <button className="flex items-center gap-1.5 px-3 py-1.5 bg-[#F4F5F8] text-neutral-400 hover:text-indigo-600 text-[10px] font-black uppercase tracking-widest rounded-lg border border-[#E2E4E9] transition-all">
-                        <Plus className="w-3 h-3" /> Add Tag
+                      <button className="flex items-center gap-1.5 px-3 py-1.5 bg-[#F4F5F8] text-neutral-400 hover:text-indigo-600 text-[10px] font-black uppercase tracking-widest rounded-full border border-[#E2E4E9] transition-colors duration-300">
+                        <Plus className="w-3 h-3" strokeWidth={1.5} /> Add Tag
                       </button>
                     </div>
                   </section>
@@ -917,9 +920,9 @@ export default function MediaLibraryPage() {
                   <div className="grid grid-cols-2 gap-3">
                     <button
                       onClick={() => handleCopyUrl(previewFile.url, `preview-${previewFile.id}`)}
-                      className="flex items-center justify-center gap-2 py-3 bg-[#F9FAFB] border border-[#E2E4E9] rounded-xl text-xs font-black uppercase tracking-widest hover:bg-[#F4F5F8] transition-all"
+                      className="flex items-center justify-center gap-2 py-3 bg-[#F9FAFB] border border-[#E2E4E9] rounded-full text-xs font-black uppercase tracking-widest hover:bg-[#F4F5F8] transition-colors duration-300"
                     >
-                      {copiedId === `preview-${previewFile.id}` ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
+                      {copiedId === `preview-${previewFile.id}` ? <Check className="w-4 h-4 text-green-500" strokeWidth={1.75} /> : <Copy className="w-4 h-4" strokeWidth={1.5} />}
                       {copiedId === `preview-${previewFile.id}` ? 'Copied!' : 'Copy Link'}
                     </button>
                     <a
@@ -927,16 +930,16 @@ export default function MediaLibraryPage() {
                       download={previewFile.name}
                       target="_blank"
                       rel="noreferrer"
-                      className="flex items-center justify-center gap-2 py-3 bg-[#F9FAFB] border border-[#E2E4E9] rounded-xl text-xs font-black uppercase tracking-widest hover:bg-[#F4F5F8] transition-all"
+                      className="flex items-center justify-center gap-2 py-3 bg-[#F9FAFB] border border-[#E2E4E9] rounded-full text-xs font-black uppercase tracking-widest hover:bg-[#F4F5F8] transition-colors duration-300"
                     >
-                      <Download className="w-4 h-4" /> Download
+                      <Download className="w-4 h-4" strokeWidth={1.5} /> Download
                     </a>
                   </div>
-                  <button 
+                  <button
                     onClick={() => handleDelete(previewFile.id)}
-                    className="w-full flex items-center justify-center gap-2 py-4 bg-red-50 text-red-600 border border-red-100 rounded-2xl text-sm font-black uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all group"
+                    className="w-full flex items-center justify-center gap-2 py-4 bg-red-50 text-red-600 border border-red-100 rounded-full text-sm font-black uppercase tracking-widest hover:bg-red-600 hover:text-white transition-colors duration-300 group"
                   >
-                    <Trash2 className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                    <Trash2 className="w-4 h-4 group-hover:scale-110 transition-transform duration-300" strokeWidth={1.5} />
                     Delete Asset
                   </button>
                 </div>
@@ -954,28 +957,28 @@ export default function MediaLibraryPage() {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white w-full max-w-md rounded-[32px] overflow-hidden p-8 shadow-2xl text-center"
+              className="bg-white w-full max-w-md rounded-[1.75rem] overflow-hidden p-8 shadow-2xl text-center"
             >
-              <div className="w-20 h-20 rounded-3xl bg-red-50 flex items-center justify-center mx-auto mb-6">
-                <Trash2 className="w-10 h-10 text-red-600" />
+              <div className="w-20 h-20 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-6">
+                <Trash2 className="w-10 h-10 text-red-600" strokeWidth={1.5} />
               </div>
-              <h3 className="text-2xl font-black text-[#0A0A0F] mb-3">
+              <h3 className="text-2xl font-semibold text-[#0A0A0F] mb-3" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
                 {deleteConfirm.isBulk ? `Delete ${selectedFiles.size} files?` : "Delete this file?"}
               </h3>
               <p className="text-neutral-500 text-sm leading-relaxed mb-8">
                 This action is permanent and cannot be undone. These assets will be removed from all linked content.
               </p>
-              
+
               <div className="grid grid-cols-2 gap-4">
-                <button 
+                <button
                   onClick={() => setDeleteConfirm({ isOpen: false, id: null, isBulk: false })}
-                  className="py-4 bg-[#F4F5F8] text-[#4B5264] rounded-2xl text-sm font-black uppercase tracking-widest hover:bg-[#E2E4E9] transition-all"
+                  className="py-4 bg-[#F4F5F8] text-[#4B5264] rounded-full text-sm font-black uppercase tracking-widest hover:bg-[#E2E4E9] transition-colors duration-300"
                 >
                   Cancel
                 </button>
-                <button 
+                <button
                   onClick={confirmDelete}
-                  className="py-4 bg-red-600 text-white rounded-2xl text-sm font-black uppercase tracking-widest hover:bg-red-700 transition-all shadow-lg shadow-red-600/20"
+                  className="py-4 bg-red-600 text-white rounded-full text-sm font-black uppercase tracking-widest hover:bg-red-700 transition-colors duration-300 shadow-lg shadow-red-600/20"
                 >
                   Delete Now
                 </button>
@@ -993,15 +996,15 @@ export default function MediaLibraryPage() {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white w-full max-w-lg rounded-[32px] overflow-hidden p-8 shadow-2xl"
+              className="bg-white w-full max-w-lg rounded-[1.75rem] overflow-hidden p-8 shadow-2xl"
             >
               <div className="flex items-center gap-3 mb-2">
-                <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center">
-                  <Sparkles className="w-6 h-6 text-indigo-600" />
+                <div className="w-12 h-12 rounded-full bg-indigo-50 flex items-center justify-center">
+                  <Sparkles className="w-6 h-6 text-indigo-600" strokeWidth={1.5} />
                 </div>
                 <div>
-                  <h3 className="text-xl font-black text-[#0A0A0F]">Generate with AI</h3>
-                  <p className="text-neutral-400 text-xs font-medium">Describe the image — it's saved straight to your Media Library</p>
+                  <h3 className="text-xl font-semibold text-[#0A0A0F]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Generate with AI</h3>
+                  <p className="text-neutral-400 text-xs font-medium">Describe the image — it&apos;s saved straight to your Media Library</p>
                 </div>
               </div>
 
@@ -1012,7 +1015,7 @@ export default function MediaLibraryPage() {
                 placeholder="e.g. A neon cyberpunk city skyline at night, bold empty space on the left for title text"
                 rows={4}
                 disabled={aiGenerating}
-                className="w-full mt-6 bg-[#F9FAFB] border border-[#E2E4E9] rounded-2xl p-4 text-sm font-medium outline-none focus:border-[#4F46E5] transition-all resize-none disabled:opacity-60"
+                className="w-full mt-6 bg-[#F9FAFB] border border-[#E2E4E9] rounded-2xl p-4 text-sm font-medium outline-none focus:border-[#4F46E5] focus:ring-[3px] focus:ring-[#4F46E5]/15 transition-all duration-300 resize-none disabled:opacity-60"
               />
 
               <div className="mt-5">
@@ -1062,16 +1065,16 @@ export default function MediaLibraryPage() {
                 <button
                   onClick={() => { setIsAiOpen(false); setAiPrompt(""); setAiSize("youtube"); setAiError(null); }}
                   disabled={aiGenerating}
-                  className="py-4 bg-[#F4F5F8] text-[#4B5264] rounded-2xl text-sm font-black uppercase tracking-widest hover:bg-[#E2E4E9] transition-all disabled:opacity-50"
+                  className="py-4 bg-[#F4F5F8] text-[#4B5264] rounded-full text-sm font-black uppercase tracking-widest hover:bg-[#E2E4E9] transition-colors duration-300 disabled:opacity-50"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleGenerateThumbnail}
                   disabled={aiGenerating || !aiPrompt.trim()}
-                  className="flex items-center justify-center gap-2 py-4 bg-[#4F46E5] text-white rounded-2xl text-sm font-black uppercase tracking-widest hover:bg-[#4338CA] transition-all shadow-lg shadow-indigo-600/20 disabled:opacity-50"
+                  className="flex items-center justify-center gap-2 py-4 bg-[#4F46E5] text-white rounded-full text-sm font-black uppercase tracking-widest hover:bg-[#4338CA] transition-colors duration-300 shadow-lg shadow-indigo-600/20 disabled:opacity-50"
                 >
-                  {aiGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                  {aiGenerating ? <Loader2 className="w-4 h-4 animate-spin" strokeWidth={1.5} /> : <Sparkles className="w-4 h-4" strokeWidth={1.5} />}
                   {aiGenerating ? "Generating…" : "Generate"}
                 </button>
               </div>

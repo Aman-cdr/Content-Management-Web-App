@@ -27,15 +27,15 @@ export default function DashboardWidget({
   const router = useRouter();
 
   return (
-    <div className="bg-white border border-[#E5E7EB] rounded-[20px] p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex flex-col h-full">
+    <div className="bg-white border border-[#E5E7EB] rounded-[1.75rem] p-5 shadow-[0_1px_4px_rgba(0,0,0,0.03),0_12px_32px_-12px_rgba(0,0,0,0.08)] flex flex-col h-full">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2.5 min-w-0">
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: iconBg }}>
-            <Icon className="w-4 h-4" style={{ color: iconColor }} />
+          <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0" style={{ background: iconBg }}>
+            <Icon className="w-4 h-4" style={{ color: iconColor }} strokeWidth={1.5} />
           </div>
-          <h3 className="text-[13px] font-bold text-[#0A0A0F] truncate">{title}</h3>
+          <h3 className="text-[13px] font-semibold text-[#0A0A0F] truncate">{title}</h3>
         </div>
-        <span className="text-[20px] font-[800] tabular-nums shrink-0" style={{ color: iconColor }}>
+        <span className="text-[20px] font-semibold tabular-nums shrink-0" style={{ color: iconColor, fontFamily: "'Space Grotesk', sans-serif" }}>
           {count}
         </span>
       </div>
@@ -48,7 +48,7 @@ export default function DashboardWidget({
             <button
               key={getItemId(it)}
               onClick={() => onItemClick?.(it)}
-              className="w-full flex items-center justify-between gap-2 px-2.5 py-2 rounded-lg hover:bg-[#F9FAFB] transition-colors text-left"
+              className="w-full flex items-center justify-between gap-2 px-2.5 py-2 rounded-full hover:bg-[#F9FAFB] transition-colors duration-300 text-left"
             >
               <span className="text-[12px] font-semibold text-[#374151] truncate">{getItemLabel(it)}</span>
               {getItemSublabel && (
@@ -62,9 +62,9 @@ export default function DashboardWidget({
       {viewAllHref && (
         <button
           onClick={() => router.push(viewAllHref)}
-          className="mt-3 pt-3 border-t border-[#F4F5F8] w-full flex items-center justify-center gap-1 text-[11px] font-bold text-neutral-400 hover:text-[#4F46E5] transition-colors"
+          className="mt-3 pt-3 border-t border-[#F4F5F8] w-full flex items-center justify-center gap-1 text-[11px] font-semibold text-neutral-400 hover:text-[#4F46E5] transition-colors duration-300"
         >
-          {viewAllLabel} <ChevronRight className="w-3 h-3" />
+          {viewAllLabel} <ChevronRight className="w-3 h-3" strokeWidth={1.5} />
         </button>
       )}
     </div>

@@ -51,7 +51,7 @@ export default function UserDropdown({ variant = "light", collapsed = false }) {
       <button
         onClick={() => setIsOpen(!isOpen)}
         title={collapsed ? displayUser?.name || "User" : undefined}
-        className={`flex items-center gap-3 rounded-lg transition-all duration-150 cursor-pointer outline-none hover:bg-white/[0.05] group ${collapsed ? "p-1.5 justify-center" : "p-2 w-full"}`}
+        className={`flex items-center gap-3 rounded-full transition-colors duration-300 cursor-pointer outline-none hover:bg-white/[0.05] group ${collapsed ? "p-1.5 justify-center" : "p-2 w-full"}`}
       >
         <div className="w-[34px] h-[34px] rounded-full bg-gradient-to-br from-[#6366F1] to-[#8B5CF6] flex items-center justify-center flex-shrink-0 overflow-hidden shadow-md">
           {displayUser?.image ? (
@@ -77,7 +77,7 @@ export default function UserDropdown({ variant = "light", collapsed = false }) {
               transition={{ duration: 0.2 }}
               className="text-white/30 group-hover:text-white/50 transition-colors"
             >
-              <ChevronDown size={14} strokeWidth={2.5} />
+              <ChevronDown size={14} strokeWidth={1.75} />
             </motion.div>
           </>
         )}
@@ -86,22 +86,22 @@ export default function UserDropdown({ variant = "light", collapsed = false }) {
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: isDark ? -10 : 10, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: isDark ? -10 : 10, scale: 0.95 }}
-            transition={{ duration: 0.15 }}
-            className={`absolute ${isDark ? "bottom-full mb-3 left-0" : "right-0 mt-3"} w-56 bg-[#FCFCFD] border border-black/[0.08] rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.12)] overflow-hidden z-50`}
+            initial={{ opacity: 0, y: isDark ? -10 : 10, scale: 0.96, filter: "blur(4px)" }}
+            animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
+            exit={{ opacity: 0, y: isDark ? -10 : 10, scale: 0.96, filter: "blur(4px)" }}
+            transition={{ duration: 0.35, ease: [0.32, 0.72, 0, 1] }}
+            className={`absolute ${isDark ? "bottom-full mb-3 left-0" : "right-0 mt-3"} w-56 bg-[#FCFCFD] border border-black/[0.08] rounded-[1.75rem] shadow-[0_20px_60px_-12px_rgba(0,0,0,0.18)] overflow-hidden z-50`}
           >
             <div className="p-4 border-b border-black/[0.04]">
-              <p className="text-sm font-bold text-[#0F0F0F] truncate">{displayUser?.name || "User"}</p>
+              <p className="text-sm font-semibold text-[#0F0F0F] truncate" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{displayUser?.name || "User"}</p>
               <p className="text-xs text-neutral-500 truncate">{displayUser?.email || "No email provided"}</p>
             </div>
             <div className="p-2">
               <button
                 onClick={logout}
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-600 hover:text-red-700 hover:bg-red-50 transition-colors group"
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-full text-red-600 hover:text-red-700 hover:bg-red-50 transition-colors duration-300 group"
               >
-                <LogOut className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+                <LogOut className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-300" strokeWidth={1.5} />
                 <span className="text-sm font-semibold">Sign out</span>
               </button>
             </div>

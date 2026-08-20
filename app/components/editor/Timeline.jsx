@@ -85,7 +85,7 @@ export default function Timeline({ clips, currentTime, onSeek, onChange }) {
   }
 
   return (
-    <div className="bg-white border border-[#E2E4E9] rounded-2xl p-5 space-y-4">
+    <div className="bg-white border border-[#E2E4E9] rounded-[1.75rem] p-5 space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 text-xs font-black text-[#4B5264]">
           <span className="text-neutral-400 uppercase tracking-widest text-[10px]">Timeline</span>
@@ -93,16 +93,16 @@ export default function Timeline({ clips, currentTime, onSeek, onChange }) {
         </div>
         <button
           onClick={handleSplitAtPlayhead}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-[#F4F5F8] text-[#4B5264] rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-indigo-50 hover:text-indigo-600 transition-all"
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-[#F4F5F8] text-[#4B5264] rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-indigo-50 hover:text-indigo-600 transition-colors duration-300"
         >
-          <Scissors className="w-3.5 h-3.5" /> Split at playhead
+          <Scissors className="w-3.5 h-3.5" strokeWidth={1.5} /> Split at playhead
         </button>
       </div>
 
       <div
         ref={trackRef}
         onClick={handleTrackClick}
-        className="relative h-20 bg-[#F9FAFB] border border-[#E2E4E9] rounded-xl overflow-x-auto cursor-pointer select-none"
+        className="relative h-20 bg-[#F9FAFB] border border-[#E2E4E9] rounded-2xl overflow-x-auto cursor-pointer select-none"
       >
         <div className="relative h-full" style={{ width: Math.max(duration * PIXELS_PER_SECOND, 1) }}>
           {clips.map((clip, index) => {
@@ -140,7 +140,7 @@ export default function Timeline({ clips, currentTime, onSeek, onChange }) {
         {clips.map((clip, index) => (
           <div
             key={clip._key ?? index}
-            className="flex items-center gap-3 px-3 py-2 bg-[#F9FAFB] border border-[#E2E4E9] rounded-xl"
+            className="flex items-center gap-3 px-3 py-2 bg-[#F9FAFB] border border-[#E2E4E9] rounded-2xl"
           >
             <span className="text-[10px] font-black text-neutral-400 uppercase tracking-widest w-14">Clip {index + 1}</span>
             <span className="text-xs font-bold text-[#4B5264] tabular-nums flex-1">
@@ -155,29 +155,29 @@ export default function Timeline({ clips, currentTime, onSeek, onChange }) {
                 step={0.1}
                 value={clip.speed}
                 onChange={(e) => onChange(applySpeed(clips, index, Math.min(2, Math.max(0.5, Number(e.target.value) || 1))))}
-                className="w-16 px-2 py-1 bg-white border border-[#E2E4E9] rounded-lg text-xs font-bold text-[#111318] outline-none focus:border-indigo-400"
+                className="w-16 px-2 py-1 bg-white border border-[#E2E4E9] rounded-full text-xs font-bold text-[#111318] outline-none focus:border-indigo-400 transition-colors duration-300"
               />
             </label>
             <button
               onClick={() => onChange(applyReorder(clips, index, index - 1))}
               disabled={index === 0}
-              className="p-1.5 text-neutral-400 hover:text-indigo-600 disabled:opacity-30 disabled:hover:text-neutral-400 transition-colors"
+              className="p-1.5 rounded-full text-neutral-400 hover:text-indigo-600 hover:bg-indigo-50 disabled:opacity-30 disabled:hover:text-neutral-400 disabled:hover:bg-transparent transition-colors duration-300"
             >
-              <ChevronUp className="w-4 h-4" />
+              <ChevronUp className="w-4 h-4" strokeWidth={1.5} />
             </button>
             <button
               onClick={() => onChange(applyReorder(clips, index, index + 1))}
               disabled={index === clips.length - 1}
-              className="p-1.5 text-neutral-400 hover:text-indigo-600 disabled:opacity-30 disabled:hover:text-neutral-400 transition-colors"
+              className="p-1.5 rounded-full text-neutral-400 hover:text-indigo-600 hover:bg-indigo-50 disabled:opacity-30 disabled:hover:text-neutral-400 disabled:hover:bg-transparent transition-colors duration-300"
             >
-              <ChevronDown className="w-4 h-4" />
+              <ChevronDown className="w-4 h-4" strokeWidth={1.5} />
             </button>
             <button
               onClick={() => onChange(applyRippleDelete(clips, index))}
               disabled={clips.length <= 1}
-              className="p-1.5 text-neutral-400 hover:text-red-600 disabled:opacity-30 disabled:hover:text-neutral-400 transition-colors"
+              className="p-1.5 rounded-full text-neutral-400 hover:text-red-600 hover:bg-red-50 disabled:opacity-30 disabled:hover:text-neutral-400 disabled:hover:bg-transparent transition-colors duration-300"
             >
-              <Trash2 className="w-4 h-4" />
+              <Trash2 className="w-4 h-4" strokeWidth={1.5} />
             </button>
           </div>
         ))}

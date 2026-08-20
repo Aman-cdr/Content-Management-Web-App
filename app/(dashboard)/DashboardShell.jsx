@@ -197,16 +197,31 @@ export default function DashboardShell({ children }) {
   return (
     <SeriesProvider>
     <div className="flex h-screen overflow-hidden" style={{ background: "var(--t-bg)", color: "var(--t-text)" }}>
+      <link rel="preconnect" href="https://fonts.googleapis.com" />
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"
+        rel="stylesheet"
+      />
+
       {/* Sidebar */}
-      <aside className={`app-sidebar border-r border-white/5 flex flex-col h-screen fixed z-50 transition-[width] duration-200 ${collapsed ? "w-[76px]" : "w-[240px]"}`}>
+      <aside
+        className={`app-sidebar border-r border-white/5 flex flex-col h-screen fixed z-50 transition-[width] duration-200 ${collapsed ? "w-[76px]" : "w-[240px]"}`}
+        style={{ fontFamily: "'Plus Jakarta Sans', system-ui, -apple-system, sans-serif" }}
+      >
         <div className={`p-5 pb-4 border-b border-white/[0.05] mb-2 flex items-center ${collapsed ? "px-3 justify-center" : "px-4 justify-between"}`}>
           <Link href="/dashboard" className="flex items-center gap-3 no-underline group min-w-0">
-            <div className="w-[36px] h-[36px] rounded-[10px] overflow-hidden flex items-center justify-center flex-shrink-0 bg-neutral-900 border border-white/10" style={{ boxShadow: "0 4px 12px rgba(99,102,241,0.2)" }}>
+            <div className="w-9 h-9 rounded-full overflow-hidden flex items-center justify-center flex-shrink-0 bg-neutral-900 ring-1 ring-white/10">
               <img src="/logo.png" alt="CreatorCMS Logo" className="w-full h-full object-cover" />
             </div>
             {!collapsed && (
               <div className="flex flex-col min-w-0">
-                <span className="text-white font-bold text-[15px] tracking-tight leading-none truncate">CreatorCMS</span>
+                <span
+                  className="text-white font-semibold text-[15px] tracking-tight leading-none truncate"
+                  style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+                >
+                  CreatorCMS
+                </span>
                 <span className="text-white/25 text-[10px] font-medium mt-1">v2.0</span>
               </div>
             )}
@@ -217,9 +232,9 @@ export default function DashboardShell({ children }) {
               type="button"
               onClick={toggleCollapsed}
               title="Hide sidebar"
-              className="p-1.5 rounded-lg text-white/40 hover:text-white hover:bg-white/[0.08] transition-colors shrink-0"
+              className="p-1.5 rounded-full text-white/40 hover:text-white hover:bg-white/[0.08] transition-colors duration-300 shrink-0"
             >
-              <PanelLeftClose size={16} strokeWidth={1.8} />
+              <PanelLeftClose size={16} strokeWidth={1.5} />
             </button>
           )}
         </div>
@@ -229,9 +244,9 @@ export default function DashboardShell({ children }) {
             type="button"
             onClick={toggleCollapsed}
             title="Show sidebar"
-            className="mx-auto mb-2 p-1.5 rounded-lg text-white/40 hover:text-white hover:bg-white/[0.08] transition-colors"
+            className="mx-auto mb-2 p-1.5 rounded-full text-white/40 hover:text-white hover:bg-white/[0.08] transition-colors duration-300"
           >
-            <PanelLeft size={16} strokeWidth={1.8} />
+            <PanelLeft size={16} strokeWidth={1.5} />
           </button>
         )}
 
@@ -239,7 +254,7 @@ export default function DashboardShell({ children }) {
           {sections.map((section, sIdx) => (
             <div key={sIdx} className="flex flex-col gap-[2px]">
               {section.label && !collapsed && (
-                <div className="px-4 pt-4 pb-1.5 text-[10px] font-bold tracking-widest text-white/25 uppercase">
+                <div className="px-4 pt-4 pb-1.5 text-[10px] font-bold tracking-[0.15em] uppercase" style={{ color: "var(--t-sidebar-text-dim)" }}>
                   {section.label}
                 </div>
               )}
@@ -255,9 +270,9 @@ export default function DashboardShell({ children }) {
                       href={item.href}
                       title={collapsed ? item.name : undefined}
                       className={`
-                        relative flex items-center rounded-lg transition-all duration-150 group no-underline
+                        relative flex items-center rounded-full transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] group no-underline
                         ${collapsed ? "justify-center px-2 py-[10px] mx-0 my-[2px]" : "gap-[10px] px-3 py-[9px] mx-[10px] my-[2px]"}
-                        ${isActive ? 'bg-white/[0.10] text-white font-semibold' : 'text-white/55 font-medium hover:bg-white/[0.05] hover:text-white/85'}
+                        ${isActive ? 'bg-white/[0.10] text-white font-semibold' : 'font-medium text-[var(--t-sidebar-text)] hover:bg-white/[0.05] hover:text-white'}
                       `}
                     >
                       {isActive && (
@@ -274,8 +289,9 @@ export default function DashboardShell({ children }) {
 
                       <item.icon
                         size={16}
-                        strokeWidth={1.8}
-                        className={isAIAgent ? 'text-[#A78BFA]' : (isActive ? 'text-white' : 'text-inherit')}
+                        strokeWidth={1.5}
+                        className={isActive ? 'text-white' : 'text-inherit'}
+                        style={isAIAgent && !isActive ? { color: 'var(--t-accent)' } : undefined}
                       />
 
                       {!collapsed && (
@@ -285,12 +301,12 @@ export default function DashboardShell({ children }) {
                       )}
 
                       {item.isNew && !collapsed && (
-                        <span className="ml-auto text-white text-[9px] font-bold px-[7px] py-[2px] rounded-full" style={{ background: "linear-gradient(135deg, var(--t-primary), var(--t-secondary))" }}>
+                        <span className="ml-auto text-[9px] font-bold px-[7px] py-[2px] rounded-full" style={{ background: "var(--t-accent)", color: "var(--t-accent-foreground)" }}>
                           NEW
                         </span>
                       )}
                       {item.isNew && collapsed && (
-                        <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full" style={{ background: "linear-gradient(135deg, var(--t-primary), var(--t-secondary))" }} />
+                        <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full" style={{ background: "var(--t-accent)" }} />
                       )}
                     </Link>
                   );
@@ -326,10 +342,13 @@ export default function DashboardShell({ children }) {
       </aside>
 
       {/* Main Content - Adjusted for fixed sidebar */}
-      <main className={`flex-1 overflow-y-auto relative transition-[margin] duration-200 ${collapsed ? "ml-[76px]" : "ml-[240px]"}`} style={{ background: "var(--t-bg)" }}>
-        <header className="app-header h-20 border-b flex items-center justify-between px-10 sticky top-0 z-30" style={{ borderColor: "var(--t-border)" }}>
+      <main className={`theme-page flex-1 overflow-y-auto relative transition-[margin] duration-200 ${collapsed ? "ml-[76px]" : "ml-[240px]"}`}>
+        <header
+          className="app-header h-20 border-b flex items-center justify-between px-10 sticky top-0 z-30"
+          style={{ borderColor: "var(--t-border)", fontFamily: "'Plus Jakarta Sans', system-ui, -apple-system, sans-serif" }}
+        >
           <div className="flex items-center gap-6">
-            <h1 className="text-sm font-bold text-[#8A91A8] uppercase tracking-widest">
+            <h1 className="text-[13px] font-semibold uppercase tracking-[0.15em]" style={{ color: "var(--t-text-3)", fontFamily: "'Space Grotesk', sans-serif" }}>
               {(() => {
                 if (pathname.includes("/series/")) {
                   const id = pathname.split("/").pop();
@@ -349,14 +368,14 @@ export default function DashboardShell({ children }) {
               <div className="relative" ref={issuesRef}>
                 <button
                   onClick={() => setIssuesOpen(!issuesOpen)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border transition-colors shadow-sm ${
+                  className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border transition-all duration-300 ${
                     connIssues.length > 0
                       ? "bg-amber-50 text-amber-600 border-amber-200/50 hover:bg-amber-100"
                       : "bg-emerald-50 text-emerald-600 border-emerald-200/50 hover:bg-emerald-100"
                   }`}
                 >
-                  {connIssues.length > 0 ? <AlertTriangle className="w-3.5 h-3.5" /> : <CheckCircle2 className="w-3.5 h-3.5" />}
-                  <span className="text-xs font-bold">
+                  {connIssues.length > 0 ? <AlertTriangle className="w-3.5 h-3.5" strokeWidth={1.5} /> : <CheckCircle2 className="w-3.5 h-3.5" strokeWidth={1.5} />}
+                  <span className="text-xs font-semibold">
                     {connIssues.length > 0 ? `${connIssues.length} Issue${connIssues.length > 1 ? "s" : ""}` : "All Connected"}
                   </span>
                 </button>
@@ -364,29 +383,30 @@ export default function DashboardShell({ children }) {
                 <AnimatePresence>
                   {issuesOpen && (
                     <motion.div
-                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                      transition={{ duration: 0.15 }}
-                      className="absolute top-full mt-3 right-0 w-80 bg-white border border-black/[0.08] shadow-[0_10px_40px_rgba(0,0,0,0.12)] rounded-2xl overflow-hidden z-50"
+                      initial={{ opacity: 0, y: 16, filter: "blur(4px)" }}
+                      animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                      exit={{ opacity: 0, y: 16, filter: "blur(4px)" }}
+                      transition={{ duration: 0.35, ease: [0.32, 0.72, 0, 1] }}
+                      className="absolute top-full mt-3 right-0 w-80 bg-white border border-black/[0.06] shadow-[0_20px_60px_-12px_rgba(0,0,0,0.18)] rounded-[1.75rem] overflow-hidden z-50"
+                      style={{ fontFamily: "'Plus Jakarta Sans', system-ui, -apple-system, sans-serif" }}
                     >
                       {connIssues.length > 0 ? (
                         <>
                           <div className="p-4 border-b border-black/[0.04] bg-[#F9FAFB]">
-                            <h4 className="text-sm font-bold text-[#0A0A0F]">Action Required</h4>
+                            <h4 className="text-sm font-semibold text-[#0A0A0F]">Action Required</h4>
                             <p className="text-xs text-[#8A91A8] mt-0.5">Connect these platforms to unlock publishing and analytics.</p>
                           </div>
                           <div className="divide-y divide-black/[0.04]">
                             {connIssues.map(issue => (
-                              <div key={issue.id} className="p-4 hover:bg-neutral-50 transition-colors">
-                                <h5 className="text-xs font-bold text-[#111318] mb-1">{issue.title}</h5>
+                              <div key={issue.id} className="p-4 hover:bg-neutral-50 transition-colors duration-300">
+                                <h5 className="text-xs font-semibold text-[#111318] mb-1">{issue.title}</h5>
                                 <p className="text-[11px] text-[#8A91A8] mb-3 leading-relaxed">{issue.desc}</p>
                                 <Link
                                   href="/settings"
                                   onClick={() => setIssuesOpen(false)}
-                                  className="flex items-center justify-center gap-1 px-3 py-1.5 text-white rounded-lg text-[10px] font-bold transition-colors btn-primary no-underline"
+                                  className="flex items-center justify-center gap-1.5 px-3 py-1.5 text-white rounded-full text-[10px] font-semibold transition-colors duration-300 btn-primary no-underline"
                                 >
-                                  <Wrench className="w-3 h-3" /> Connect in Settings
+                                  <Wrench className="w-3 h-3" strokeWidth={1.5} /> Connect in Settings
                                 </Link>
                               </div>
                             ))}
@@ -394,11 +414,11 @@ export default function DashboardShell({ children }) {
                         </>
                       ) : (
                         <div className="p-5 flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-xl bg-emerald-50 flex items-center justify-center shrink-0">
-                            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                          <div className="w-9 h-9 rounded-full bg-emerald-50 flex items-center justify-center shrink-0">
+                            <CheckCircle2 className="w-4 h-4 text-emerald-600" strokeWidth={1.5} />
                           </div>
                           <div>
-                            <h4 className="text-sm font-bold text-[#0A0A0F]">All connected</h4>
+                            <h4 className="text-sm font-semibold text-[#0A0A0F]">All connected</h4>
                             <p className="text-xs text-[#8A91A8] mt-0.5">YouTube and Instagram are both linked — you're good to publish.</p>
                           </div>
                         </div>
@@ -412,9 +432,9 @@ export default function DashboardShell({ children }) {
             <div className="relative" ref={notifRef}>
               <button
                 onClick={() => setNotifOpen(!notifOpen)}
-                className="relative p-2 text-neutral-500 hover:text-[#0F0F0F] transition-colors"
+                className="relative p-2 rounded-full text-[var(--t-text-3)] hover:text-[var(--t-text)] hover:bg-black/[0.04] transition-colors duration-300"
               >
-                <Bell className="w-5 h-5" />
+                <Bell className="w-5 h-5" strokeWidth={1.5} />
                 <span className="absolute top-2 right-2 w-2 h-2 bg-emerald-500 rounded-full border-2 border-white"></span>
               </button>
 
@@ -424,16 +444,17 @@ export default function DashboardShell({ children }) {
                   const yt = getBestWindows("youtube");
                   return (
                     <motion.div
-                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                      transition={{ duration: 0.15 }}
-                      className="absolute top-full mt-3 right-0 w-80 bg-white border border-black/[0.08] shadow-[0_10px_40px_rgba(0,0,0,0.12)] rounded-2xl overflow-hidden z-50"
+                      initial={{ opacity: 0, y: 16, filter: "blur(4px)" }}
+                      animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                      exit={{ opacity: 0, y: 16, filter: "blur(4px)" }}
+                      transition={{ duration: 0.35, ease: [0.32, 0.72, 0, 1] }}
+                      className="absolute top-full mt-3 right-0 w-80 bg-white border border-black/[0.06] shadow-[0_20px_60px_-12px_rgba(0,0,0,0.18)] rounded-[1.75rem] overflow-hidden z-50"
+                      style={{ fontFamily: "'Plus Jakarta Sans', system-ui, -apple-system, sans-serif" }}
                     >
                       {/* Header */}
                       <div className="px-4 py-3 border-b border-black/[0.04] bg-[#F9FAFB] flex items-center justify-between">
                         <div>
-                          <h4 className="text-sm font-bold text-[#0A0A0F]">Best Time to Post</h4>
+                          <h4 className="text-sm font-semibold text-[#0A0A0F]">Best Time to Post</h4>
                           <p className="text-[11px] text-[#8A91A8] mt-0.5">Post now for maximum reach & views</p>
                         </div>
                         <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-full">Live</span>
@@ -443,10 +464,10 @@ export default function DashboardShell({ children }) {
                         {/* Instagram */}
                         <div className="p-4">
                           <div className="flex items-center gap-2 mb-3">
-                            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+                            <div className="w-7 h-7 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
                               <FaInstagram className="w-3.5 h-3.5 text-white" />
                             </div>
-                            <span className="text-[12px] font-bold text-[#0A0A0F]">Instagram Reels</span>
+                            <span className="text-[12px] font-semibold text-[#0A0A0F]">Instagram Reels</span>
                             {ig.status === "now" && (
                               <span className="ml-auto text-[10px] font-black text-emerald-600 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-full animate-pulse">● Post Now</span>
                             )}
@@ -466,10 +487,10 @@ export default function DashboardShell({ children }) {
                         {/* YouTube */}
                         <div className="p-4">
                           <div className="flex items-center gap-2 mb-3">
-                            <div className="w-7 h-7 rounded-lg bg-red-500 flex items-center justify-center">
+                            <div className="w-7 h-7 rounded-full bg-red-500 flex items-center justify-center">
                               <FaYoutube className="w-3.5 h-3.5 text-white" />
                             </div>
-                            <span className="text-[12px] font-bold text-[#0A0A0F]">YouTube Shorts</span>
+                            <span className="text-[12px] font-semibold text-[#0A0A0F]">YouTube Shorts</span>
                             {yt.status === "now" && (
                               <span className="ml-auto text-[10px] font-black text-emerald-600 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-full animate-pulse">● Post Now</span>
                             )}
@@ -517,13 +538,17 @@ export default function DashboardShell({ children }) {
         className="fixed bottom-8 right-8 z-[60] group"
       >
         <motion.div
-          whileHover={{ scale: 1.08 }}
+          whileHover={{ scale: 1.08, y: -2 }}
           whileTap={{ scale: 0.95 }}
-          className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#6366F1] to-[#8B5CF6] text-white flex items-center justify-center shadow-[0_8px_30px_rgba(99,102,241,0.4)] hover:shadow-[0_8px_40px_rgba(99,102,241,0.55)] transition-shadow"
+          transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
+          className="w-14 h-14 rounded-full bg-gradient-to-br from-[#6366F1] to-[#8B5CF6] text-white flex items-center justify-center shadow-[0_8px_30px_rgba(99,102,241,0.4)] hover:shadow-[0_12px_40px_rgba(99,102,241,0.55)] transition-shadow duration-500"
         >
-          <Sparkles className="w-6 h-6" />
+          <Sparkles className="w-6 h-6" strokeWidth={1.5} />
         </motion.div>
-        <div className="absolute bottom-full right-0 mb-2 px-3 py-1.5 bg-[#111318] text-white text-[11px] font-bold rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-lg">
+        <div
+          className="absolute bottom-full right-0 mb-2 px-3 py-1.5 bg-[#111318] text-white text-[11px] font-semibold rounded-full whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none shadow-lg"
+          style={{ fontFamily: "'Plus Jakarta Sans', system-ui, -apple-system, sans-serif" }}
+        >
           ✨ AI Content Agent
         </div>
       </button>

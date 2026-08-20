@@ -34,6 +34,10 @@ export const ENDPOINTS = {
     LOGIN: '/user/login',
     REGISTER: '/user/register',
     PROFILE: '/user/profile',
+    NOTIFICATIONS: '/user/notifications',
+    PASSWORD: '/user/password',
+    DELETE_ACCOUNT: '/user/account',
+    THEME: '/user/theme',
   },
   DEVICE: {
     REGISTER: '/device/register',

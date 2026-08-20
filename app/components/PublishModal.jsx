@@ -240,48 +240,49 @@ export default function PublishModal({ short, platform, onClose }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
       <motion.div
-        initial={{ opacity: 0, scale: 0.95, y: 20 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        className="bg-white rounded-3xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col"
+        initial={{ opacity: 0, scale: 0.96, y: 16, filter: "blur(4px)" }}
+        animate={{ opacity: 1, scale: 1, y: 0, filter: "blur(0px)" }}
+        exit={{ opacity: 0, scale: 0.96, y: 16, filter: "blur(4px)" }}
+        transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
+        className="bg-white rounded-[1.75rem] shadow-[0_24px_70px_-16px_rgba(0,0,0,0.25)] w-full max-w-lg max-h-[90vh] flex flex-col"
       >
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-5 border-b border-[#F4F5F8]">
           <div className="flex items-center gap-3">
-            <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-white ${accentIconBg}`}>
+            <div className={`w-9 h-9 rounded-full flex items-center justify-center text-white ${accentIconBg}`}>
               {meta.icon}
             </div>
             <div>
-              <h3 className="text-[15px] font-black text-[#111318]">Publish to {meta.label}</h3>
+              <h3 className="text-[15px] font-semibold text-[#111318]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Publish to {meta.label}</h3>
               <p className="text-[11px] text-neutral-400">
                 {isFromUpload ? "Edited clip" : `${short.timestampStart} → ${short.timestampEnd}`} · {durationSec}s
               </p>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-black/5 rounded-xl text-neutral-400 transition">
-            <X className="w-4 h-4" />
+          <button onClick={onClose} className="p-2 hover:bg-black/5 rounded-full text-neutral-400 transition-colors duration-300">
+            <X className="w-4 h-4" strokeWidth={1.5} />
           </button>
         </div>
 
         {connCheck.loading ? (
           <div className="flex-1 flex flex-col items-center justify-center p-10 gap-3">
-            <Loader2 className="w-6 h-6 animate-spin text-neutral-300" />
+            <Loader2 className="w-6 h-6 animate-spin text-neutral-300" strokeWidth={1.5} />
             <p className="text-sm text-neutral-400 font-medium">Checking connected accounts…</p>
           </div>
         ) : missingConnections.length > 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center p-10 gap-4 text-center">
             <div className="w-16 h-16 rounded-full flex items-center justify-center bg-amber-100">
-              <Link2Off className="w-8 h-8 text-amber-500" />
+              <Link2Off className="w-8 h-8 text-amber-500" strokeWidth={1.5} />
             </div>
-            <h4 className="text-lg font-black text-[#111318]">{missingConnections.join(" & ")} not connected</h4>
+            <h4 className="text-lg font-semibold text-[#111318]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{missingConnections.join(" & ")} not connected</h4>
             <p className="text-sm text-neutral-500 max-w-xs">
               Connect your {missingConnections.join(" and ")} account{missingConnections.length > 1 ? "s" : ""} in Settings before publishing {isBoth ? "to both platforms" : `to ${meta.label}`}.
             </p>
             <div className="flex items-center gap-3">
-              <button onClick={onClose} className="px-5 py-2.5 rounded-xl border border-[#E2E4E9] text-sm font-bold text-neutral-600 hover:bg-neutral-50 transition">
+              <button onClick={onClose} className="px-5 py-2.5 rounded-full border border-[#E2E4E9] text-sm font-semibold text-neutral-600 hover:bg-neutral-50 transition-colors duration-300">
                 Cancel
               </button>
-              <Link href="/settings" className="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold transition shadow-md">
+              <Link href="/settings" className="px-6 py-2.5 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold transition-colors duration-300 shadow-md">
                 Go to Settings
               </Link>
             </div>
@@ -289,13 +290,13 @@ export default function PublishModal({ short, platform, onClose }) {
         ) : publishResult === "success" ? (
           <div className="flex-1 flex flex-col items-center justify-center p-10 gap-4">
             <div className={`w-16 h-16 rounded-full flex items-center justify-center ${errorMsg ? "bg-amber-100" : "bg-emerald-100"}`}>
-              <Check className={`w-8 h-8 ${errorMsg ? "text-amber-500" : "text-emerald-500"}`} />
+              <Check className={`w-8 h-8 ${errorMsg ? "text-amber-500" : "text-emerald-500"}`} strokeWidth={1.5} />
             </div>
-            <h4 className="text-lg font-black text-[#111318]">{errorMsg ? "Partially Published" : "Publish Job Created!"}</h4>
+            <h4 className="text-lg font-semibold text-[#111318]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{errorMsg ? "Partially Published" : "Publish Job Created!"}</h4>
             <p className="text-sm text-neutral-500 text-center">
               {errorMsg || `Your clip has been queued for publishing to ${meta.label}. Check the Publish section to track status.`}
             </p>
-            <button onClick={onClose} className={`px-6 py-2.5 rounded-xl text-white text-sm font-bold transition ${accentBtnClass}`}>
+            <button onClick={onClose} className={`px-6 py-2.5 rounded-full text-white text-sm font-semibold transition-colors duration-300 ${accentBtnClass}`}>
               Done
             </button>
           </div>
@@ -304,7 +305,7 @@ export default function PublishModal({ short, platform, onClose }) {
             <div className="flex-1 overflow-y-auto p-6 space-y-4">
               {/* Thumbnail + clip info side by side */}
               <div className="flex gap-4 p-4 bg-neutral-50 rounded-2xl border border-[#E2E4E9]">
-                <div className="shrink-0 rounded-xl overflow-hidden border border-neutral-200" style={{ width: 60, height: 107 }}>
+                <div className="shrink-0 rounded-2xl overflow-hidden border border-neutral-200" style={{ width: 60, height: 107 }}>
                   {short.thumbnailUrl || short.videoId ? (
                     <img src={short.thumbnailUrl || ytThumbnail(short.videoId)} alt="" className="w-full h-full object-cover" />
                   ) : (
@@ -336,7 +337,7 @@ export default function PublishModal({ short, platform, onClose }) {
                       <button
                         key={opt.key}
                         onClick={() => setVerticalStyle(opt.key)}
-                        className={`flex items-center gap-2.5 p-2.5 rounded-xl border text-left transition ${verticalStyle === opt.key ? "border-purple-400 bg-purple-50" : "border-[#E2E4E9] hover:bg-neutral-50"}`}
+                        className={`flex items-center gap-2.5 p-2.5 rounded-2xl border text-left transition-colors duration-300 ${verticalStyle === opt.key ? "border-purple-400 bg-purple-50" : "border-[#E2E4E9] hover:bg-neutral-50"}`}
                       >
                         <div className="relative w-6 bg-neutral-900 rounded overflow-hidden shrink-0" style={{ aspectRatio: "9/16" }}>
                           {opt.key === "pillarbox" ? (
@@ -365,7 +366,7 @@ export default function PublishModal({ short, platform, onClose }) {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   maxLength={100}
-                  className="w-full bg-[#F9FAFB] border border-[#E2E4E9] rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:border-purple-400 transition"
+                  className="w-full bg-[#F9FAFB] border border-[#E2E4E9] rounded-full px-4 py-2.5 text-sm font-bold outline-none focus:border-purple-400 focus:ring-[3px] focus:ring-purple-400/15 transition-all duration-300"
                 />
                 <p className="text-[10px] text-neutral-400 mt-1 text-right">{title.length}/100</p>
               </div>
@@ -377,7 +378,7 @@ export default function PublishModal({ short, platform, onClose }) {
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   rows={3}
-                  className="w-full bg-[#F9FAFB] border border-[#E2E4E9] rounded-xl px-4 py-2.5 text-sm outline-none focus:border-purple-400 transition resize-none"
+                  className="w-full bg-[#F9FAFB] border border-[#E2E4E9] rounded-2xl px-4 py-2.5 text-sm outline-none focus:border-purple-400 focus:ring-[3px] focus:ring-purple-400/15 transition-all duration-300 resize-none"
                 />
               </div>
 
@@ -388,7 +389,7 @@ export default function PublishModal({ short, platform, onClose }) {
                   value={hashtags}
                   onChange={(e) => setHashtags(e.target.value)}
                   placeholder="#shorts #reels #viral"
-                  className="w-full bg-[#F9FAFB] border border-[#E2E4E9] rounded-xl px-4 py-2.5 text-sm outline-none focus:border-purple-400 transition"
+                  className="w-full bg-[#F9FAFB] border border-[#E2E4E9] rounded-full px-4 py-2.5 text-sm outline-none focus:border-purple-400 focus:ring-[3px] focus:ring-purple-400/15 transition-all duration-300"
                 />
                 <p className="text-[10px] text-neutral-400 mt-1">{meta.hashtagNote}</p>
               </div>
@@ -399,7 +400,7 @@ export default function PublishModal({ short, platform, onClose }) {
                 <div className="flex gap-2">
                   {meta.visibilityOptions.map((v) => (
                     <button key={v} onClick={() => setVisibility(v)}
-                      className={`flex-1 py-2 rounded-xl text-[11px] font-bold border capitalize transition ${visibility === v ? "border-purple-400 bg-purple-50 text-purple-700" : "border-[#E2E4E9] text-neutral-500 hover:bg-neutral-50"}`}>
+                      className={`flex-1 py-2 rounded-full text-[11px] font-bold border capitalize transition-colors duration-300 ${visibility === v ? "border-purple-400 bg-purple-50 text-purple-700" : "border-[#E2E4E9] text-neutral-500 hover:bg-neutral-50"}`}>
                       {v}
                     </button>
                   ))}
@@ -412,7 +413,7 @@ export default function PublishModal({ short, platform, onClose }) {
                 <div className="flex gap-2 mb-2">
                   {["now", "later"].map((t) => (
                     <button key={t} onClick={() => setScheduleType(t)}
-                      className={`flex-1 py-2 rounded-xl text-[11px] font-bold border capitalize transition ${scheduleType === t ? "border-purple-400 bg-purple-50 text-purple-700" : "border-[#E2E4E9] text-neutral-500 hover:bg-neutral-50"}`}>
+                      className={`flex-1 py-2 rounded-full text-[11px] font-bold border capitalize transition-colors duration-300 ${scheduleType === t ? "border-purple-400 bg-purple-50 text-purple-700" : "border-[#E2E4E9] text-neutral-500 hover:bg-neutral-50"}`}>
                       {t === "now" ? "Publish Now" : "Schedule Later"}
                     </button>
                   ))}
@@ -423,15 +424,15 @@ export default function PublishModal({ short, platform, onClose }) {
                     value={scheduledAt}
                     min={new Date().toISOString().slice(0, 16)}
                     onChange={(e) => setScheduledAt(e.target.value)}
-                    className="w-full bg-[#F9FAFB] border border-[#E2E4E9] rounded-xl px-4 py-2.5 text-sm outline-none focus:border-purple-400 transition"
+                    className="w-full bg-[#F9FAFB] border border-[#E2E4E9] rounded-full px-4 py-2.5 text-sm outline-none focus:border-purple-400 focus:ring-[3px] focus:ring-purple-400/15 transition-all duration-300"
                   />
                 )}
               </div>
 
               {/* Source clip info — no manual upload needed */}
-              <div className="flex items-center gap-3 p-3 bg-neutral-50 border border-[#E2E4E9] rounded-xl">
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: "var(--t-primary-light)" }}>
-                  <Film className="w-4 h-4" style={{ color: "var(--t-primary)" }} />
+              <div className="flex items-center gap-3 p-3 bg-neutral-50 border border-[#E2E4E9] rounded-2xl">
+                <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0" style={{ background: "var(--t-primary-light)" }}>
+                  <Film className="w-4 h-4" style={{ color: "var(--t-primary)" }} strokeWidth={1.5} />
                 </div>
                 <div className="min-w-0">
                   {isFromUpload ? (
@@ -446,26 +447,26 @@ export default function PublishModal({ short, platform, onClose }) {
               </div>
 
               {errorMsg && (
-                <div className="flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-xl text-[12px] text-red-600 font-semibold">
-                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" /> {errorMsg}
+                <div className="flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-2xl text-[12px] text-red-600 font-semibold">
+                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" strokeWidth={1.5} /> {errorMsg}
                 </div>
               )}
             </div>
 
             {/* Footer */}
-            <div className="px-6 py-4 border-t border-[#F4F5F8] flex items-center justify-end gap-3 bg-[#FAFBFC] rounded-b-3xl">
-              <button onClick={onClose} className="px-5 py-2.5 rounded-xl border border-[#E2E4E9] text-sm font-bold text-neutral-600 hover:bg-neutral-50 transition">
+            <div className="px-6 py-4 border-t border-[#F4F5F8] flex items-center justify-end gap-3 bg-[#FAFBFC] rounded-b-[1.75rem]">
+              <button onClick={onClose} className="px-5 py-2.5 rounded-full border border-[#E2E4E9] text-sm font-bold text-neutral-600 hover:bg-neutral-50 transition-colors duration-300">
                 Cancel
               </button>
               <button
                 onClick={handlePublish}
                 disabled={isPublishing}
-                className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-white text-sm font-bold transition disabled:opacity-50 disabled:cursor-not-allowed ${accentBtnClass} shadow-md`}
+                className={`flex items-center gap-2 px-6 py-2.5 rounded-full text-white text-sm font-bold transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed ${accentBtnClass} shadow-md`}
               >
                 {isPublishing ? (
-                  <><RefreshCw className="w-4 h-4 animate-spin" /> Publishing…</>
+                  <><RefreshCw className="w-4 h-4 animate-spin" strokeWidth={1.5} /> Publishing…</>
                 ) : (
-                  <><Upload className="w-4 h-4" /> {scheduleType === "later" ? "Schedule" : "Publish Now"}</>
+                  <><Upload className="w-4 h-4" strokeWidth={1.5} /> {scheduleType === "later" ? "Schedule" : "Publish Now"}</>
                 )}
               </button>
             </div>

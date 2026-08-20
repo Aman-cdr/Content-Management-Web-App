@@ -41,7 +41,7 @@ export default function ThumbnailModal({ isOpen, onClose }) {
         {!thumbnail && (
           <>
             <div className="flex items-center gap-3 p-4 rounded-2xl bg-amber-50 border border-amber-100">
-              <Sparkles className="w-5 h-5 text-amber-600 flex-shrink-0" />
+              <Sparkles className="w-5 h-5 text-amber-600 flex-shrink-0" strokeWidth={1.5} />
               <p className="text-sm text-neutral-600">
                 Generate a high-contrast thumbnail optimized for better CTR based on your video content.
               </p>
@@ -49,7 +49,7 @@ export default function ThumbnailModal({ isOpen, onClose }) {
 
             {error && (
               <div className="flex items-center gap-3 p-4 rounded-2xl bg-red-50 border border-red-100">
-                <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
+                <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" strokeWidth={1.5} />
                 <p className="text-sm text-red-600">{error}</p>
               </div>
             )}
@@ -57,16 +57,16 @@ export default function ThumbnailModal({ isOpen, onClose }) {
             <button
               onClick={handleGenerate}
               disabled={loading}
-              className="w-full py-3 bg-amber-600 hover:bg-amber-500 disabled:bg-amber-600/30 disabled:cursor-not-allowed text-white rounded-2xl font-semibold transition-all flex items-center justify-center gap-2 shadow-lg shadow-amber-600/20"
+              className="w-full py-3 bg-amber-600 hover:bg-amber-500 disabled:bg-amber-600/30 disabled:cursor-not-allowed text-white rounded-full font-semibold transition-all duration-300 flex items-center justify-center gap-2 shadow-lg shadow-amber-600/20"
             >
               {loading ? (
                 <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <Loader2 className="w-5 h-5 animate-spin" strokeWidth={1.5} />
                   Generating Thumbnail...
                 </>
               ) : (
                 <>
-                  <Sparkles className="w-5 h-5" />
+                  <Sparkles className="w-5 h-5" strokeWidth={1.5} />
                   Generate Thumbnail
                 </>
               )}
@@ -106,16 +106,16 @@ export default function ThumbnailModal({ isOpen, onClose }) {
             <div className="flex gap-3">
               <button
                 onClick={() => { reset(); generate(); }}
-                className="flex-1 py-3 bg-[#F3F4F6] hover:bg-[#E5E7EB] border border-black/[0.04] rounded-2xl text-sm font-semibold text-[#374151] transition-all flex items-center justify-center gap-2"
+                className="flex-1 py-3 bg-[#F3F4F6] hover:bg-[#E5E7EB] border border-black/[0.04] rounded-full text-sm font-semibold text-[#374151] transition-all duration-300 flex items-center justify-center gap-2"
               >
-                <RefreshCw className="w-4 h-4" />
+                <RefreshCw className="w-4 h-4" strokeWidth={1.5} />
                 Try Another
               </button>
               <button
                 onClick={handleDownload}
-                className="flex-1 py-3 bg-amber-600 hover:bg-amber-500 text-white rounded-2xl text-sm font-semibold transition-all shadow-lg shadow-amber-600/20 flex items-center justify-center gap-2"
+                className="flex-1 py-3 bg-amber-600 hover:bg-amber-500 text-white rounded-full text-sm font-semibold transition-all duration-300 shadow-lg shadow-amber-600/20 flex items-center justify-center gap-2"
               >
-                <Download className="w-4 h-4" />
+                <Download className="w-4 h-4" strokeWidth={1.5} />
                 Use This Thumbnail
               </button>
             </div>

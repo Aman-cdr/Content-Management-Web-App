@@ -1,39 +1,168 @@
 @import "tailwindcss";
 
-/* ─── Tailwind theme tokens (fallback to indigo defaults) ─── */
+/* ─── Tailwind theme tokens — semantic design tokens, not fixed colors ───────
+   Every entry here becomes real Tailwind utilities for free (Tailwind v4
+   auto-generates bg, text, border and ring utilities from any --color-x
+   custom property below). Components should reach for these (bg-primary,
+   bg-accent-soft, text-secondary, border-border-hover, ring-focus-ring)
+   instead of literal Tailwind palette classes (bg-indigo-500) or raw hex —
+   that's what makes a theme change propagate app-wide instead of touching
+   one component. ─── */
 @theme {
-  --color-background: var(--t-bg, #EEEEF0);
-  --color-foreground: var(--t-text, #0A0A0F);
-  --color-primary:    var(--t-primary-dark, #4F46E5);
-  --color-secondary:  var(--t-secondary, #8B5CF6);
-  --color-accent:     var(--t-primary, #6366F1);
-  --color-muted:      var(--t-text-3, #8A91A8);
-  --color-tertiary:   var(--t-text-2, #4B5264);
-  --color-border:     var(--t-border, #E2E4E9);
-  --color-card:       var(--t-surface, #FFFFFF);
-  --color-card-hover: var(--t-surface, #FFFFFF);
+  /* ── The 3-role vocabulary: text / component / page. Every entry below is
+     a real Tailwind utility (text-theme-text, bg-theme-component,
+     bg-theme-page, ...) generated straight from the --theme-* custom
+     properties buildThemeVars() writes to <html> — this IS the theme
+     system now, not a convenience alias. ── */
+  --color-theme-text:            var(--theme-text);
+  --color-theme-text-secondary:  var(--theme-text-secondary);
+  --color-theme-text-muted:      var(--theme-text-muted);
+  --color-theme-text-subtle:     var(--theme-text-subtle);
+  --color-theme-text-disabled:   var(--theme-text-disabled);
+  --color-theme-text-link:       var(--theme-text-link);
+
+  --color-theme-component:            var(--theme-component);
+  --color-theme-component-hover:      var(--theme-component-hover);
+  --color-theme-component-active:     var(--theme-component-active);
+  --color-theme-component-soft:       var(--theme-component-soft);
+  --color-theme-component-soft-hover: var(--theme-component-soft-hover);
+  --color-theme-component-border:     var(--theme-component-border);
+  --color-theme-component-focus:      var(--theme-component-focus);
+  --color-theme-component-foreground: var(--theme-component-foreground);
+
+  --color-theme-page:             var(--theme-page);
+  --color-theme-page-soft:        var(--theme-page-soft);
+  --color-theme-surface:          var(--theme-surface);
+  --color-theme-surface-hover:    var(--theme-surface-hover);
+  --color-theme-surface-selected: var(--theme-surface-selected);
+
+  /* ── Legacy token names — still real utilities, now sourced from the
+     same --theme-* values via the --t-* aliases in buildThemeVars(). ── */
+  --color-background:      var(--t-bg);
+  --color-foreground:      var(--t-text);
+  --color-foreground-muted: var(--t-text-2);
+  --color-muted:           var(--t-text-3);
+  --color-tertiary:        var(--t-text-2);
+
+  --color-surface:         var(--t-surface);
+  --color-surface-muted:   var(--t-surface-muted);
+  --color-card:            var(--t-surface);
+  --color-card-hover:      var(--t-surface);
+
+  --color-border:          var(--t-border);
+  --color-border-hover:    var(--t-border-hover);
+  --color-focus-ring:      var(--t-focus-ring);
+
+  --color-primary:            var(--t-primary);
+  --color-primary-hover:      var(--t-primary-hover);
+  --color-primary-active:     var(--t-primary-active);
+  --color-primary-soft:       var(--t-primary-soft);
+  --color-primary-foreground: var(--t-primary-foreground);
+
+  --color-secondary:            var(--t-secondary);
+  --color-secondary-hover:      var(--t-secondary-hover);
+  --color-secondary-active:     var(--t-secondary-active);
+  --color-secondary-soft:       var(--t-secondary-soft);
+  --color-secondary-foreground: var(--t-secondary-foreground);
+
+  --color-accent:            var(--t-accent);
+  --color-accent-hover:      var(--t-accent-hover);
+  --color-accent-active:     var(--t-accent-active);
+  --color-accent-soft:       var(--t-accent-soft);
+  --color-accent-foreground: var(--t-accent-foreground);
+
+  --color-chart-1: var(--t-chart-1);
+  --color-chart-2: var(--t-chart-2);
+  --color-chart-3: var(--t-chart-3);
+  --color-chart-4: var(--t-chart-4);
+  --color-chart-5: var(--t-chart-5);
 }
 
-/* ─── Layout variables — NEVER overridden by theme selector ─── */
-/* Sidebar, background, surface, text are fixed. Only accent colors change. */
+/* ─── Theme token defaults (light / Indigo) — ThemeProvider overwrites these
+   on <html> at runtime; layout.jsx's blocking boot script overwrites them
+   again before first paint to prevent a flash of the default theme. ─── */
 :root {
-  /* Accent (changes with theme) */
-  --t-primary:       #6366F1;
-  --t-primary-dark:  #4F46E5;
-  --t-primary-light: rgba(99,102,241,0.09);
-  --t-primary-glow:  rgba(99,102,241,0.25);
-  --t-secondary:     #8B5CF6;
+  /* ── COLOR 1 — text: headings, body, labels, nav text, numbers ── */
+  --theme-text:           #312E81;
+  --theme-text-secondary: #423F92;
+  --theme-text-muted:     #4B4A8F;
+  --theme-text-subtle:    #726FA8;
+  --theme-text-disabled:  #9997BC;
+  --theme-text-link:      #312E81;
 
-  /* Layout (fixed — never changed by ThemeContext) */
-  --t-bg:            #EEEEF0;
-  --t-surface:       #FFFFFF;
-  --t-sidebar:       #0C0C14;
-  --t-sidebar-text:  #9CA3AF;
-  --t-border:        #E2E4E9;
-  --t-text:          #0A0A0F;
-  --t-text-2:        #4B5264;
-  --t-text-3:        #8A91A8;
-  --t-header-bg:     #FFFFFF;
+  /* ── COLOR 2 — component: buttons, cards, inputs, tabs, badges, borders ── */
+  --theme-component:            #6366F1;
+  --theme-component-hover:      #4F46E5;
+  --theme-component-active:     #4338CA;
+  --theme-component-soft:       rgba(99,102,241,0.10);
+  --theme-component-soft-hover: rgba(99,102,241,0.16);
+  --theme-component-border:     rgba(99,102,241,0.22);
+  --theme-component-focus:      rgba(99,102,241,0.32);
+  --theme-component-foreground: #FFFFFF;
+
+  /* ── COLOR 3 — page: app background, outlet, section surfaces ── */
+  --theme-page:             #EEF2FF;
+  --theme-page-soft:        #E4E9FA;
+  --theme-surface:          #FBFCFF;
+  --theme-surface-hover:    #F2F5FD;
+  --theme-surface-selected: #E9EEFC;
+
+  /* Primary */
+  --t-primary:            #6366F1;
+  --t-primary-hover:      #4F46E5;
+  --t-primary-active:     #4338CA;
+  --t-primary-soft:       rgba(99,102,241,0.09);
+  --t-primary-soft-hover: rgba(99,102,241,0.14);
+  --t-primary-glow:       rgba(99,102,241,0.28);
+  --t-primary-foreground: #FFFFFF;
+  --t-primary-dark:       var(--t-primary-hover); /* legacy alias */
+  --t-primary-light:      var(--t-primary-soft);  /* legacy alias */
+
+  /* Secondary */
+  --t-secondary:            #8B5CF6;
+  --t-secondary-hover:      #7C3AED;
+  --t-secondary-active:     #6D28D9;
+  --t-secondary-soft:       rgba(139,92,246,0.09);
+  --t-secondary-soft-hover: rgba(139,92,246,0.14);
+  --t-secondary-glow:       rgba(139,92,246,0.28);
+  --t-secondary-foreground: #FFFFFF;
+
+  /* Accent */
+  --t-accent:            #F59E0B;
+  --t-accent-hover:      #D97706;
+  --t-accent-active:     #B45309;
+  --t-accent-soft:       rgba(245,158,11,0.12);
+  --t-accent-soft-hover: rgba(245,158,11,0.18);
+  --t-accent-glow:       rgba(245,158,11,0.28);
+  --t-accent-foreground: #0A0A0F;
+
+  /* Chart ticks — derived from primary/secondary/accent by buildThemeVars() */
+  --t-chart-1: var(--t-primary);
+  --t-chart-2: var(--t-secondary);
+  --t-chart-3: var(--t-accent);
+  --t-chart-4: var(--t-primary-hover);
+  --t-chart-5: var(--t-secondary-hover);
+
+  /* Legacy --t-bg/surface/text aliases — derived from COLOR 3 (page) and
+     COLOR 1 (text) respectively by buildThemeVars(); mode-aware (light
+     default here, dark mode overrides all of these, see ThemeContext). */
+  --t-bg:              var(--theme-page);
+  --t-surface:         var(--theme-surface);
+  --t-surface-muted:   var(--theme-page-soft);
+  --t-header-bg:       #FBFCFF;
+  --t-text:            var(--theme-text);
+  --t-text-2:          #4B4A8F;
+  --t-text-3:          #8A88B8;
+  --t-border:          rgba(99,102,241,0.16);
+  --t-border-hover:    rgba(99,102,241,0.28);
+  --t-focus-ring:      var(--t-primary-soft);
+
+  /* Sidebar — always a dark surface (product identity), but now derived
+     from COLOR 3 (page) rather than a flat fixed color, with sidebar text
+     derived from COLOR 1 (text) at a contrast-safe light lightness. */
+  --t-sidebar:          #0C0C1F;
+  --t-sidebar-text:     #A5A3D6;
+  --t-sidebar-text-dim: #6D6BA0;
 
   /* Legacy aliases kept for backward compat with existing components */
   --background:      #EEEEF0;
@@ -54,6 +183,17 @@ body {
   color: var(--t-text);
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
+  transition: background-color 0.6s cubic-bezier(0.32, 0.72, 0, 1), color 0.6s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* ─── Theme-switch fluidity — accent/secondary now drive layout surfaces and
+   supporting text, so a theme change touches a lot of background-color and
+   color declarations at once; a shared, unhurried cubic-bezier here makes
+   that read as one deliberate mood shift instead of a jarring repaint. ─── */
+.surface, .surface-muted, .app-sidebar, .app-header {
+  transition-property: background-color, border-color, color;
+  transition-duration: 0.6s;
+  transition-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 /* ─── Sidebar picks up theme color ─── */
@@ -81,13 +221,47 @@ body {
 .theme-text { color: var(--t-primary); }
 .theme-bg   { background-color: var(--t-primary-light); }
 
-/* ─── App-wide primary button ─── */
+/* ─── App-wide semantic buttons — each maps to one of the theme's 3 colors,
+   with an auto-contrast foreground so custom colors never render unreadable
+   text. Use variant="primary"/"secondary"/"accent" on <Button>, not a new
+   component per theme. ─── */
 .btn-primary {
   background: var(--t-primary);
-  color: #fff;
-  transition: opacity 0.15s;
+  color: var(--t-primary-foreground);
+  transition: background-color 0.15s;
 }
-.btn-primary:hover { opacity: 0.88; }
+.btn-primary:hover  { background: var(--t-primary-hover); }
+.btn-primary:active { background: var(--t-primary-active); }
+
+.btn-secondary {
+  background: var(--t-secondary);
+  color: var(--t-secondary-foreground);
+  transition: background-color 0.15s;
+}
+.btn-secondary:hover  { background: var(--t-secondary-hover); }
+.btn-secondary:active { background: var(--t-secondary-active); }
+
+.btn-accent {
+  background: var(--t-accent);
+  color: var(--t-accent-foreground);
+  transition: background-color 0.15s;
+}
+.btn-accent:hover  { background: var(--t-accent-hover); }
+.btn-accent:active { background: var(--t-accent-active); }
+
+/* ─── Semantic badges ─── */
+.badge-primary   { background: var(--t-primary-soft);   color: var(--t-primary);   border: 1px solid var(--t-primary-glow); }
+.badge-secondary { background: var(--t-secondary-soft); color: var(--t-secondary); border: 1px solid var(--t-secondary-glow); }
+.badge-accent    { background: var(--t-accent-soft);    color: var(--t-accent);    border: 1px solid var(--t-accent-glow); }
+
+/* ─── Surfaces ─── */
+.surface       { background: var(--t-surface); }
+.surface-muted { background: var(--t-surface-muted); }
+
+/* ─── COLOR 3 — the app outlet/page background. Applied ONCE on the shared
+   <main> in DashboardShell so every route rendered inside it automatically
+   inherits the theme's page color — no per-page theme logic. ─── */
+.theme-page { background: var(--theme-page); }
 
 /* ─── Toggle switch ─── */
 .toggle-checked {

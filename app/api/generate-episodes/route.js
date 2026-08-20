@@ -30,9 +30,9 @@ Return only valid JSON array, nothing else.`;
   const stream = new ReadableStream({
     async start(controller) {
       try {
-        console.log("🚀 [generate-episodes] Calling Groq API with model: llama-3.3-70b-versatile");
+        console.log("🚀 [generate-episodes] Calling Groq API with model: openai/gpt-oss-120b");
         const completion = await client.chat.completions.create({
-          model: "llama-3.3-70b-versatile",
+          model: "openai/gpt-oss-120b",
           messages: [{ role: "user", content: prompt }],
           temperature: 0.8,
           stream: false,

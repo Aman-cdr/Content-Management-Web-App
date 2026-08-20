@@ -240,9 +240,9 @@ export default function SchedulerPage() {
         <div>
           <div className="flex items-center gap-3 mb-1">
             <span className="w-[3px] h-8 bg-gradient-to-b from-[#6366F1] to-[#8B5CF6] rounded-full" />
-            <h2 className="text-[32px] font-[800] text-[#0F0F0F] tracking-tight">Scheduler</h2>
+            <h2 className="text-[32px] font-medium text-[#0F0F0F] tracking-tight" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Scheduler</h2>
           </div>
-          <p className="text-neutral-500 text-[14px] font-[400] mt-0.5">
+          <p className="text-neutral-500 text-[14px] font-normal mt-0.5">
             Plan and schedule your content pipeline
             {!jobsLoading && publishJobs.length > 0 && (
               <span className="ml-3 text-[10px] font-black uppercase tracking-widest text-indigo-500 bg-indigo-50 px-2 py-0.5 rounded-full">
@@ -255,15 +255,15 @@ export default function SchedulerPage() {
           <button
             onClick={fetchPublishJobs}
             title="Refresh publish jobs"
-            className="p-3 bg-white border border-[#E5E7EB] rounded-[14px] text-neutral-500 hover:bg-[#F9FAFB] transition-all"
+            className="p-3 bg-white border border-[#E5E7EB] rounded-full text-neutral-500 hover:bg-[#F9FAFB] transition-colors duration-300"
           >
-            <RefreshCw className={`w-5 h-5 ${jobsLoading ? "animate-spin" : ""}`} />
+            <RefreshCw className={`w-5 h-5 ${jobsLoading ? "animate-spin" : ""}`} strokeWidth={1.5} />
           </button>
           <button
             onClick={() => router.push("/add-content")}
-            className="bg-gradient-to-br from-[#6366F1] to-[#8B5CF6] text-white px-[24px] py-[14px] rounded-[14px] text-[14px] font-[600] transition-all shadow-[0_4px_14px_rgba(99,102,241,0.3)] hover:brightness-110 active:scale-95 flex items-center gap-2 group"
+            className="bg-gradient-to-br from-[#6366F1] to-[#8B5CF6] text-white px-6 py-3.5 rounded-full text-[14px] font-semibold transition-all duration-300 shadow-[0_4px_16px_-4px_rgba(99,102,241,0.4)] hover:brightness-110 active:scale-[0.98] flex items-center gap-2 group"
           >
-            <Plus className="w-5 h-5 transition-transform group-hover:rotate-90" />
+            <Plus className="w-5 h-5 transition-transform duration-300 group-hover:rotate-90" strokeWidth={1.75} />
             New Post
           </button>
         </div>
@@ -276,7 +276,7 @@ export default function SchedulerPage() {
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
-            className="bg-red-50 border border-red-200 rounded-[16px] px-5 py-4 flex items-start gap-3"
+            className="bg-red-50 border border-red-200 rounded-2xl px-5 py-4 flex items-start gap-3"
           >
             <span className="text-red-500 text-lg leading-none mt-0.5">⚠️</span>
             <div className="flex-1 min-w-0">
@@ -291,8 +291,8 @@ export default function SchedulerPage() {
                 ))}
               </ul>
             </div>
-            <button onClick={() => setCriticalDismissed(true)} className="shrink-0 p-1 hover:bg-red-100 rounded-lg transition-colors text-red-400">
-              <X className="w-4 h-4" />
+            <button onClick={() => setCriticalDismissed(true)} className="shrink-0 p-1 hover:bg-red-100 rounded-full transition-colors duration-300 text-red-400">
+              <X className="w-4 h-4" strokeWidth={1.5} />
             </button>
           </motion.div>
         )}
@@ -304,7 +304,7 @@ export default function SchedulerPage() {
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
-            className="bg-amber-50 border border-amber-200 rounded-[16px] px-5 py-4 flex items-start gap-3"
+            className="bg-amber-50 border border-amber-200 rounded-2xl px-5 py-4 flex items-start gap-3"
           >
             <span className="text-amber-500 text-lg leading-none mt-0.5">ℹ️</span>
             <div className="flex-1 min-w-0">
@@ -319,8 +319,8 @@ export default function SchedulerPage() {
                 ))}
               </ul>
             </div>
-            <button onClick={() => setBottleneckDismissed(true)} className="shrink-0 p-1 hover:bg-amber-100 rounded-lg transition-colors text-amber-400">
-              <X className="w-4 h-4" />
+            <button onClick={() => setBottleneckDismissed(true)} className="shrink-0 p-1 hover:bg-amber-100 rounded-full transition-colors duration-300 text-amber-400">
+              <X className="w-4 h-4" strokeWidth={1.5} />
             </button>
           </motion.div>
         )}
@@ -329,27 +329,27 @@ export default function SchedulerPage() {
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-8">
         {/* Section 1: Calendar View */}
         <div className="space-y-6">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4 bg-[#FFFFFF]/80 backdrop-blur-xl border border-[#E5E7EB] p-3 rounded-[20px] shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4 bg-[#FFFFFF]/80 backdrop-blur-xl border border-[#E5E7EB] p-3 rounded-[1.75rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
             <div className="flex items-center gap-4">
-              <h3 className="text-[18px] font-[700] min-w-[150px] text-[#0F0F0F]">{format(currentDate, "MMMM yyyy")}</h3>
+              <h3 className="text-[18px] font-semibold min-w-[150px] text-[#0F0F0F]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{format(currentDate, "MMMM yyyy")}</h3>
               <div className="flex gap-1.5">
-                <button onClick={handlePrevMonth} className="p-2 hover:bg-[#F9FAFB] rounded-xl transition-colors text-[#6B7280] border border-[#E5E7EB]">
-                  <ChevronLeft className="w-4 h-4" />
+                <button onClick={handlePrevMonth} className="p-2 hover:bg-[#F9FAFB] rounded-full transition-colors duration-300 text-[#6B7280] border border-[#E5E7EB]">
+                  <ChevronLeft className="w-4 h-4" strokeWidth={1.5} />
                 </button>
-                <button onClick={handleNextMonth} className="p-2 hover:bg-[#F9FAFB] rounded-xl transition-colors text-[#6B7280] border border-[#E5E7EB]">
-                  <ChevronRight className="w-4 h-4" />
+                <button onClick={handleNextMonth} className="p-2 hover:bg-[#F9FAFB] rounded-full transition-colors duration-300 text-[#6B7280] border border-[#E5E7EB]">
+                  <ChevronRight className="w-4 h-4" strokeWidth={1.5} />
                 </button>
               </div>
             </div>
-            
-            <div className="flex gap-1 p-1 bg-[#F3F4F6] border border-[#E5E7EB] rounded-[16px]">
+
+            <div className="flex gap-1 p-1 bg-[#F3F4F6] border border-[#E5E7EB] rounded-full">
               {["All", ...Object.keys(PLATFORMS)].map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setFilter(tab)}
-                  className={`px-4 py-1.5 rounded-xl text-[12px] font-[600] transition-all ${
-                    filter === tab 
-                    ? "bg-[#FFFFFF] text-[#0F0F0F] shadow-sm border border-[#E5E7EB]" 
+                  className={`px-4 py-1.5 rounded-full text-[12px] font-semibold transition-all duration-300 ${
+                    filter === tab
+                    ? "bg-[#FFFFFF] text-[#0F0F0F] shadow-sm border border-[#E5E7EB]"
                     : "text-[#6B7280] hover:text-[#0F0F0F]"
                   }`}
                 >
@@ -359,7 +359,7 @@ export default function SchedulerPage() {
             </div>
           </div>
 
-          <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-[24px] overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] h-fit">
+          <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-[1.75rem] overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] h-fit">
             <div className="grid grid-cols-7 gap-px bg-[#E5E7EB]">
               {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(day => (
                 <div key={day} className="bg-[#FAFAFA] py-4 text-center text-[10px] font-black uppercase tracking-widest text-neutral-500">
@@ -379,15 +379,15 @@ export default function SchedulerPage() {
                       !isCurrentMonth ? "bg-neutral-50/30 opacity-40" : ""
                     } ${isSelected ? "ring-2 ring-[#6366F1] ring-inset z-10" : ""} ${isToday(day) ? "bg-[#6366F1]/[0.02]" : ""}`}
                   >
-                    <span className={`text-xs font-bold ${isToday(day) ? "text-purple-600 bg-purple-100/50 px-2 py-1 rounded-lg" : "text-[#374151]"}`}>
+                    <span className={`text-xs font-bold ${isToday(day) ? "text-purple-600 bg-purple-100/50 px-2 py-1 rounded-full" : "text-[#374151]"}`}>
                       {format(day, "d")}
                     </span>
-                    
+
                     <div className="mt-2 space-y-1">
                       {dayPosts.slice(0, 3).map(post => (
-                        <div 
+                        <div
                           key={post.id}
-                          className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-[#F9FAFB] border border-black/[0.04]"
+                          className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-[#F9FAFB] border border-black/[0.04]"
                         >
                           <div 
                             className="w-1.5 h-1.5 rounded-full shrink-0" 
@@ -417,10 +417,10 @@ export default function SchedulerPage() {
           animate={{ opacity: 1, x: 0 }}
           className="flex flex-col h-full lg:h-[600px]"
         >
-          <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-[24px] p-8 flex flex-col h-full shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+          <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-[1.75rem] p-8 flex flex-col h-full shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
             <div className="mb-8">
-              <p className="text-[10px] font-[700] text-[#6366F1] uppercase tracking-[0.2em] mb-2">Schedule for</p>
-              <h3 className="text-[26px] font-[800] text-[#0F0F0F] tracking-tight">{format(selectedDate, "EEEE, MMM do")}</h3>
+              <p className="text-[10px] font-bold text-[#6366F1] uppercase tracking-[0.2em] mb-2">Schedule for</p>
+              <h3 className="text-[26px] font-medium text-[#0F0F0F] tracking-tight" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{format(selectedDate, "EEEE, MMM do")}</h3>
             </div>
 
             <div className="flex-1 space-y-4 overflow-y-auto pr-2 scrollbar-hide">
@@ -429,7 +429,7 @@ export default function SchedulerPage() {
                   <motion.div
                     key={post.id}
                     whileHover={{ scale: 1.02 }}
-                    className={`p-5 rounded-[20px] border transition-all relative overflow-hidden group shadow-sm hover:shadow-md ${
+                    className={`p-5 rounded-[1.5rem] border transition-all relative overflow-hidden group shadow-sm hover:shadow-md ${
                       post.isPublishJob
                         ? "bg-indigo-50/40 border-indigo-100 hover:border-indigo-300"
                         : "bg-[#F9FAFB] border-[#E5E7EB] hover:border-[#6366F1]/[0.3]"
@@ -494,7 +494,7 @@ export default function SchedulerPage() {
               ) : (
                 <div className="h-full flex flex-col items-center justify-center text-center opacity-50 py-12">
                   <div className="w-16 h-16 rounded-full bg-neutral-100 flex items-center justify-center mb-6">
-                    <CalendarIcon className="w-8 h-8 text-neutral-400" />
+                    <CalendarIcon className="w-8 h-8 text-neutral-400" strokeWidth={1.5} />
                   </div>
                   <p className="font-bold text-neutral-500 mb-1">No content scheduled</p>
                   <p className="text-xs text-neutral-500 max-w-[200px]">Click the button below to add something to this day.</p>
@@ -504,7 +504,7 @@ export default function SchedulerPage() {
 
             <button
               onClick={() => router.push("/add-content")}
-              className="mt-8 w-full py-4 rounded-[14px] bg-[#F3F4F6] hover:bg-[#E5E7EB] border border-[#E5E7EB] transition-all text-[13px] font-[600] uppercase tracking-widest text-[#374151]"
+              className="mt-8 w-full py-4 rounded-full bg-[#F3F4F6] hover:bg-[#E5E7EB] border border-[#E5E7EB] transition-colors duration-300 text-[13px] font-semibold uppercase tracking-widest text-[#374151]"
             >
               Add to this day
             </button>
@@ -513,16 +513,16 @@ export default function SchedulerPage() {
       </div>
 
       {/* Production Timeline Reference Card */}
-      <div className="bg-white border border-[#E5E7EB] rounded-[20px] shadow-[0_4px_16px_rgb(0,0,0,0.04)] overflow-hidden">
+      <div className="bg-white border border-[#E5E7EB] rounded-[1.75rem] shadow-[0_4px_16px_rgb(0,0,0,0.04)] overflow-hidden">
         <button
           onClick={() => setProductionExpanded(v => !v)}
-          className="w-full flex items-center justify-between px-6 py-4 text-left hover:bg-[#F9FAFB] transition-colors"
+          className="w-full flex items-center justify-between px-6 py-4 text-left hover:bg-[#F9FAFB] transition-colors duration-300"
         >
           <div className="flex items-center gap-3">
-            <Clock className="w-4 h-4 text-[#6366F1]" />
+            <Clock className="w-4 h-4 text-[#6366F1]" strokeWidth={1.5} />
             <span className="text-sm font-bold text-[#374151]">Production Timeline Reference</span>
           </div>
-          <ChevronDown className={`w-4 h-4 text-neutral-400 transition-transform ${productionExpanded ? "rotate-180" : ""}`} />
+          <ChevronDown className={`w-4 h-4 text-neutral-400 transition-transform duration-300 ${productionExpanded ? "rotate-180" : ""}`} strokeWidth={1.5} />
         </button>
         <AnimatePresence>
           {productionExpanded && (
@@ -569,16 +569,16 @@ export default function SchedulerPage() {
       {/* Section 3: Upcoming Queue */}
       <section className="space-y-6">
         <div className="flex items-center gap-2">
-          <div className="p-1.5 rounded-lg bg-emerald-500/10">
-            <Layout className="w-5 h-5 text-emerald-400" />
+          <div className="p-1.5 rounded-full bg-emerald-500/10">
+            <Layout className="w-5 h-5 text-emerald-400" strokeWidth={1.5} />
           </div>
-          <h3 className="text-xl font-bold">Upcoming Queue</h3>
+          <h3 className="text-xl font-semibold" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Upcoming Queue</h3>
         </div>
-        
+
         {upcomingPosts.length === 0 ? (
-          <div className="flex items-center justify-center py-16 bg-white border border-[#E5E7EB] rounded-[20px] text-neutral-400">
+          <div className="flex items-center justify-center py-16 bg-white border border-[#E5E7EB] rounded-[1.75rem] text-neutral-400">
             <div className="text-center">
-              <Layout className="w-8 h-8 mx-auto mb-2 opacity-30" />
+              <Layout className="w-8 h-8 mx-auto mb-2 opacity-30" strokeWidth={1.5} />
               <p className="text-sm font-bold">No upcoming scheduled content</p>
             </div>
           </div>

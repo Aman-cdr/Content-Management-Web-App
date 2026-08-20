@@ -56,7 +56,7 @@ export default function AIAgentPanel({ onClose }) {
     }, 800);
 
     try {
-      const res = await httpClient.post(ENDPOINTS.AI.GENERATE, { prompt: aiPrompt });
+      const res = await httpClient.post(ENDPOINTS.AI.GENERATE, { prompt: aiPrompt }, { timeout: 120000 });
       clearInterval(stepTimer);
       setAiCurrentStep(AI_STEPS.length);
       if (res.success && res.data?.plan) {
@@ -98,16 +98,16 @@ export default function AIAgentPanel({ onClose }) {
     <div className="flex flex-col h-full">
       <div className="flex items-center justify-between px-6 py-5 border-b border-[#F4F5F8] shrink-0">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#6366F1] to-[#8B5CF6] flex items-center justify-center shadow-lg shadow-indigo-500/20">
-            <Sparkles className="w-5 h-5 text-white" />
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#6366F1] to-[#8B5CF6] flex items-center justify-center shadow-lg shadow-indigo-500/20">
+            <Sparkles className="w-5 h-5 text-white" strokeWidth={1.5} />
           </div>
           <div>
-            <h3 className="text-[15px] font-[800] text-[#0A0A0F] tracking-tight">AI Content Agent</h3>
+            <h3 className="text-[15px] font-semibold text-[#0A0A0F] tracking-tight" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>AI Content Agent</h3>
             <p className="text-[11px] text-[#9CA3AF] font-medium">Describe an idea → get a content plan</p>
           </div>
         </div>
-        <button onClick={onClose} className="p-2 hover:bg-black/5 rounded-xl text-neutral-400 transition">
-          <X className="w-4 h-4" />
+        <button onClick={onClose} className="p-2 hover:bg-black/5 rounded-full text-neutral-400 transition-colors duration-300">
+          <X className="w-4 h-4" strokeWidth={1.5} />
         </button>
       </div>
 
@@ -122,16 +122,16 @@ export default function AIAgentPanel({ onClose }) {
             onChange={(e) => setAiPrompt(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleAiGenerate()}
             disabled={aiGenerating}
-            className="w-full px-4 py-3 bg-[#F9FAFB] border border-[#E2E4E9] rounded-xl text-[13px] text-[#111318] placeholder:text-[#B8BCC8] focus:outline-none focus:border-[#6366F1] focus:ring-4 focus:ring-indigo-500/10 focus:bg-white transition-all disabled:opacity-60"
+            className="w-full px-4 py-3 bg-[#F9FAFB] border border-[#E2E4E9] rounded-full text-[13px] text-[#111318] placeholder:text-[#B8BCC8] focus:outline-none focus:border-[#6366F1] focus:ring-[3px] focus:ring-indigo-500/10 focus:bg-white transition-all duration-300 disabled:opacity-60"
           />
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.97 }}
             onClick={handleAiGenerate}
             disabled={!aiPrompt.trim() || aiGenerating}
-            className="w-full px-5 py-3 bg-gradient-to-r from-[#6366F1] to-[#8B5CF6] text-white rounded-xl text-[13px] font-bold transition-all shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="w-full px-5 py-3 bg-gradient-to-r from-[#6366F1] to-[#8B5CF6] text-white rounded-full text-[13px] font-semibold transition-all shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
-            {aiGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+            {aiGenerating ? <Loader2 className="w-4 h-4 animate-spin" strokeWidth={1.5} /> : <Send className="w-4 h-4" strokeWidth={1.5} />}
             {aiGenerating ? "Generating..." : "Generate"}
           </motion.button>
         </div>
@@ -155,14 +155,14 @@ export default function AIAgentPanel({ onClose }) {
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: i <= aiCurrentStep ? 1 : 0.35, x: 0 }}
                     transition={{ delay: i * 0.08 }}
-                    className={`flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all ${
+                    className={`flex items-center gap-3 px-4 py-2.5 rounded-full transition-all duration-300 ${
                       isActive ? "bg-indigo-50 border border-indigo-100" : isDone ? "bg-emerald-50/50" : "bg-transparent"
                     }`}
                   >
-                    <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${
+                    <div className={`w-7 h-7 rounded-full flex items-center justify-center ${
                       isDone ? "bg-emerald-500 text-white" : isActive ? "bg-indigo-500 text-white" : "bg-neutral-100 text-neutral-400"
                     }`}>
-                      {isDone ? <CheckCircle className="w-4 h-4" /> : isActive ? <Loader2 className="w-4 h-4 animate-spin" /> : <StepIcon className="w-4 h-4" />}
+                      {isDone ? <CheckCircle className="w-4 h-4" strokeWidth={1.75} /> : isActive ? <Loader2 className="w-4 h-4 animate-spin" strokeWidth={1.75} /> : <StepIcon className="w-4 h-4" strokeWidth={1.5} />}
                     </div>
                     <span className={`text-[13px] font-semibold ${
                       isDone ? "text-emerald-700" : isActive ? "text-indigo-700" : "text-neutral-400"
@@ -178,9 +178,9 @@ export default function AIAgentPanel({ onClose }) {
         {/* Error state */}
         {aiError && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-5 p-4 rounded-2xl bg-red-50 border border-red-100 flex items-center gap-3">
-            <AlertCircle className="w-5 h-5 text-red-500 shrink-0" />
+            <AlertCircle className="w-5 h-5 text-red-500 shrink-0" strokeWidth={1.5} />
             <p className="text-sm text-red-600">{aiError}</p>
-            <button onClick={() => { setAiError(null); setAiCurrentStep(-1); }} className="ml-auto text-xs font-bold text-red-500 hover:text-red-700">Dismiss</button>
+            <button onClick={() => { setAiError(null); setAiCurrentStep(-1); }} className="ml-auto text-xs font-bold text-red-500 hover:text-red-700 transition-colors duration-300">Dismiss</button>
           </motion.div>
         )}
 
@@ -200,13 +200,13 @@ export default function AIAgentPanel({ onClose }) {
                   whileTap={{ scale: 0.97 }}
                   onClick={handleSaveToLibrary}
                   disabled={aiSaving || aiSaved}
-                  className={`py-3 rounded-xl text-[13px] font-bold flex items-center justify-center gap-2 transition-all ${
+                  className={`py-3 rounded-full text-[13px] font-semibold flex items-center justify-center gap-2 transition-all ${
                     aiSaved
                       ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
                       : "bg-gradient-to-r from-[#6366F1] to-[#8B5CF6] text-white shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40"
                   }`}
                 >
-                  {aiSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : aiSaved ? <CheckCircle className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                  {aiSaving ? <Loader2 className="w-4 h-4 animate-spin" strokeWidth={1.5} /> : aiSaved ? <CheckCircle className="w-4 h-4" strokeWidth={1.5} /> : <Copy className="w-4 h-4" strokeWidth={1.5} />}
                   {aiSaving ? "Saving..." : aiSaved ? "Saved to Content Library!" : "Save to Content Library"}
                 </motion.button>
                 <motion.button
@@ -216,27 +216,27 @@ export default function AIAgentPanel({ onClose }) {
                     router.push(`/add-content?aiTitle=${encodeURIComponent(aiPlan.titles[0]?.title || "")}&aiDesc=${encodeURIComponent(aiPlan.metadata?.description || "")}`);
                     onClose?.();
                   }}
-                  className="px-5 py-3 border border-[#E2E4E9] text-[#374151] bg-white rounded-xl text-[13px] font-bold hover:bg-[#F4F5F8] transition-all flex items-center justify-center gap-2"
+                  className="px-5 py-3 border border-[#E2E4E9] text-[#374151] bg-white rounded-full text-[13px] font-semibold hover:bg-[#F4F5F8] transition-all duration-300 flex items-center justify-center gap-2"
                 >
-                  <ExternalLink className="w-4 h-4" /> Open in Editor
+                  <ExternalLink className="w-4 h-4" strokeWidth={1.5} /> Open in Editor
                 </motion.button>
               </div>
 
               {/* ── Titles Section ── */}
-              <div className="rounded-2xl border border-[#E2E4E9] overflow-hidden">
-                <button onClick={() => setExpandedSection(expandedSection === "titles" ? "" : "titles")} className="w-full flex items-center justify-between px-5 py-3.5 bg-[#F9FAFB] hover:bg-[#F4F5F8] transition-colors">
-                  <span className="flex items-center gap-2 text-[13px] font-bold text-[#0A0A0F]"><FileText className="w-4 h-4 text-indigo-500" /> Title Options ({aiPlan.titles?.length || 0})</span>
-                  {expandedSection === "titles" ? <ChevronUp className="w-4 h-4 text-neutral-400" /> : <ChevronDown className="w-4 h-4 text-neutral-400" />}
+              <div className="rounded-[1.75rem] border border-[#E2E4E9] overflow-hidden">
+                <button onClick={() => setExpandedSection(expandedSection === "titles" ? "" : "titles")} className="w-full flex items-center justify-between px-5 py-3.5 bg-[#F9FAFB] hover:bg-[#F4F5F8] transition-colors duration-300">
+                  <span className="flex items-center gap-2 text-[13px] font-bold text-[#0A0A0F]"><FileText className="w-4 h-4 text-indigo-500" strokeWidth={1.5} /> Title Options ({aiPlan.titles?.length || 0})</span>
+                  {expandedSection === "titles" ? <ChevronUp className="w-4 h-4 text-neutral-400" strokeWidth={1.5} /> : <ChevronDown className="w-4 h-4 text-neutral-400" strokeWidth={1.5} />}
                 </button>
                 <AnimatePresence>
                   {expandedSection === "titles" && (
                     <motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }} className="overflow-hidden">
                       <div className="p-4 space-y-2">
                         {aiPlan.titles?.map((t, i) => (
-                          <div key={i} className={`p-3 rounded-xl border transition-all ${
+                          <div key={i} className={`p-3 rounded-2xl border transition-all duration-300 ${
                             i === 0 ? "border-indigo-200 bg-indigo-50/50" : "border-[#E2E4E9] bg-white hover:border-indigo-200"
                           }`}>
-                            <p className="text-[13px] font-bold text-[#111318]">{i === 0 && <span className="text-[10px] font-black text-indigo-500 bg-indigo-100 px-1.5 py-0.5 rounded mr-2">TOP PICK</span>}{t.title}</p>
+                            <p className="text-[13px] font-bold text-[#111318]">{i === 0 && <span className="text-[10px] font-black text-indigo-500 bg-indigo-100 px-1.5 py-0.5 rounded-full mr-2">TOP PICK</span>}{t.title}</p>
                             <p className="text-[11px] text-[#9CA3AF] mt-1">{t.reason}</p>
                           </div>
                         ))}
@@ -247,10 +247,10 @@ export default function AIAgentPanel({ onClose }) {
               </div>
 
               {/* ── Description Section ── */}
-              <div className="rounded-2xl border border-[#E2E4E9] overflow-hidden">
-                <button onClick={() => setExpandedSection(expandedSection === "desc" ? "" : "desc")} className="w-full flex items-center justify-between px-5 py-3.5 bg-[#F9FAFB] hover:bg-[#F4F5F8] transition-colors">
-                  <span className="flex items-center gap-2 text-[13px] font-bold text-[#0A0A0F]"><Tag className="w-4 h-4 text-emerald-500" /> Description & Tags</span>
-                  {expandedSection === "desc" ? <ChevronUp className="w-4 h-4 text-neutral-400" /> : <ChevronDown className="w-4 h-4 text-neutral-400" />}
+              <div className="rounded-[1.75rem] border border-[#E2E4E9] overflow-hidden">
+                <button onClick={() => setExpandedSection(expandedSection === "desc" ? "" : "desc")} className="w-full flex items-center justify-between px-5 py-3.5 bg-[#F9FAFB] hover:bg-[#F4F5F8] transition-colors duration-300">
+                  <span className="flex items-center gap-2 text-[13px] font-bold text-[#0A0A0F]"><Tag className="w-4 h-4 text-emerald-500" strokeWidth={1.5} /> Description & Tags</span>
+                  {expandedSection === "desc" ? <ChevronUp className="w-4 h-4 text-neutral-400" strokeWidth={1.5} /> : <ChevronDown className="w-4 h-4 text-neutral-400" strokeWidth={1.5} />}
                 </button>
                 <AnimatePresence>
                   {expandedSection === "desc" && (
@@ -259,10 +259,10 @@ export default function AIAgentPanel({ onClose }) {
                         <p className="text-[13px] text-[#4B5264] whitespace-pre-wrap leading-relaxed">{aiPlan.metadata?.description}</p>
                         <div className="flex flex-wrap gap-1.5">
                           {aiPlan.metadata?.tags?.map((tag, i) => (
-                            <span key={i} className="text-[11px] font-semibold bg-indigo-50 text-indigo-600 px-2.5 py-1 rounded-lg">{tag}</span>
+                            <span key={i} className="text-[11px] font-semibold bg-indigo-50 text-indigo-600 px-2.5 py-1 rounded-full">{tag}</span>
                           ))}
                           {aiPlan.metadata?.hashtags?.map((h, i) => (
-                            <span key={i} className="text-[11px] font-semibold bg-blue-50 text-blue-600 px-2.5 py-1 rounded-lg">{h}</span>
+                            <span key={i} className="text-[11px] font-semibold bg-blue-50 text-blue-600 px-2.5 py-1 rounded-full">{h}</span>
                           ))}
                         </div>
                       </div>
@@ -272,26 +272,26 @@ export default function AIAgentPanel({ onClose }) {
               </div>
 
               {/* ── Script Outline Section ── */}
-              <div className="rounded-2xl border border-[#E2E4E9] overflow-hidden">
-                <button onClick={() => setExpandedSection(expandedSection === "script" ? "" : "script")} className="w-full flex items-center justify-between px-5 py-3.5 bg-[#F9FAFB] hover:bg-[#F4F5F8] transition-colors">
-                  <span className="flex items-center gap-2 text-[13px] font-bold text-[#0A0A0F]"><BookOpen className="w-4 h-4 text-amber-500" /> Script Outline</span>
-                  {expandedSection === "script" ? <ChevronUp className="w-4 h-4 text-neutral-400" /> : <ChevronDown className="w-4 h-4 text-neutral-400" />}
+              <div className="rounded-[1.75rem] border border-[#E2E4E9] overflow-hidden">
+                <button onClick={() => setExpandedSection(expandedSection === "script" ? "" : "script")} className="w-full flex items-center justify-between px-5 py-3.5 bg-[#F9FAFB] hover:bg-[#F4F5F8] transition-colors duration-300">
+                  <span className="flex items-center gap-2 text-[13px] font-bold text-[#0A0A0F]"><BookOpen className="w-4 h-4 text-amber-500" strokeWidth={1.5} /> Script Outline</span>
+                  {expandedSection === "script" ? <ChevronUp className="w-4 h-4 text-neutral-400" strokeWidth={1.5} /> : <ChevronDown className="w-4 h-4 text-neutral-400" strokeWidth={1.5} />}
                 </button>
                 <AnimatePresence>
                   {expandedSection === "script" && (
                     <motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }} className="overflow-hidden">
                       <div className="p-4 space-y-4">
-                        <div className="p-3 rounded-xl bg-amber-50/50 border border-amber-100">
+                        <div className="p-3 rounded-2xl bg-amber-50/50 border border-amber-100">
                           <p className="text-[10px] font-black text-amber-600 uppercase tracking-wider mb-1">🎣 Hook</p>
                           <p className="text-[13px] text-[#374151] leading-relaxed">{aiPlan.script?.hook}</p>
                         </div>
                         {aiPlan.script?.mainPoints?.map((point, i) => (
-                          <div key={i} className="p-3 rounded-xl bg-white border border-[#E2E4E9]">
+                          <div key={i} className="p-3 rounded-2xl bg-white border border-[#E2E4E9]">
                             <p className="text-[12px] font-bold text-indigo-600 mb-1">{point.heading}</p>
                             <p className="text-[13px] text-[#4B5264] leading-relaxed">{point.content}</p>
                           </div>
                         ))}
-                        <div className="p-3 rounded-xl bg-emerald-50/50 border border-emerald-100">
+                        <div className="p-3 rounded-2xl bg-emerald-50/50 border border-emerald-100">
                           <p className="text-[10px] font-black text-emerald-600 uppercase tracking-wider mb-1">📢 Call to Action</p>
                           <p className="text-[13px] text-[#374151] leading-relaxed">{aiPlan.script?.cta}</p>
                         </div>
@@ -302,16 +302,16 @@ export default function AIAgentPanel({ onClose }) {
               </div>
 
               {/* ── Thumbnail Prompt Section ── */}
-              <div className="rounded-2xl border border-[#E2E4E9] overflow-hidden">
-                <button onClick={() => setExpandedSection(expandedSection === "thumb" ? "" : "thumb")} className="w-full flex items-center justify-between px-5 py-3.5 bg-[#F9FAFB] hover:bg-[#F4F5F8] transition-colors">
-                  <span className="flex items-center gap-2 text-[13px] font-bold text-[#0A0A0F]"><ImageIcon className="w-4 h-4 text-rose-500" /> Thumbnail Prompt</span>
-                  {expandedSection === "thumb" ? <ChevronUp className="w-4 h-4 text-neutral-400" /> : <ChevronDown className="w-4 h-4 text-neutral-400" />}
+              <div className="rounded-[1.75rem] border border-[#E2E4E9] overflow-hidden">
+                <button onClick={() => setExpandedSection(expandedSection === "thumb" ? "" : "thumb")} className="w-full flex items-center justify-between px-5 py-3.5 bg-[#F9FAFB] hover:bg-[#F4F5F8] transition-colors duration-300">
+                  <span className="flex items-center gap-2 text-[13px] font-bold text-[#0A0A0F]"><ImageIcon className="w-4 h-4 text-rose-500" strokeWidth={1.5} /> Thumbnail Prompt</span>
+                  {expandedSection === "thumb" ? <ChevronUp className="w-4 h-4 text-neutral-400" strokeWidth={1.5} /> : <ChevronDown className="w-4 h-4 text-neutral-400" strokeWidth={1.5} />}
                 </button>
                 <AnimatePresence>
                   {expandedSection === "thumb" && (
                     <motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }} className="overflow-hidden">
                       <div className="p-4">
-                        <p className="text-[13px] text-[#4B5264] leading-relaxed italic bg-rose-50/40 p-3 rounded-xl border border-rose-100">{aiPlan.thumbnailPrompt}</p>
+                        <p className="text-[13px] text-[#4B5264] leading-relaxed italic bg-rose-50/40 p-3 rounded-2xl border border-rose-100">{aiPlan.thumbnailPrompt}</p>
                       </div>
                     </motion.div>
                   )}

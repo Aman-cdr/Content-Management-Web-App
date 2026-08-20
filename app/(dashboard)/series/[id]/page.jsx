@@ -168,7 +168,7 @@ function AIGeneratorSection({ series, onApply, onClose }) {
           </div>
           <div>
             <h3 className="text-[15px] font-[800] text-white leading-none">AI Episode Generator</h3>
-            <p className="text-[11px] text-white/60 mt-0.5">Powered by Groq · Llama 3.3 70B · max 30 episodes</p>
+            <p className="text-[11px] text-white/60 mt-0.5">Powered by Groq · GPT-OSS 120B · max 30 episodes</p>
           </div>
         </div>
         <button onClick={onClose} className="relative p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white/80 transition-colors">

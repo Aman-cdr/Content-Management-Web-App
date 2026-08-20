@@ -30,25 +30,25 @@ export default function RichTextEditor({ content, onChange }) {
     return null;
   }
 
-  const toggleBtnClass = (isActive) => 
-    `p-2 rounded-lg transition-colors ${isActive ? 'bg-blue-100 text-blue-600' : 'text-neutral-500 hover:bg-neutral-100 hover:text-[#0F0F0F]'}`;
+  const toggleBtnClass = (isActive) =>
+    `p-2 rounded-full transition-colors duration-300 ${isActive ? 'bg-blue-100 text-blue-600' : 'text-neutral-500 hover:bg-neutral-100 hover:text-[#0F0F0F]'}`;
 
   return (
-    <div className="w-full bg-[#F9FAFB] border border-black/[0.06] rounded-2xl overflow-hidden focus-within:ring-2 focus-within:ring-blue-500/20 transition-all">
+    <div className="w-full bg-[#F9FAFB] border border-black/[0.06] rounded-[1.5rem] overflow-hidden focus-within:ring-[3px] focus-within:ring-blue-500/15 transition-all duration-300">
       <div className="flex flex-wrap items-center gap-1 p-2 border-b border-black/[0.04] bg-white">
         <button
           type="button"
           onClick={() => editor.chain().focus().toggleBold().run()}
           className={toggleBtnClass(editor.isActive('bold'))}
         >
-          <Bold className="w-4 h-4" />
+          <Bold className="w-4 h-4" strokeWidth={1.75} />
         </button>
         <button
           type="button"
           onClick={() => editor.chain().focus().toggleItalic().run()}
           className={toggleBtnClass(editor.isActive('italic'))}
         >
-          <Italic className="w-4 h-4" />
+          <Italic className="w-4 h-4" strokeWidth={1.75} />
         </button>
         <div className="w-px h-4 bg-black/[0.1] mx-1" />
         <button
@@ -56,21 +56,21 @@ export default function RichTextEditor({ content, onChange }) {
           onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
           className={toggleBtnClass(editor.isActive('heading', { level: 2 }))}
         >
-          <Heading2 className="w-4 h-4" />
+          <Heading2 className="w-4 h-4" strokeWidth={1.75} />
         </button>
         <button
           type="button"
           onClick={() => editor.chain().focus().toggleBulletList().run()}
           className={toggleBtnClass(editor.isActive('bulletList'))}
         >
-          <List className="w-4 h-4" />
+          <List className="w-4 h-4" strokeWidth={1.75} />
         </button>
         <button
           type="button"
           onClick={() => editor.chain().focus().toggleOrderedList().run()}
           className={toggleBtnClass(editor.isActive('orderedList'))}
         >
-          <ListOrdered className="w-4 h-4" />
+          <ListOrdered className="w-4 h-4" strokeWidth={1.75} />
         </button>
         <div className="w-px h-4 bg-black/[0.1] mx-1" />
         <button
@@ -78,7 +78,7 @@ export default function RichTextEditor({ content, onChange }) {
           onClick={() => editor.chain().focus().toggleBlockquote().run()}
           className={toggleBtnClass(editor.isActive('blockquote'))}
         >
-          <Quote className="w-4 h-4" />
+          <Quote className="w-4 h-4" strokeWidth={1.75} />
         </button>
       </div>
       

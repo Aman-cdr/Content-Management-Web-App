@@ -86,10 +86,35 @@ const CLIP_TYPE_COLORS = {
 
 // ---------- Shared Components ----------
 
+// Animates a stat pill's numeric value counting up from 0 on mount/change.
+// Accepts plain numbers or "N%" strings — non-numeric values render as-is.
+function CountUp({ value, duration = 700 }) {
+  const numeric = typeof value === "number" ? value : parseFloat(value);
+  const suffix = typeof value === "string" ? value.replace(/^-?[\d.]+/, "") : "";
+  const isNumeric = Number.isFinite(numeric);
+  const [display, setDisplay] = useState(isNumeric ? 0 : null);
+
+  useEffect(() => {
+    if (!isNumeric) return;
+    let raf;
+    const start = performance.now();
+    const tick = (now) => {
+      const t = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - t, 3);
+      setDisplay(Math.round(numeric * eased));
+      if (t < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [numeric, duration, isNumeric]);
+
+  return <>{isNumeric ? `${display}${suffix}` : value}</>;
+}
+
 function StatusBadge({ type }) {
   const config = TYPE_CONFIG[type] || TYPE_CONFIG["Course"];
   return (
-    <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border ${config.bg} ${config.text} ${config.border}`}>
+    <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${config.bg} ${config.text} ${config.border}`}>
       {type}
     </span>
   );
@@ -212,7 +237,7 @@ export default function SeriesPlannerPage() {
       {/* ── HEADER ── */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h2 className="text-4xl font-black tracking-tight text-[#0F0F0F] mb-2">Series Planner</h2>
+          <h2 className="text-4xl font-medium tracking-tight text-[#0F0F0F] mb-3" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Series Planner</h2>
           <div className="flex flex-wrap gap-2">
             {[
               { label: "Total Series", val: stats.total },
@@ -220,9 +245,9 @@ export default function SeriesPlannerPage() {
               { label: "Total Episodes", val: stats.episodes },
               { label: "Avg Completion", val: `${stats.avg}%` },
             ].map((pill) => (
-              <div key={pill.label} className="bg-[#F4F5F8] border border-[#E2E4E9] rounded-lg px-3 py-1.5 text-[11px] font-bold text-[#4B5264] flex items-center gap-2">
+              <div key={pill.label} className="bg-[#F4F5F8] border border-[#E2E4E9] rounded-full px-3.5 py-1.5 text-[11px] font-semibold text-[#4B5264] flex items-center gap-2">
                 <span className="opacity-60">{pill.label}</span>
-                <span className="text-[#0F0F0F] font-black">{pill.val}</span>
+                <span className="text-[#0F0F0F] font-bold tabular-nums"><CountUp value={pill.val} /></span>
               </div>
             ))}
           </div>
@@ -230,36 +255,38 @@ export default function SeriesPlannerPage() {
 
         {activeTab === "youtube" && (
           <div className="flex items-center gap-3">
-            <div className="flex p-1 bg-white border border-[#E2E4E9] rounded-xl">
+            <div className="flex p-1 bg-white border border-[#E2E4E9] rounded-full">
               <button
                 onClick={() => setView("grid")}
-                className={`p-2 rounded-lg transition-all ${view === "grid" ? "bg-[#F4F5F8] text-indigo-600 shadow-sm" : "text-[#8A91A8] hover:text-[#4B5264]"}`}
+                className={`p-2 rounded-full transition-all duration-300 ${view === "grid" ? "bg-[#F4F5F8] text-indigo-600 shadow-sm" : "text-[#8A91A8] hover:text-[#4B5264]"}`}
               >
-                <LayoutGrid className="w-4 h-4" />
+                <LayoutGrid className="w-4 h-4" strokeWidth={1.5} />
               </button>
               <button
                 onClick={() => setView("list")}
-                className={`p-2 rounded-lg transition-all ${view === "list" ? "bg-[#F4F5F8] text-indigo-600 shadow-sm" : "text-[#8A91A8] hover:text-[#4B5264]"}`}
+                className={`p-2 rounded-full transition-all duration-300 ${view === "list" ? "bg-[#F4F5F8] text-indigo-600 shadow-sm" : "text-[#8A91A8] hover:text-[#4B5264]"}`}
               >
-                <List className="w-4 h-4" />
+                <List className="w-4 h-4" strokeWidth={1.5} />
               </button>
             </div>
             <button
               onClick={() => handleOpenModal()}
-              className="bg-[#4F46E5] hover:bg-[#4338CA] text-white px-6 py-3 rounded-2xl text-sm font-black uppercase tracking-widest flex items-center gap-2 shadow-lg shadow-indigo-500/20 transition-all active:scale-95"
+              className="group relative flex items-center gap-1 bg-[#4F46E5] hover:bg-[#4338CA] text-white pl-5 pr-1.5 py-1.5 rounded-full text-sm font-semibold shadow-lg shadow-indigo-500/20 transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] active:scale-[0.98]"
             >
-              <Plus className="w-5 h-5" />
               <span>New Series</span>
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/15 transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:rotate-90">
+                <Plus className="w-4 h-4" strokeWidth={1.75} />
+              </span>
             </button>
           </div>
         )}
       </div>
 
       {/* ── TABS ── */}
-      <div className="flex gap-1 p-1 bg-[#F4F5F8] border border-[#E2E4E9] rounded-2xl w-fit">
+      <div className="flex gap-1 p-1 bg-[#F4F5F8] border border-[#E2E4E9] rounded-full w-fit">
         <button
           onClick={() => setActiveTab("youtube")}
-          className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${
+          className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 ${
             activeTab === "youtube"
               ? "bg-white text-[#0F0F0F] shadow-sm border border-[#E2E4E9]"
               : "text-[#8A91A8] hover:text-[#4B5264]"
@@ -270,14 +297,14 @@ export default function SeriesPlannerPage() {
         </button>
         <button
           onClick={() => setActiveTab("shorts")}
-          className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${
+          className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 ${
             activeTab === "shorts"
               ? "bg-white text-[#0F0F0F] shadow-sm border border-[#E2E4E9]"
               : "text-[#8A91A8] hover:text-[#4B5264]"
           }`}
         >
           <div className="flex items-center gap-1">
-            <Film className={`w-3.5 h-3.5 ${activeTab === "shorts" ? "text-amber-500" : ""}`} />
+            <Film className={`w-3.5 h-3.5 ${activeTab === "shorts" ? "text-amber-500" : ""}`} strokeWidth={1.5} />
             <FaInstagram className={`w-3.5 h-3.5 ${activeTab === "shorts" ? "text-pink-500" : ""}`} />
           </div>
           YT Shorts & Instagram
@@ -316,7 +343,7 @@ export default function SeriesPlannerPage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
-                  className="bg-white border border-[#E2E4E9] rounded-3xl overflow-hidden shadow-sm"
+                  className="bg-white border border-[#E2E4E9] rounded-[1.75rem] overflow-hidden shadow-[0_1px_4px_rgba(0,0,0,0.03),0_12px_32px_-12px_rgba(0,0,0,0.08)]"
                 >
                   <table className="w-full text-left border-collapse">
                     <thead>
@@ -332,13 +359,13 @@ export default function SeriesPlannerPage() {
                     </thead>
                     <tbody>
                       {activeSeries.map((s) => (
-                        <tr key={s.id} className="border-b border-[#F4F5F8] hover:bg-[#F9FAFB] transition-colors group">
+                        <tr key={s.id} className="border-b border-[#F4F5F8] hover:bg-[#F9FAFB] transition-colors duration-300 group">
                           <td className="px-6 py-4">
                             <Link href={`/series/${s.id}`} className="flex items-center gap-3">
                               <div className="w-20 aspect-video rounded-xl overflow-hidden border border-[#E2E4E9] shadow-sm shrink-0">
                                 <EpisodeThumbnail title={s.name} size="full" rounded="rounded-none" epNumber={null} showFace={false} showPlay={false} className="w-full h-full object-cover" />
                               </div>
-                              <span className="font-bold text-[#111318] group-hover:text-indigo-600 transition-colors">{s.name}</span>
+                              <span className="font-bold text-[#111318] group-hover:text-indigo-600 transition-colors duration-300">{s.name}</span>
                             </Link>
                           </td>
                           <td className="px-6 py-4"><StatusBadge type={s.type} /></td>
@@ -357,9 +384,9 @@ export default function SeriesPlannerPage() {
                           </td>
                           <td className="px-6 py-4 text-right">
                             <div className="flex items-center justify-end gap-2">
-                              <Link href={`/series/${s.id}`} className="p-2 hover:bg-neutral-100 rounded-lg text-neutral-400 hover:text-indigo-600"><ArrowRight className="w-4 h-4" /></Link>
-                              <button onClick={() => handleOpenModal(s)} className="p-2 hover:bg-neutral-100 rounded-lg text-neutral-400 hover:text-blue-600"><Edit2 className="w-4 h-4" /></button>
-                              <button onClick={() => handleDeleteClick(s)} className="p-2 hover:bg-neutral-100 rounded-lg text-neutral-400 hover:text-red-600"><Trash2 className="w-4 h-4" /></button>
+                              <Link href={`/series/${s.id}`} className="p-2 hover:bg-neutral-100 rounded-full text-neutral-400 hover:text-indigo-600 transition-colors duration-300"><ArrowRight className="w-4 h-4" strokeWidth={1.5} /></Link>
+                              <button onClick={() => handleOpenModal(s)} className="p-2 hover:bg-neutral-100 rounded-full text-neutral-400 hover:text-blue-600 transition-colors duration-300"><Edit2 className="w-4 h-4" strokeWidth={1.5} /></button>
+                              <button onClick={() => handleDeleteClick(s)} className="p-2 hover:bg-neutral-100 rounded-full text-neutral-400 hover:text-red-600 transition-colors duration-300"><Trash2 className="w-4 h-4" strokeWidth={1.5} /></button>
                             </div>
                           </td>
                         </tr>
@@ -375,9 +402,9 @@ export default function SeriesPlannerPage() {
               <div className="mt-12">
                 <button
                   onClick={() => setIsArchivedOpen(!isArchivedOpen)}
-                  className="flex items-center gap-2 text-[#8A91A8] hover:text-[#4B5264] font-bold text-sm transition-colors mb-6"
+                  className="flex items-center gap-2 text-[#8A91A8] hover:text-[#4B5264] font-bold text-sm transition-colors duration-300 mb-6"
                 >
-                  {isArchivedOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                  {isArchivedOpen ? <ChevronUp className="w-4 h-4" strokeWidth={1.5} /> : <ChevronDown className="w-4 h-4" strokeWidth={1.5} />}
                   <span>Archived Series ({archivedSeries.length})</span>
                 </button>
                 <AnimatePresence>
@@ -413,17 +440,18 @@ export default function SeriesPlannerPage() {
       <AnimatePresence>
         {isModalOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsModalOpen(false)} className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsModalOpen(false)} className="absolute inset-0 bg-black/80 backdrop-blur-md" />
             <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-2xl bg-white border border-[#E2E4E9] rounded-[32px] overflow-hidden shadow-2xl flex flex-col max-h-[90vh]"
+              initial={{ opacity: 0, scale: 0.96, y: 16, filter: "blur(4px)" }}
+              animate={{ opacity: 1, scale: 1, y: 0, filter: "blur(0px)" }}
+              exit={{ opacity: 0, scale: 0.96, y: 16, filter: "blur(4px)" }}
+              transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
+              className="relative w-full max-w-2xl bg-white border border-[#E2E4E9] rounded-[1.75rem] overflow-hidden shadow-[0_24px_70px_-16px_rgba(0,0,0,0.25)] flex flex-col max-h-[90vh]"
             >
               <div className="p-8 border-b border-[#F4F5F8] flex justify-between items-center bg-[#FAFBFC]">
-                <h3 className="text-2xl font-black text-[#0F0F0F]">{editingSeries ? "Edit Series" : "Create New Series"}</h3>
-                <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-[#F4F5F8] rounded-xl transition-colors">
-                  <X className="w-6 h-6 text-neutral-400" />
+                <h3 className="text-2xl font-semibold text-[#0F0F0F]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{editingSeries ? "Edit Series" : "Create New Series"}</h3>
+                <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-[#F4F5F8] rounded-full transition-colors duration-300">
+                  <X className="w-6 h-6 text-neutral-400" strokeWidth={1.5} />
                 </button>
               </div>
 
@@ -436,7 +464,7 @@ export default function SeriesPlannerPage() {
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       placeholder="Enter series name (e.g., Next.js Masterclass)"
-                      className="w-full bg-[#F9FAFB] border border-[#E2E4E9] rounded-2xl px-6 py-4 text-sm font-bold outline-none focus:border-indigo-500 transition-all placeholder:text-neutral-300"
+                      className="w-full bg-[#F9FAFB] border border-[#E2E4E9] rounded-full px-6 py-4 text-sm font-bold outline-none focus:border-indigo-500 focus:ring-[3px] focus:ring-indigo-500/15 transition-all duration-300 placeholder:text-neutral-300"
                     />
                   </div>
                   <div>
@@ -445,7 +473,7 @@ export default function SeriesPlannerPage() {
                       value={formData.description}
                       onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                       placeholder="What is this series about?"
-                      className="w-full bg-[#F9FAFB] border border-[#E2E4E9] rounded-2xl px-6 py-4 text-sm font-bold outline-none focus:border-indigo-500 transition-all placeholder:text-neutral-300 h-32 resize-none"
+                      className="w-full bg-[#F9FAFB] border border-[#E2E4E9] rounded-[1.5rem] px-6 py-4 text-sm font-bold outline-none focus:border-indigo-500 focus:ring-[3px] focus:ring-indigo-500/15 transition-all duration-300 placeholder:text-neutral-300 h-32 resize-none"
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
@@ -454,7 +482,7 @@ export default function SeriesPlannerPage() {
                       <select
                         value={formData.type}
                         onChange={(e) => setFormData({ ...formData, type: e.target.value, theme: e.target.value })}
-                        className="w-full bg-[#F9FAFB] border border-[#E2E4E9] rounded-2xl px-6 py-4 text-sm font-bold outline-none focus:border-indigo-500 transition-all appearance-none cursor-pointer"
+                        className="w-full bg-[#F9FAFB] border border-[#E2E4E9] rounded-full px-6 py-4 text-sm font-bold outline-none focus:border-indigo-500 focus:ring-[3px] focus:ring-indigo-500/15 transition-all duration-300 appearance-none cursor-pointer"
                       >
                         {Object.keys(TYPE_CONFIG).map((t) => <option key={t} value={t}>{t}</option>)}
                       </select>
@@ -466,7 +494,7 @@ export default function SeriesPlannerPage() {
                         required
                         value={formData.episodes}
                         onChange={(e) => setFormData({ ...formData, episodes: parseInt(e.target.value) })}
-                        className="w-full bg-[#F9FAFB] border border-[#E2E4E9] rounded-2xl px-6 py-4 text-sm font-bold outline-none focus:border-indigo-500 transition-all"
+                        className="w-full bg-[#F9FAFB] border border-[#E2E4E9] rounded-full px-6 py-4 text-sm font-bold outline-none focus:border-indigo-500 focus:ring-[3px] focus:ring-indigo-500/15 transition-all duration-300"
                       />
                     </div>
                   </div>
@@ -477,11 +505,11 @@ export default function SeriesPlannerPage() {
                       required
                       value={formData.estCompletion}
                       onChange={(e) => setFormData({ ...formData, estCompletion: e.target.value })}
-                      className="w-full bg-[#F9FAFB] border border-[#E2E4E9] rounded-2xl px-6 py-4 text-sm font-bold outline-none focus:border-indigo-500 transition-all"
+                      className="w-full bg-[#F9FAFB] border border-[#E2E4E9] rounded-full px-6 py-4 text-sm font-bold outline-none focus:border-indigo-500 focus:ring-[3px] focus:ring-indigo-500/15 transition-all duration-300"
                     />
                   </div>
                 </div>
-                <button type="submit" disabled={isSaving} className="w-full py-4 rounded-2xl text-white text-sm font-black uppercase tracking-widest transition-all disabled:opacity-60 btn-primary">
+                <button type="submit" disabled={isSaving} className="w-full py-4 rounded-full text-white text-sm font-black uppercase tracking-widest transition-all duration-300 disabled:opacity-60 btn-primary">
                   {isSaving ? "Saving…" : editingSeries ? "Save Changes" : "Create Series"}
                 </button>
               </form>
@@ -501,15 +529,16 @@ export default function SeriesPlannerPage() {
           <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsDeleteModalOpen(false)} className="absolute inset-0 bg-black/60 backdrop-blur-md" />
             <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-sm bg-white border border-[#E2E4E9] rounded-[32px] p-8 shadow-2xl text-center"
+              initial={{ opacity: 0, scale: 0.96, y: 16, filter: "blur(4px)" }}
+              animate={{ opacity: 1, scale: 1, y: 0, filter: "blur(0px)" }}
+              exit={{ opacity: 0, scale: 0.96, y: 16, filter: "blur(4px)" }}
+              transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
+              className="relative w-full max-w-sm bg-white border border-[#E2E4E9] rounded-[1.75rem] p-8 shadow-[0_24px_70px_-16px_rgba(0,0,0,0.25)] text-center"
             >
-              <h3 className="text-2xl font-black text-[#0F0F0F] mb-4">Delete Series?</h3>
+              <h3 className="text-2xl font-semibold text-[#0F0F0F] mb-4" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Delete Series?</h3>
               <div className="flex gap-3">
-                <button onClick={() => setIsDeleteModalOpen(false)} className="flex-1 py-4 rounded-2xl border border-[#E2E4E9] text-sm font-black uppercase tracking-widest text-[#4B5264] hover:bg-[#F9FAFB] transition-all">Cancel</button>
-                <button onClick={confirmDelete} className="flex-1 py-4 rounded-2xl bg-red-500 text-white text-sm font-black uppercase tracking-widest hover:bg-red-600 transition-all">Delete</button>
+                <button onClick={() => setIsDeleteModalOpen(false)} className="flex-1 py-4 rounded-full border border-[#E2E4E9] text-sm font-black uppercase tracking-widest text-[#4B5264] hover:bg-[#F9FAFB] transition-colors duration-300">Cancel</button>
+                <button onClick={confirmDelete} className="flex-1 py-4 rounded-full bg-red-500 text-white text-sm font-black uppercase tracking-widest hover:bg-red-600 transition-colors duration-300">Delete</button>
               </div>
             </motion.div>
           </div>
@@ -729,13 +758,13 @@ function ShortsPlanner() {
   return (
     <div className="space-y-6">
       {/* Source Video Panel */}
-      <div className="bg-white border border-[#E2E4E9] rounded-2xl overflow-hidden shadow-sm">
+      <div className="bg-white border border-[#E2E4E9] rounded-[1.75rem] overflow-hidden shadow-[0_1px_4px_rgba(0,0,0,0.04),0_12px_32px_-8px_rgba(0,0,0,0.06)]">
         <div className="px-6 py-4 border-b border-[#F4F5F8] flex items-center gap-3" style={{ background: "var(--t-primary-light)" }}>
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center shadow-sm" style={{ background: "var(--t-primary)" }}>
-            <Film className="w-4 h-4 text-white" />
+          <div className="w-9 h-9 rounded-full flex items-center justify-center shadow-sm" style={{ background: "var(--t-primary)" }}>
+            <Film className="w-4 h-4 text-white" strokeWidth={1.5} />
           </div>
           <div>
-            <h3 className="text-[15px] font-[800] text-[#0F0F0F]">Source Video</h3>
+            <h3 className="text-[15px] font-semibold text-[#0F0F0F]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Source Video</h3>
             <p className="text-[11px] text-neutral-400">Paste a full-length YouTube URL — AI reads the video title to generate specific clip ideas</p>
           </div>
         </div>
@@ -751,28 +780,41 @@ function ShortsPlanner() {
               value={sourceUrl}
               onChange={(e) => handleUrlChange(e.target.value)}
               placeholder="https://www.youtube.com/watch?v=..."
-              className="w-full bg-[#F9FAFB] border border-[#E2E4E9] rounded-xl pl-10 pr-10 py-3 text-sm font-medium outline-none focus:border-amber-400 transition-all placeholder:text-neutral-300"
+              className="w-full bg-[#F9FAFB] border border-[#E2E4E9] rounded-full pl-10 pr-10 py-3 text-sm font-medium outline-none focus:border-amber-400 focus:ring-[3px] focus:ring-amber-400/10 transition-all duration-300 placeholder:text-neutral-300"
             />
           </div>
+
+          {/* Skeleton — shown while oEmbed/duration lookups are in flight, so the
+              panel doesn't leave a jarring empty gap between the input and grid. */}
+          {isFetchingInfo && !videoInfo && (
+            <div className="flex items-center gap-3 p-3 bg-[#F9FAFB] border border-[#E2E4E9] rounded-2xl animate-pulse">
+              <div className="w-20 aspect-video rounded-xl bg-neutral-200 shrink-0" />
+              <div className="min-w-0 flex-1 space-y-2">
+                <div className="h-3 bg-neutral-200 rounded-full w-3/4" />
+                <div className="h-2.5 bg-neutral-200 rounded-full w-1/3" />
+              </div>
+            </div>
+          )}
 
           {/* Video preview card — shown once URL is detected */}
           {videoInfo && (
             <motion.div
-              initial={{ opacity: 0, y: -6 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="flex items-center gap-3 p-3 bg-[#F9FAFB] border border-[#E2E4E9] rounded-xl"
+              initial={{ opacity: 0, y: -6, filter: "blur(4px)" }}
+              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
+              className="flex items-center gap-3 p-3 bg-[#F9FAFB] border border-[#E2E4E9] rounded-2xl"
             >
               <img
                 src={ytThumbnail(videoInfo.videoId)}
                 alt={videoInfo.title}
-                className="w-20 aspect-video rounded-lg object-cover border border-[#E2E4E9] shrink-0"
+                className="w-20 aspect-video rounded-xl object-cover border border-[#E2E4E9] shrink-0"
                 onError={(e) => { e.target.src = `https://img.youtube.com/vi/${videoInfo.videoId}/hqdefault.jpg`; e.target.onerror = () => { e.target.src = `https://img.youtube.com/vi/${videoInfo.videoId}/mqdefault.jpg`; e.target.onerror = null; }; }}
               />
               <div className="min-w-0">
-                <p className="text-[13px] font-bold text-[#111318] line-clamp-2 leading-snug">{videoInfo.title}</p>
+                <p className="text-[13px] font-semibold text-[#111318] line-clamp-2 leading-snug">{videoInfo.title}</p>
                 <p className="text-[11px] text-neutral-400 mt-0.5">{videoInfo.channel}</p>
               </div>
-              <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 ml-auto" />
+              <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 ml-auto" strokeWidth={1.5} />
             </motion.div>
           )}
 
@@ -789,18 +831,19 @@ function ShortsPlanner() {
 
             return (
               <motion.div
-                initial={{ opacity: 0, y: -6 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="p-4 bg-[#F9FAFB] border border-[#E2E4E9] rounded-xl"
+                initial={{ opacity: 0, y: -6, filter: "blur(4px)" }}
+                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
+                className="p-4 bg-[#F9FAFB] border border-[#E2E4E9] rounded-2xl"
               >
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-[11px] font-black uppercase tracking-widest text-neutral-500">Processing Timeframe</span>
+                  <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-neutral-500">Processing Timeframe</span>
                   <div className="flex items-center gap-2">
-                    <span className="text-[11px] font-bold" style={{ color: "var(--t-primary)" }}>{formatSeconds(rangeEnd - rangeStart)} selected</span>
+                    <span className="text-[11px] font-semibold" style={{ color: "var(--t-primary)" }}>{formatSeconds(rangeEnd - rangeStart)} selected</span>
                     {!isFullRange && (
                       <button
                         onClick={() => { setRangeStart(0); setRangeEnd(videoDuration); }}
-                        className="text-[10px] font-bold text-neutral-400 hover:text-neutral-600 underline transition"
+                        className="text-[10px] font-semibold text-neutral-400 hover:text-neutral-600 underline transition-colors duration-300"
                       >
                         Reset
                       </button>
@@ -813,19 +856,29 @@ function ShortsPlanner() {
                     regardless of where the handles sat, which was misleading. */}
                 <div className="relative pt-6">
                   <div
-                    className="absolute top-0 text-[10px] font-black text-white px-1.5 py-0.5 rounded whitespace-nowrap"
+                    className="absolute top-0 text-[10px] font-bold text-white px-1.5 py-0.5 rounded-full whitespace-nowrap"
                     style={{ left: `${clamp(startPct)}%`, transform: "translateX(-50%)", background: "var(--t-primary)" }}
                   >
                     {formatSeconds(rangeStart)}
                   </div>
                   <div
-                    className="absolute top-0 text-[10px] font-black text-white px-1.5 py-0.5 rounded whitespace-nowrap"
+                    className="absolute top-0 text-[10px] font-bold text-white px-1.5 py-0.5 rounded-full whitespace-nowrap"
                     style={{ left: `${clamp(endPct)}%`, transform: "translateX(-50%)", background: "var(--t-primary)" }}
                   >
                     {formatSeconds(rangeEnd)}
                   </div>
 
                   <div className="relative h-6 flex items-center mb-1">
+                    {/* Faux waveform texture — purely decorative, gives the track
+                        a "scanning audio" feel instead of a plain HTML range bar */}
+                    <div
+                      className="absolute left-0 right-0 h-3 rounded-full opacity-40 pointer-events-none"
+                      style={{
+                        backgroundImage: "repeating-linear-gradient(90deg, currentColor 0px, currentColor 2px, transparent 2px, transparent 5px)",
+                        color: "#D4D6DD",
+                        maskImage: "linear-gradient(to bottom, transparent, black 30%, black 70%, transparent)",
+                      }}
+                    />
                     <div className="absolute left-0 right-0 h-1.5 bg-neutral-200 rounded-full" />
                     <div
                       className="absolute h-1.5 rounded-full"
@@ -864,16 +917,16 @@ function ShortsPlanner() {
 
           {/* Platform + Count + Generate */}
           <div className="flex flex-wrap items-center gap-3">
-            <div className="flex p-1 bg-[#F4F5F8] border border-[#E2E4E9] rounded-xl">
+            <div className="flex p-1 bg-[#F4F5F8] border border-[#E2E4E9] rounded-full">
               {[
                 { value: "both", label: "All", icon: null },
-                { value: "yt-shorts", label: "YT Shorts", icon: <Film className="w-3.5 h-3.5 text-amber-500" /> },
+                { value: "yt-shorts", label: "YT Shorts", icon: <Film className="w-3.5 h-3.5 text-amber-500" strokeWidth={1.5} /> },
                 { value: "instagram", label: "Instagram", icon: <FaInstagram className="w-3.5 h-3.5 text-pink-500" /> },
               ].map((opt) => (
                 <button
                   key={opt.value}
                   onClick={() => setPlatform(opt.value)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-bold transition-all ${
+                  className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[12px] font-semibold transition-all duration-300 ${
                     platform === opt.value ? "bg-white text-[#0F0F0F] shadow-sm border border-[#E2E4E9]" : "text-[#8A91A8] hover:text-[#4B5264]"
                   }`}
                 >
@@ -882,17 +935,17 @@ function ShortsPlanner() {
               ))}
             </div>
 
-            <div className="flex items-center gap-2 bg-[#F4F5F8] border border-[#E2E4E9] rounded-xl px-3 py-1.5">
-              <span className="text-[11px] font-bold text-neutral-500 uppercase tracking-widest whitespace-nowrap">Clips</span>
+            <div className="flex items-center gap-2 bg-[#F4F5F8] border border-[#E2E4E9] rounded-full px-3.5 py-1.5">
+              <span className="text-[11px] font-semibold text-neutral-500 uppercase tracking-[0.15em] whitespace-nowrap">Clips</span>
               <input
                 type="number" min={1} max={10} value={count}
                 onChange={(e) => setCount(Math.max(1, Math.min(10, parseInt(e.target.value) || 1)))}
-                className="w-12 bg-white border border-[#E2E4E9] rounded-lg px-2 py-1 text-[13px] font-bold text-center focus:outline-none transition" style={{ "--tw-ring-color": "var(--t-primary)" }}
+                className="w-12 bg-white border border-[#E2E4E9] rounded-full px-2 py-1 text-[13px] font-semibold text-center focus:outline-none transition-colors duration-300" style={{ "--tw-ring-color": "var(--t-primary)" }}
               />
             </div>
 
-            <div className="flex p-1 bg-[#F4F5F8] border border-[#E2E4E9] rounded-xl">
-              <span className="text-[11px] font-bold text-neutral-500 uppercase tracking-widest self-center px-2 whitespace-nowrap">Max</span>
+            <div className="flex p-1 bg-[#F4F5F8] border border-[#E2E4E9] rounded-full">
+              <span className="text-[11px] font-semibold text-neutral-500 uppercase tracking-[0.15em] self-center px-2 whitespace-nowrap">Max</span>
               {[
                 { value: 60,  label: "1 min" },
                 { value: 90,  label: "90 sec" },
@@ -902,7 +955,7 @@ function ShortsPlanner() {
                 <button
                   key={opt.value}
                   onClick={() => setMaxDuration(opt.value)}
-                  className={`px-3 py-1.5 rounded-lg text-[12px] font-bold transition-all ${
+                  className={`px-3.5 py-1.5 rounded-full text-[12px] font-semibold transition-all duration-300 ${
                     maxDuration === opt.value ? "bg-white text-[#0F0F0F] shadow-sm border border-[#E2E4E9]" : "text-[#8A91A8] hover:text-[#4B5264]"
                   }`}
                 >
@@ -915,25 +968,46 @@ function ShortsPlanner() {
               <button
                 onClick={() => setIsAutoPublishOpen(true)}
                 title="AI picks its 3 best clips and publishes all of them, unattended"
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-sm font-bold transition-all hover:brightness-110 active:scale-95 bg-gradient-to-r from-[#F59E0B] to-[#EF4444] shadow-md"
+                className="group relative flex items-center gap-1.5 pl-4 pr-1.5 py-1.5 rounded-full text-white text-sm font-semibold transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] active:scale-[0.98] bg-gradient-to-r from-[#F59E0B] to-[#EF4444] shadow-[0_4px_16px_-4px_rgba(239,68,68,0.4)]"
               >
-                <Rocket className="w-4 h-4" /> Auto-Publish Top 3
+                <Rocket className="w-4 h-4" strokeWidth={1.5} /> Auto-Publish Top 3
               </button>
               <button
                 onClick={generateShorts}
                 disabled={isGenerating || !sourceUrl.trim()}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-sm font-bold transition-all hover:brightness-110 active:scale-95 disabled:opacity-50 btn-primary shadow-md"
+                className="group relative flex items-center gap-1.5 pl-4 pr-1.5 py-1.5 rounded-full text-white text-sm font-semibold transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] active:scale-[0.98] disabled:opacity-50 btn-primary shadow-[0_4px_16px_-4px_rgba(99,102,241,0.4)]"
               >
                 {isGenerating
-                  ? <><RotateCcw className="w-4 h-4 animate-spin" /> Generating…</>
-                  : <><Sparkles className="w-4 h-4" /> Generate Shorts</>
+                  ? <><RotateCcw className="w-4 h-4 animate-spin" strokeWidth={1.5} /> Generating {shorts.length}/{count}…</>
+                  : <><Sparkles className="w-4 h-4" strokeWidth={1.5} /> Generate Shorts</>
                 }
               </button>
             </div>
           </div>
+          <AnimatePresence>
+            {isGenerating && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3 }}
+                className="overflow-hidden"
+              >
+                <div className="h-1.5 w-full bg-[#F4F5F8] rounded-full overflow-hidden mt-1">
+                  <motion.div
+                    className="h-full rounded-full"
+                    style={{ background: "var(--t-primary)" }}
+                    initial={{ width: 0 }}
+                    animate={{ width: `${Math.min(100, (shorts.length / count) * 100)}%` }}
+                    transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
+                  />
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
           {generateError && (
-            <div className="flex items-start gap-2 mt-4 p-3 bg-red-50 border border-red-200 rounded-xl text-[12px] text-red-600 font-semibold">
-              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" /> {generateError}
+            <div className="flex items-start gap-2 mt-4 p-3 bg-red-50 border border-red-200 rounded-2xl text-[12px] text-red-600 font-semibold">
+              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" strokeWidth={1.5} /> {generateError}
             </div>
           )}
         </div>
@@ -941,13 +1015,13 @@ function ShortsPlanner() {
 
       {/* Empty state */}
       {shorts.length === 0 && !isGenerating && (
-        <div className="flex flex-col items-center justify-center py-20 bg-white border border-dashed border-[#E2E4E9] rounded-2xl">
-          <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4" style={{ background: "var(--t-primary-light)" }}>
-            <Sparkles className="w-6 h-6" style={{ color: "var(--t-primary)" }} />
+        <div className="flex flex-col items-center justify-center py-20 bg-white border border-dashed border-[#E2E4E9] rounded-[1.75rem]">
+          <div className="w-14 h-14 rounded-full flex items-center justify-center mb-4" style={{ background: "var(--t-primary-light)" }}>
+            <Sparkles className="w-6 h-6" style={{ color: "var(--t-primary)" }} strokeWidth={1.5} />
           </div>
-          <p className="text-[15px] font-bold text-neutral-500 mb-1">No shorts generated yet</p>
+          <p className="text-[15px] font-semibold text-neutral-500 mb-1">No shorts generated yet</p>
           <p className="text-[12px] text-neutral-400 text-center max-w-xs">
-            Set your options above and click <span className="font-bold text-neutral-500">Generate Shorts</span>
+            Set your options above and click <span className="font-semibold text-neutral-500">Generate Shorts</span>
           </p>
         </div>
       )}
@@ -956,12 +1030,12 @@ function ShortsPlanner() {
       {isGenerating && shorts.length === 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {Array.from({ length: count }).map((_, i) => (
-            <div key={i} className="bg-white border border-[#E2E4E9] rounded-xl overflow-hidden animate-pulse">
+            <div key={i} className="bg-white border border-[#E2E4E9] rounded-2xl overflow-hidden animate-pulse">
               <div className="aspect-video bg-neutral-100" />
               <div className="p-4 space-y-2">
-                <div className="h-3 bg-neutral-100 rounded w-3/4" />
-                <div className="h-3 bg-neutral-100 rounded w-full" />
-                <div className="h-3 bg-neutral-100 rounded w-1/2" />
+                <div className="h-3 bg-neutral-100 rounded-full w-3/4" />
+                <div className="h-3 bg-neutral-100 rounded-full w-full" />
+                <div className="h-3 bg-neutral-100 rounded-full w-1/2" />
               </div>
             </div>
           ))}
@@ -972,23 +1046,24 @@ function ShortsPlanner() {
       {shorts.length > 0 && (
         <div>
           <div className="flex items-center justify-between mb-4">
-            <p className="text-sm font-bold text-neutral-500">
+            <p className="text-sm font-semibold text-neutral-500">
               {shorts.length} clip{shorts.length !== 1 ? "s" : ""} · {platformLabel[platform]}
               {videoInfo && <span className="text-neutral-400 font-normal"> from "{videoInfo.title}"</span>}
             </p>
             <button
               onClick={generateShorts}
               disabled={isGenerating}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#E2E4E9] text-[12px] font-bold text-neutral-600 hover:bg-neutral-50 transition"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-[#E2E4E9] text-[12px] font-semibold text-neutral-600 hover:bg-neutral-50 transition-colors duration-300"
             >
-              <RefreshCw className="w-3.5 h-3.5" /> Regenerate All
+              <RefreshCw className="w-3.5 h-3.5" strokeWidth={1.5} /> Regenerate All
             </button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {shorts.map((short) => (
+            {shorts.map((short, index) => (
               <ShortCard
                 key={short.id}
                 short={short}
+                index={index}
                 onEdit={() => setSelectedShort(short)}
                 onDelete={() => deleteShort(short.id)}
                 onGenerateThumbnail={() => setThumbnailShort(short)}
@@ -1071,7 +1146,7 @@ function tsToSeconds(ts) {
 // ── Short Card ──
 // Thumbnails are 9:16 (vertical) — correct size for YT Shorts & Instagram Reels
 
-function ShortCard({ short, onEdit, onDelete, onGenerateThumbnail, onPreview, onPublish, onOpenEditor, isOpeningEditor }) {
+function ShortCard({ short, index = 0, onEdit, onDelete, onGenerateThumbnail, onPreview, onPublish, onOpenEditor, isOpeningEditor }) {
   const clipConfig = CLIP_TYPE_COLORS[short.clipType] || CLIP_TYPE_COLORS.tip;
   const thumbSrc = short.videoId ? ytThumbnail(short.videoId) : null;
   const [imgError, setImgError] = useState(false);
@@ -1084,11 +1159,19 @@ function ShortCard({ short, onEdit, onDelete, onGenerateThumbnail, onPreview, on
   const igOk = durationSec <= platformLimit;
   const overLimit = !ytOk && !igOk;
 
+  // Duration-vs-limit ring — green under 70% of the cap, amber up to the cap, red over it
+  const fillRatio = Math.min(1, durationSec / platformLimit);
+  const ringColor = overLimit ? "#EF4444" : fillRatio > 0.7 ? "#F59E0B" : "#10B981";
+  const RING_R = 9;
+  const RING_C = 2 * Math.PI * RING_R;
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95, y: 10 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
-      className="bg-white border border-[#E2E4E9] rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300 group flex flex-col"
+      transition={{ duration: 0.4, delay: Math.min(index, 8) * 0.06, ease: [0.32, 0.72, 0, 1] }}
+      whileHover={{ y: -4 }}
+      className="bg-white border border-[#E2E4E9] rounded-2xl overflow-hidden hover:shadow-[0_16px_40px_-12px_rgba(0,0,0,0.14)] transition-shadow duration-500 group flex flex-col"
     >
       {/* Compact 16:9 card thumbnail — centre-cropped from the source video.
           Full 9:16 vertical format is shown only in Preview & Thumbnail modals. */}
@@ -1108,68 +1191,77 @@ function ShortCard({ short, onEdit, onDelete, onGenerateThumbnail, onPreview, on
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
 
         {/* Timestamp — top left */}
-        <div className="absolute top-2 left-2 flex items-center gap-1 px-2 py-0.5 rounded-lg bg-black/75 backdrop-blur text-white text-[10px] font-black border border-white/10">
-          <Play className="w-2.5 h-2.5 text-amber-400 fill-amber-400" />
+        <div className="absolute top-2 left-2 flex items-center gap-1 px-2 py-0.5 rounded-full bg-black/75 backdrop-blur text-white text-[10px] font-bold border border-white/10">
+          <Play className="w-2.5 h-2.5 text-amber-400 fill-amber-400" strokeWidth={1.5} />
           <span>{short.timestampStart} → {short.timestampEnd}</span>
         </div>
 
         {/* 9:16 badge — top right: reminds user the actual upload is vertical */}
-        <div className="absolute top-2 right-2 flex items-center gap-1 px-1.5 py-0.5 rounded bg-black/70 text-white text-[9px] font-black tracking-widest border border-white/10">
-          <Film className="w-2.5 h-2.5 text-amber-400" /> 9:16
+        <div className="absolute top-2 right-2 flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-black/70 text-white text-[9px] font-bold tracking-widest border border-white/10">
+          <Film className="w-2.5 h-2.5 text-amber-400" strokeWidth={1.5} /> 9:16
         </div>
 
         {/* Clip type — bottom left */}
-        <div className={`absolute bottom-2 left-2 px-2 py-0.5 rounded border text-[10px] font-bold uppercase tracking-wider ${clipConfig.bg} ${clipConfig.text} ${clipConfig.border}`}>
+        <div className={`absolute bottom-2 left-2 px-2 py-0.5 rounded-full border text-[10px] font-semibold uppercase tracking-wider ${clipConfig.bg} ${clipConfig.text} ${clipConfig.border}`}>
           {short.clipType}
         </div>
 
         {/* Hover: two actions */}
-        <div className="absolute inset-0 flex items-center justify-center gap-2 bg-black/0 group-hover:bg-black/55 transition-all duration-200 opacity-0 group-hover:opacity-100">
+        <div className="absolute inset-0 flex items-center justify-center gap-2 bg-black/0 group-hover:bg-black/55 transition-all duration-300 opacity-0 group-hover:opacity-100">
           <button
             onClick={onPreview}
-            className="flex items-center gap-1.5 bg-white text-[#0F0F0F] px-3 py-1.5 rounded-xl text-[11px] font-bold shadow-lg hover:bg-[var(--t-primary-light)] transition"
+            className="flex items-center gap-1.5 bg-white text-[#0F0F0F] px-3.5 py-1.5 rounded-full text-[11px] font-semibold shadow-lg hover:bg-[var(--t-primary-light)] transition-colors duration-300"
           >
-            <Play className="w-3 h-3" style={{ color: "var(--t-primary)", fill: "var(--t-primary)" }} /> Preview
+            <Play className="w-3 h-3" style={{ color: "var(--t-primary)", fill: "var(--t-primary)" }} strokeWidth={1.5} /> Preview
           </button>
           <button
             onClick={onGenerateThumbnail}
-            className="flex items-center gap-1.5 bg-white/90 text-[#0F0F0F] px-3 py-1.5 rounded-xl text-[11px] font-bold shadow-lg hover:bg-purple-50 transition"
+            className="flex items-center gap-1.5 bg-white/90 text-[#0F0F0F] px-3.5 py-1.5 rounded-full text-[11px] font-semibold shadow-lg hover:bg-purple-50 transition-colors duration-300"
           >
-            <Image className="w-3 h-3 text-purple-500" /> Thumbnail
+            <Image className="w-3 h-3 text-purple-500" strokeWidth={1.5} /> Thumbnail
           </button>
         </div>
       </div>
 
       <div className="p-4 flex flex-col flex-1">
-        <h4 className="text-[13px] font-bold text-[#111318] leading-snug mb-2 line-clamp-2">{short.title}</h4>
+        <h4 className="text-[13px] font-semibold text-[#111318] leading-snug mb-2 line-clamp-2">{short.title}</h4>
 
         {/* Duration row — platform compatibility */}
         <div className="flex items-center gap-1.5 mb-2 flex-wrap">
-          <span className={`text-[10px] font-black px-2 py-0.5 rounded border ${overLimit ? "bg-red-50 text-red-500 border-red-200" : "bg-emerald-50 text-emerald-600 border-emerald-200"}`}>
-            {durationSec}s
+          <span className="flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded-full border bg-white border-[#E2E4E9]">
+            <svg width="18" height="18" viewBox="0 0 22 22" className="shrink-0">
+              <circle cx="11" cy="11" r={RING_R} fill="none" stroke="#F0F1F4" strokeWidth="3" />
+              <circle
+                cx="11" cy="11" r={RING_R} fill="none" stroke={ringColor} strokeWidth="3"
+                strokeDasharray={RING_C} strokeDashoffset={RING_C * (1 - fillRatio)}
+                strokeLinecap="round" transform="rotate(-90 11 11)"
+                style={{ transition: "stroke-dashoffset 0.6s cubic-bezier(0.32,0.72,0,1)" }}
+              />
+            </svg>
+            <span style={{ color: ringColor }}>{durationSec}s</span>
           </span>
-          <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded border ${ytOk ? "bg-red-50 text-red-500 border-red-100" : "bg-neutral-100 text-neutral-400 border-neutral-200 line-through"}`}>
+          <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full border ${ytOk ? "bg-red-50 text-red-500 border-red-100" : "bg-neutral-100 text-neutral-400 border-neutral-200 line-through"}`}>
             YT ≤{Math.round(platformLimit / 60)}min {ytOk ? "✓" : "✗"}
           </span>
-          <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded border ${igOk ? "bg-pink-50 text-pink-500 border-pink-100" : "bg-neutral-100 text-neutral-400 border-neutral-200 line-through"}`}>
+          <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full border ${igOk ? "bg-pink-50 text-pink-500 border-pink-100" : "bg-neutral-100 text-neutral-400 border-neutral-200 line-through"}`}>
             IG ≤{Math.round(platformLimit / 60)}min {igOk ? "✓" : "✗"}
           </span>
           {overLimit && (
-            <span className="text-[9px] font-black text-red-500 ml-auto">Too long!</span>
+            <span className="text-[9px] font-bold text-red-500 ml-auto">Too long!</span>
           )}
         </div>
 
         <p className="text-[11px] text-amber-600 font-semibold mb-2 line-clamp-1">
-          <span className="font-black">Hook:</span> {short.hook}
+          <span className="font-bold">Hook:</span> {short.hook}
         </p>
         <p className="text-[11px] text-neutral-500 line-clamp-2 mb-3 flex-1">{short.description}</p>
 
         {short.hashtags?.length > 0 && (
           <div className="flex flex-wrap gap-1 mb-3">
             {short.hashtags.slice(0, 3).map((tag) => (
-              <span key={tag} className="text-[10px] font-bold text-indigo-500 bg-indigo-50 border border-indigo-100 rounded px-1.5 py-0.5">#{tag}</span>
+              <span key={tag} className="text-[10px] font-semibold text-indigo-500 bg-indigo-50 border border-indigo-100 rounded-full px-1.5 py-0.5">#{tag}</span>
             ))}
-            {short.hashtags.length > 3 && <span className="text-[10px] text-neutral-400 font-bold">+{short.hashtags.length - 3}</span>}
+            {short.hashtags.length > 3 && <span className="text-[10px] text-neutral-400 font-semibold">+{short.hashtags.length - 3}</span>}
           </div>
         )}
 
@@ -1179,7 +1271,7 @@ function ShortCard({ short, onEdit, onDelete, onGenerateThumbnail, onPreview, on
             onClick={() => onPublish(short, "youtube_shorts")}
             disabled={!ytOk}
             title={ytOk ? "Publish to YouTube Shorts" : `Clip exceeds ${Math.round(platformLimit / 60)} min YT Shorts limit`}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[11px] font-bold transition ${ytOk ? "bg-red-500 hover:bg-red-600 text-white shadow-sm" : "bg-neutral-100 text-neutral-300 cursor-not-allowed"}`}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-full text-[11px] font-semibold transition-colors duration-300 ${ytOk ? "bg-red-500 hover:bg-red-600 text-white shadow-sm" : "bg-neutral-100 text-neutral-300 cursor-not-allowed"}`}
           >
             <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
             YT Shorts
@@ -1188,7 +1280,7 @@ function ShortCard({ short, onEdit, onDelete, onGenerateThumbnail, onPreview, on
             onClick={() => onPublish(short, "instagram_reels")}
             disabled={!igOk}
             title={igOk ? "Publish to Instagram Reels" : `Clip exceeds ${Math.round(platformLimit / 60)} min IG Reels limit`}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[11px] font-bold transition ${igOk ? "bg-gradient-to-r from-purple-500 to-pink-500 hover:brightness-110 text-white shadow-sm" : "bg-neutral-100 text-neutral-300 cursor-not-allowed"}`}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-full text-[11px] font-semibold transition-colors duration-300 ${igOk ? "bg-gradient-to-r from-purple-500 to-pink-500 hover:brightness-110 text-white shadow-sm" : "bg-neutral-100 text-neutral-300 cursor-not-allowed"}`}
           >
             <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
             IG Reels
@@ -1200,39 +1292,39 @@ function ShortCard({ short, onEdit, onDelete, onGenerateThumbnail, onPreview, on
           onClick={() => onPublish(short, "both_shorts_reels")}
           disabled={!ytOk || !igOk}
           title={ytOk && igOk ? "Publish to both YouTube Shorts and Instagram Reels" : "Clip exceeds the duration limit for one or both platforms"}
-          className={`w-full flex items-center justify-center gap-1.5 py-2 rounded-xl text-[11px] font-bold transition mb-2 ${
+          className={`w-full flex items-center justify-center gap-1.5 py-2 rounded-full text-[11px] font-semibold transition-colors duration-300 mb-2 ${
             ytOk && igOk
               ? "bg-gradient-to-r from-red-500 to-pink-500 hover:brightness-110 text-white shadow-sm"
               : "bg-neutral-100 text-neutral-300 cursor-not-allowed"
           }`}
         >
-          <Zap className="w-3.5 h-3.5" /> Publish to Both
+          <Zap className="w-3.5 h-3.5" strokeWidth={1.5} /> Publish to Both
         </button>
 
         {/* Secondary row — Preview / Thumbnail / Edit / Delete */}
         <div className="flex items-center gap-2 pt-2 border-t border-[#F4F5F8]">
           <button
             onClick={onPreview}
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-bold hover:bg-[var(--t-primary-light)] transition border" style={{ color: "var(--t-primary)", borderColor: "var(--t-primary)" }}
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[11px] font-semibold hover:bg-[var(--t-primary-light)] transition-colors duration-300 border" style={{ color: "var(--t-primary)", borderColor: "var(--t-primary)" }}
           >
-            <Play className="w-3 h-3" style={{ fill: "var(--t-primary)" }} /> Preview
+            <Play className="w-3 h-3" style={{ fill: "var(--t-primary)" }} strokeWidth={1.5} /> Preview
           </button>
-          <button onClick={onGenerateThumbnail} className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-bold text-neutral-600 hover:bg-neutral-100 transition border border-[#E2E4E9]">
-            <Image className="w-3 h-3" /> Thumb
+          <button onClick={onGenerateThumbnail} className="flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[11px] font-semibold text-neutral-600 hover:bg-neutral-100 transition-colors duration-300 border border-[#E2E4E9]">
+            <Image className="w-3 h-3" strokeWidth={1.5} /> Thumb
           </button>
-          <button onClick={onEdit} className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-bold text-indigo-600 hover:bg-indigo-50 transition border border-indigo-100">
-            <Edit2 className="w-3 h-3" /> Edit
+          <button onClick={onEdit} className="flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[11px] font-semibold text-indigo-600 hover:bg-indigo-50 transition-colors duration-300 border border-indigo-100">
+            <Edit2 className="w-3 h-3" strokeWidth={1.5} /> Edit
           </button>
           <button
             onClick={onOpenEditor}
             disabled={isOpeningEditor}
             title="Open in video editor"
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-bold text-emerald-600 hover:bg-emerald-50 transition border border-emerald-100 disabled:opacity-50"
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[11px] font-semibold text-emerald-600 hover:bg-emerald-50 transition-colors duration-300 border border-emerald-100 disabled:opacity-50"
           >
-            {isOpeningEditor ? <Loader2 className="w-3 h-3 animate-spin" /> : <Scissors className="w-3 h-3" />} Cut
+            {isOpeningEditor ? <Loader2 className="w-3 h-3 animate-spin" strokeWidth={1.5} /> : <Scissors className="w-3 h-3" strokeWidth={1.5} />} Cut
           </button>
-          <button onClick={onDelete} className="ml-auto p-1.5 rounded-lg text-neutral-400 hover:text-red-500 hover:bg-red-50 transition">
-            <Trash2 className="w-3.5 h-3.5" />
+          <button onClick={onDelete} className="ml-auto p-1.5 rounded-full text-neutral-400 hover:text-red-500 hover:bg-red-50 transition-colors duration-300">
+            <Trash2 className="w-3.5 h-3.5" strokeWidth={1.5} />
           </button>
         </div>
       </div>
@@ -1430,15 +1522,15 @@ function ClipPreviewModal({ short, onClose }) {
       >
         <div className="flex items-center justify-between px-5 py-4 border-b border-[#F4F5F8] shrink-0">
           <h3 className="text-[11px] font-black uppercase tracking-widest text-neutral-400">Clip Preview</h3>
-          <button onClick={onClose} className="p-2 hover:bg-black/5 rounded-xl text-neutral-400 transition">
-            <X className="w-4 h-4" />
+          <button onClick={onClose} className="p-2 hover:bg-black/5 rounded-full text-neutral-400 transition-colors duration-300">
+            <X className="w-4 h-4" strokeWidth={1.5} />
           </button>
         </div>
 
         <div className="flex-1 overflow-y-auto p-5 space-y-4">
           {/* 9:16 shell — looks like a phone screen */}
           <div
-            className="relative mx-auto bg-black rounded-3xl overflow-hidden shadow-xl"
+            className="relative mx-auto bg-black rounded-[1.75rem] overflow-hidden shadow-xl"
             style={{ aspectRatio: "9/16", maxWidth: 260 }}
           >
             {isPlayingLive ? (
@@ -1457,9 +1549,9 @@ function ClipPreviewModal({ short, onClose }) {
                     <p className="text-white font-black text-sm">Clip ended</p>
                     <button
                       onClick={replay}
-                      className="flex items-center gap-2 text-white px-4 py-2 rounded-2xl text-sm font-black hover:brightness-110 transition btn-primary"
+                      className="flex items-center gap-2 text-white px-4 py-2 rounded-full text-sm font-black hover:brightness-110 transition-all duration-300 btn-primary"
                     >
-                      <RotateCcw className="w-4 h-4" /> Replay
+                      <RotateCcw className="w-4 h-4" strokeWidth={1.5} /> Replay
                     </button>
                   </div>
                 )}
@@ -1524,8 +1616,8 @@ function ClipPreviewModal({ short, onClose }) {
             )}
 
             {/* Timestamp pill — top */}
-            <div className="absolute top-3 left-3 z-10 flex items-center gap-1 px-2 py-1 bg-black/70 backdrop-blur rounded-lg text-white text-[10px] font-black border border-white/10 pointer-events-none">
-              <Play className="w-2.5 h-2.5 text-amber-400 fill-amber-400" />
+            <div className="absolute top-3 left-3 z-10 flex items-center gap-1 px-2 py-1 bg-black/70 backdrop-blur rounded-full text-white text-[10px] font-black border border-white/10 pointer-events-none">
+              <Play className="w-2.5 h-2.5 text-amber-400 fill-amber-400" strokeWidth={1.5} />
               {short.timestampStart} → {short.timestampEnd}
             </div>
 
@@ -1535,7 +1627,7 @@ function ClipPreviewModal({ short, onClose }) {
                 href={youtubeWatchUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="absolute top-3 right-3 z-10 flex items-center gap-1 px-2 py-1 bg-black/70 backdrop-blur rounded-lg text-white text-[10px] font-black border border-white/10 hover:bg-black/90 transition"
+                className="absolute top-3 right-3 z-10 flex items-center gap-1 px-2 py-1 bg-black/70 backdrop-blur rounded-full text-white text-[10px] font-black border border-white/10 hover:bg-black/90 transition-colors duration-300"
               >
                 <FaYoutube className="w-2.5 h-2.5 text-red-500" /> Watch
               </a>
@@ -1543,13 +1635,13 @@ function ClipPreviewModal({ short, onClose }) {
           </div>
 
           {/* Title */}
-          <p className="text-[14px] font-black text-[#111318] leading-snug">{short.title}</p>
+          <p className="text-[14px] font-semibold text-[#111318] leading-snug" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{short.title}</p>
 
           {/* Hook */}
           {short.hook && (
-            <div className="px-3 py-2 rounded-xl border" style={{ background: "var(--t-primary-light)", borderColor: "color-mix(in srgb, var(--t-primary) 20%, transparent)" }}>
+            <div className="px-3 py-2 rounded-2xl border" style={{ background: "var(--t-primary-light)", borderColor: "color-mix(in srgb, var(--t-primary) 20%, transparent)" }}>
               <p className="text-[9px] font-black uppercase tracking-widest mb-0.5" style={{ color: "var(--t-primary)" }}>Hook</p>
-              <p className="text-neutral-700 text-[12px]">"{short.hook}"</p>
+              <p className="text-neutral-700 text-[12px]">&ldquo;{short.hook}&rdquo;</p>
             </div>
           )}
 
@@ -1562,7 +1654,7 @@ function ClipPreviewModal({ short, onClose }) {
           {short.hashtags?.length > 0 && (
             <div className="flex flex-wrap gap-1">
               {short.hashtags.map((tag) => (
-                <span key={tag} className="text-[10px] font-bold text-indigo-500 bg-indigo-50 border border-indigo-100 rounded px-1.5 py-0.5">#{tag}</span>
+                <span key={tag} className="text-[10px] font-bold text-indigo-500 bg-indigo-50 border border-indigo-100 rounded-full px-1.5 py-0.5">#{tag}</span>
               ))}
             </div>
           )}
@@ -1634,37 +1726,38 @@ function ShortDetailModal({ short, sourceUrl, videoInfo, onClose, onSave }) {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-black/70 backdrop-blur-md" />
       <motion.div
-        initial={{ opacity: 0, scale: 0.93, y: 20 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.93, y: 20 }}
-        className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-[#E2E4E9] overflow-hidden flex flex-col max-h-[90vh]"
+        initial={{ opacity: 0, scale: 0.96, y: 16, filter: "blur(4px)" }}
+        animate={{ opacity: 1, scale: 1, y: 0, filter: "blur(0px)" }}
+        exit={{ opacity: 0, scale: 0.96, y: 16, filter: "blur(4px)" }}
+        transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
+        className="relative w-full max-w-2xl bg-white rounded-[1.75rem] shadow-[0_24px_70px_-16px_rgba(0,0,0,0.25)] border border-[#E2E4E9] overflow-hidden flex flex-col max-h-[90vh]"
       >
         {/* Header */}
         <div className="px-7 py-5 border-b border-[#F4F5F8] flex items-center justify-between bg-gradient-to-r from-amber-50 to-orange-50">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
-              <FileText className="w-4 h-4 text-white" />
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
+              <FileText className="w-4 h-4 text-white" strokeWidth={1.5} />
             </div>
             <div>
-              <h3 className="text-[15px] font-[800] text-[#0F0F0F]">Edit Short</h3>
+              <h3 className="text-[15px] font-semibold text-[#0F0F0F]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Edit Short</h3>
               <p className="text-[11px] text-neutral-400">Clip #{short.index} · {short.timestampStart} → {short.timestampEnd}</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-black/5 rounded-xl transition-colors text-neutral-400">
-            <X className="w-4 h-4" />
+          <button onClick={onClose} className="p-2 hover:bg-black/5 rounded-full transition-colors duration-300 text-neutral-400">
+            <X className="w-4 h-4" strokeWidth={1.5} />
           </button>
         </div>
 
         <div className="flex-1 overflow-y-auto p-7 space-y-5">
           {/* Source video reference with thumbnail */}
           {short.videoId && (
-            <div className="flex items-center gap-3 p-3 bg-[#F9FAFB] border border-[#E2E4E9] rounded-xl">
+            <div className="flex items-center gap-3 p-3 bg-[#F9FAFB] border border-[#E2E4E9] rounded-2xl">
               <img
                 src={ytThumbnail(short.videoId)}
                 alt="Source video"
-                className="w-20 aspect-video rounded-lg object-cover border border-[#E2E4E9] shrink-0"
+                className="w-20 aspect-video rounded-xl object-cover border border-[#E2E4E9] shrink-0"
                 onError={(e) => { e.target.src = `https://img.youtube.com/vi/${short.videoId}/hqdefault.jpg`; e.target.onerror = () => { e.target.src = `https://img.youtube.com/vi/${short.videoId}/mqdefault.jpg`; e.target.onerror = null; }; }}
               />
               <div className="min-w-0">
@@ -1682,16 +1775,16 @@ function ShortDetailModal({ short, sourceUrl, videoInfo, onClose, onSave }) {
               <button
                 onClick={() => regenerateField("title")}
                 disabled={isRegeneratingTitle}
-                className="flex items-center gap-1 text-[11px] font-bold text-amber-600 hover:text-amber-700 transition disabled:opacity-50"
+                className="flex items-center gap-1 text-[11px] font-bold text-amber-600 hover:text-amber-700 transition-colors duration-300 disabled:opacity-50"
               >
-                {isRegeneratingTitle ? <RotateCcw className="w-3 h-3 animate-spin" /> : <Wand2 className="w-3 h-3" />}
+                {isRegeneratingTitle ? <RotateCcw className="w-3 h-3 animate-spin" strokeWidth={1.5} /> : <Wand2 className="w-3 h-3" strokeWidth={1.5} />}
                 Regenerate
               </button>
             </div>
             <input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full bg-[#F9FAFB] border border-[#E2E4E9] rounded-xl px-4 py-3 text-sm font-bold outline-none focus:border-amber-400 transition-all"
+              className="w-full bg-[#F9FAFB] border border-[#E2E4E9] rounded-full px-4 py-3 text-sm font-bold outline-none focus:border-amber-400 focus:ring-[3px] focus:ring-amber-400/15 transition-all duration-300"
             />
             <p className="text-[10px] text-neutral-400 mt-1 px-1">{title.length}/60 chars</p>
           </div>
@@ -1703,7 +1796,7 @@ function ShortDetailModal({ short, sourceUrl, videoInfo, onClose, onSave }) {
               value={hook}
               onChange={(e) => setHook(e.target.value)}
               placeholder="The hook that grabs attention immediately..."
-              className="w-full bg-[#F9FAFB] border border-[#E2E4E9] rounded-xl px-4 py-3 text-sm font-medium outline-none focus:border-amber-400 transition-all"
+              className="w-full bg-[#F9FAFB] border border-[#E2E4E9] rounded-full px-4 py-3 text-sm font-medium outline-none focus:border-amber-400 focus:ring-[3px] focus:ring-amber-400/15 transition-all duration-300"
             />
           </div>
 
@@ -1714,9 +1807,9 @@ function ShortDetailModal({ short, sourceUrl, videoInfo, onClose, onSave }) {
               <button
                 onClick={() => regenerateField("description")}
                 disabled={isRegeneratingDesc}
-                className="flex items-center gap-1 text-[11px] font-bold text-amber-600 hover:text-amber-700 transition disabled:opacity-50"
+                className="flex items-center gap-1 text-[11px] font-bold text-amber-600 hover:text-amber-700 transition-colors duration-300 disabled:opacity-50"
               >
-                {isRegeneratingDesc ? <RotateCcw className="w-3 h-3 animate-spin" /> : <Wand2 className="w-3 h-3" />}
+                {isRegeneratingDesc ? <RotateCcw className="w-3 h-3 animate-spin" strokeWidth={1.5} /> : <Wand2 className="w-3 h-3" strokeWidth={1.5} />}
                 Regenerate
               </button>
             </div>
@@ -1724,7 +1817,7 @@ function ShortDetailModal({ short, sourceUrl, videoInfo, onClose, onSave }) {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={4}
-              className="w-full bg-[#F9FAFB] border border-[#E2E4E9] rounded-xl px-4 py-3 text-sm font-medium outline-none focus:border-amber-400 transition-all resize-none"
+              className="w-full bg-[#F9FAFB] border border-[#E2E4E9] rounded-2xl px-4 py-3 text-sm font-medium outline-none focus:border-amber-400 focus:ring-[3px] focus:ring-amber-400/15 transition-all duration-300 resize-none"
             />
             <p className="text-[10px] text-neutral-400 mt-1 px-1">{description.length}/300 chars</p>
           </div>
@@ -1733,12 +1826,12 @@ function ShortDetailModal({ short, sourceUrl, videoInfo, onClose, onSave }) {
           <div>
             <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-2 block px-1">Hashtags (comma separated)</label>
             <div className="relative">
-              <Hash className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-neutral-400" />
+              <Hash className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-neutral-400" strokeWidth={1.5} />
               <input
                 value={hashtags}
                 onChange={(e) => setHashtags(e.target.value)}
                 placeholder="coding, webdev, javascript, tutorial, tips"
-                className="w-full bg-[#F9FAFB] border border-[#E2E4E9] rounded-xl pl-9 pr-4 py-3 text-sm font-medium outline-none focus:border-amber-400 transition-all"
+                className="w-full bg-[#F9FAFB] border border-[#E2E4E9] rounded-full pl-9 pr-4 py-3 text-sm font-medium outline-none focus:border-amber-400 focus:ring-[3px] focus:ring-amber-400/15 transition-all duration-300"
               />
             </div>
           </div>
@@ -1746,12 +1839,12 @@ function ShortDetailModal({ short, sourceUrl, videoInfo, onClose, onSave }) {
 
         {/* Footer */}
         <div className="px-7 py-4 border-t border-[#F4F5F8] flex items-center justify-end gap-3 bg-[#FAFBFC]">
-          <button onClick={onClose} className="px-5 py-2.5 rounded-xl border border-[#E2E4E9] text-sm font-bold text-neutral-600 hover:bg-neutral-50 transition">
+          <button onClick={onClose} className="px-5 py-2.5 rounded-full border border-[#E2E4E9] text-sm font-bold text-neutral-600 hover:bg-neutral-50 transition-colors duration-300">
             Cancel
           </button>
           <button
             onClick={() => onSave({ title, description, hook, hashtags: hashtags.split(",").map((h) => h.trim()).filter(Boolean) })}
-            className="px-6 py-2.5 rounded-xl text-white text-sm font-bold transition hover:brightness-110 bg-gradient-to-r from-amber-500 to-orange-500 shadow-md"
+            className="px-6 py-2.5 rounded-full text-white text-sm font-bold transition-all duration-300 hover:brightness-110 bg-gradient-to-r from-amber-500 to-orange-500 shadow-md"
           >
             Save Changes
           </button>
@@ -1781,26 +1874,27 @@ function ThumbnailGeneratorModal({ short, onClose, onApply }) {
 
   return (
     <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-black/70 backdrop-blur-md" />
       <motion.div
-        initial={{ opacity: 0, scale: 0.93, y: 20 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.93, y: 20 }}
-        className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-[#E2E4E9] overflow-hidden flex flex-col max-h-[90vh]"
+        initial={{ opacity: 0, scale: 0.96, y: 16, filter: "blur(4px)" }}
+        animate={{ opacity: 1, scale: 1, y: 0, filter: "blur(0px)" }}
+        exit={{ opacity: 0, scale: 0.96, y: 16, filter: "blur(4px)" }}
+        transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
+        className="relative w-full max-w-2xl bg-white rounded-[1.75rem] shadow-[0_24px_70px_-16px_rgba(0,0,0,0.25)] border border-[#E2E4E9] overflow-hidden flex flex-col max-h-[90vh]"
       >
         {/* Header */}
         <div className="px-7 py-5 border-b border-[#F4F5F8] flex items-center justify-between bg-gradient-to-r from-purple-50 to-pink-50">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-              <Image className="w-4 h-4 text-white" />
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+              <Image className="w-4 h-4 text-white" strokeWidth={1.5} />
             </div>
             <div>
-              <h3 className="text-[15px] font-[800] text-[#0F0F0F]">Thumbnail Editor</h3>
+              <h3 className="text-[15px] font-semibold text-[#0F0F0F]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Thumbnail Editor</h3>
               <p className="text-[11px] text-neutral-400 truncate max-w-xs">{short.title}</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-black/5 rounded-xl transition-colors text-neutral-400">
-            <X className="w-4 h-4" />
+          <button onClick={onClose} className="p-2 hover:bg-black/5 rounded-full transition-colors duration-300 text-neutral-400">
+            <X className="w-4 h-4" strokeWidth={1.5} />
           </button>
         </div>
 
@@ -1844,8 +1938,8 @@ function ThumbnailGeneratorModal({ short, onClose, onApply }) {
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Style</label>
-                  <button onClick={randomize} className="flex items-center gap-1 text-[10px] font-bold text-purple-600 hover:text-purple-700 transition">
-                    <RefreshCw className="w-3 h-3" /> Random
+                  <button onClick={randomize} className="flex items-center gap-1 text-[10px] font-bold text-purple-600 hover:text-purple-700 transition-colors duration-300">
+                    <RefreshCw className="w-3 h-3" strokeWidth={1.5} /> Random
                   </button>
                 </div>
                 <div className="grid grid-cols-5 gap-1.5">
@@ -1860,7 +1954,7 @@ function ThumbnailGeneratorModal({ short, onClose, onApply }) {
                       </div>
                       {selected === style.id && (
                         <div className="absolute top-0.5 right-0.5 w-3 h-3 bg-purple-500 rounded-full flex items-center justify-center">
-                          <Check className="w-2 h-2 text-white" />
+                          <Check className="w-2 h-2 text-white" strokeWidth={2} />
                         </div>
                       )}
                     </button>
@@ -1885,9 +1979,9 @@ function ThumbnailGeneratorModal({ short, onClose, onApply }) {
                 <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-1.5 block">Title Overlay</label>
                 <button
                   onClick={() => setShowTitle(!showTitle)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-[11px] font-bold transition-all w-full justify-center ${showTitle ? "bg-purple-50 border-purple-200 text-purple-600" : "bg-[#F9FAFB] border-[#E2E4E9] text-neutral-400"}`}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[11px] font-bold transition-colors duration-300 w-full justify-center ${showTitle ? "bg-purple-50 border-purple-200 text-purple-600" : "bg-[#F9FAFB] border-[#E2E4E9] text-neutral-400"}`}
                 >
-                  <Eye className={`w-3.5 h-3.5 ${!showTitle ? "opacity-40" : ""}`} />
+                  <Eye className={`w-3.5 h-3.5 ${!showTitle ? "opacity-40" : ""}`} strokeWidth={1.5} />
                   {showTitle ? "Showing Title" : "Title Hidden"}
                 </button>
               </div>
@@ -1902,7 +1996,7 @@ function ThumbnailGeneratorModal({ short, onClose, onApply }) {
                 value={customTitle}
                 onChange={(e) => setCustomTitle(e.target.value)}
                 placeholder={short.title}
-                className="w-full bg-[#F9FAFB] border border-[#E2E4E9] rounded-xl px-4 py-3 text-sm font-bold outline-none focus:border-purple-400 transition-all"
+                className="w-full bg-[#F9FAFB] border border-[#E2E4E9] rounded-full px-4 py-3 text-sm font-bold outline-none focus:border-purple-400 focus:ring-[3px] focus:ring-purple-400/15 transition-all duration-300"
               />
             </div>
           )}
@@ -1911,12 +2005,12 @@ function ThumbnailGeneratorModal({ short, onClose, onApply }) {
 
         {/* Footer — Apply always enabled */}
         <div className="px-7 py-4 border-t border-[#F4F5F8] flex items-center justify-end gap-3 bg-[#FAFBFC]">
-          <button onClick={onClose} className="px-5 py-2.5 rounded-xl border border-[#E2E4E9] text-sm font-bold text-neutral-600 hover:bg-neutral-50 transition">
+          <button onClick={onClose} className="px-5 py-2.5 rounded-full border border-[#E2E4E9] text-sm font-bold text-neutral-600 hover:bg-neutral-50 transition-colors duration-300">
             Cancel
           </button>
           <button
             onClick={() => onApply(selected, { overlayOpacity, showTitle, customTitle })}
-            className="px-6 py-2.5 rounded-xl text-white text-sm font-bold transition hover:brightness-110 bg-gradient-to-r from-purple-500 to-pink-500 shadow-md"
+            className="px-6 py-2.5 rounded-full text-white text-sm font-bold transition-all duration-300 hover:brightness-110 bg-gradient-to-r from-purple-500 to-pink-500 shadow-md"
           >
             Apply Thumbnail
           </button>
@@ -1991,22 +2085,23 @@ function AIEpisodeModal({ series, onClose }) {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-black/70 backdrop-blur-md" />
       <motion.div
-        initial={{ opacity: 0, scale: 0.93, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.93, y: 20 }}
-        className="relative w-full max-w-xl bg-white rounded-3xl shadow-2xl border border-[#E2E4E9] overflow-hidden flex flex-col max-h-[88vh]"
+        initial={{ opacity: 0, scale: 0.96, y: 16, filter: "blur(4px)" }} animate={{ opacity: 1, scale: 1, y: 0, filter: "blur(0px)" }} exit={{ opacity: 0, scale: 0.96, y: 16, filter: "blur(4px)" }}
+        transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
+        className="relative w-full max-w-xl bg-white rounded-[1.75rem] shadow-[0_24px_70px_-16px_rgba(0,0,0,0.25)] border border-[#E2E4E9] overflow-hidden flex flex-col max-h-[88vh]"
       >
         <div className="px-7 py-5 border-b border-[#F4F5F8] flex items-center justify-between" style={{ background: "linear-gradient(135deg, var(--t-primary-light), transparent)" }}>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "linear-gradient(135deg, var(--t-primary), var(--t-secondary))" }}>
-              <Sparkles className="w-5 h-5 text-white" />
+            <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: "linear-gradient(135deg, var(--t-primary), var(--t-secondary))" }}>
+              <Sparkles className="w-5 h-5 text-white" strokeWidth={1.5} />
             </div>
             <div>
-              <h3 className="text-[15px] font-[800] text-[#0F0F0F]">AI Episode Generator</h3>
+              <h3 className="text-[15px] font-semibold text-[#0F0F0F]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>AI Episode Generator</h3>
               <p className="text-[11px] text-neutral-400 mt-0.5">{series.name}</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-black/5 rounded-xl transition-colors text-neutral-400"><X className="w-4 h-4" /></button>
+          <button onClick={onClose} className="p-2 hover:bg-black/5 rounded-full transition-colors duration-300 text-neutral-400"><X className="w-4 h-4" strokeWidth={1.5} /></button>
         </div>
 
         <div className="px-7 py-4 border-b border-[#F4F5F8] flex items-center gap-4">
@@ -2015,21 +2110,21 @@ function AIEpisodeModal({ series, onClose }) {
             <input
               type="number" min={1} max={20} value={count}
               onChange={(e) => setCount(Math.max(1, Math.min(20, parseInt(e.target.value) || 1)))}
-              className="w-16 px-3 py-1.5 rounded-lg border border-[#E2E4E9] text-[13px] font-bold text-center focus:outline-none focus:border-[var(--t-primary)] transition"
+              className="w-16 px-3 py-1.5 rounded-full border border-[#E2E4E9] text-[13px] font-bold text-center focus:outline-none focus:border-[var(--t-primary)] transition-colors duration-300"
             />
           </div>
           <button
             onClick={generate} disabled={loading}
-            className="ml-auto flex items-center gap-2 px-4 py-2 rounded-xl text-white text-[13px] font-[600] transition-all hover:brightness-110 active:scale-95 disabled:opacity-60 btn-primary"
+            className="ml-auto flex items-center gap-2 px-4 py-2 rounded-full text-white text-[13px] font-semibold transition-all duration-300 hover:brightness-110 active:scale-[0.98] disabled:opacity-60 btn-primary"
           >
-            {loading ? <><RotateCcw className="w-3.5 h-3.5 animate-spin" /> Generating…</> : <><Wand2 className="w-3.5 h-3.5" /> {episodes ? "Regenerate" : "Generate"}</>}
+            {loading ? <><RotateCcw className="w-3.5 h-3.5 animate-spin" strokeWidth={1.5} /> Generating…</> : <><Wand2 className="w-3.5 h-3.5" strokeWidth={1.5} /> {episodes ? "Regenerate" : "Generate"}</>}
           </button>
         </div>
 
         <div className="flex-1 overflow-y-auto px-7 py-5">
           {!episodes && !loading && (
             <div className="flex flex-col items-center justify-center py-14 text-neutral-300">
-              <Sparkles className="w-10 h-10 mb-3" />
+              <Sparkles className="w-10 h-10 mb-3" strokeWidth={1.5} />
               <p className="text-[13px] font-medium text-neutral-400">Click Generate to create episode ideas</p>
               <p className="text-[11px] text-neutral-300 mt-1">Based on your series type: <span className="font-bold">{series.type}</span></p>
             </div>
@@ -2046,14 +2141,14 @@ function AIEpisodeModal({ series, onClose }) {
                 <div
                   key={ep.ep}
                   onClick={() => toggleEp(ep.ep)}
-                  className={`flex items-center gap-3 p-3.5 rounded-xl cursor-pointer border transition-all ${selected.includes(ep.ep) ? "border-[var(--t-primary)] bg-[var(--t-primary-light)]" : "border-[#F0F0F0] hover:border-[#E2E4E9] bg-white hover:bg-[#F9FAFB]"}`}
+                  className={`flex items-center gap-3 p-3.5 rounded-2xl cursor-pointer border transition-colors duration-300 ${selected.includes(ep.ep) ? "border-[var(--t-primary)] bg-[var(--t-primary-light)]" : "border-[#F0F0F0] hover:border-[#E2E4E9] bg-white hover:bg-[#F9FAFB]"}`}
                 >
-                  <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-[11px] font-black flex-shrink-0 transition-all ${selected.includes(ep.ep) ? "text-white" : "bg-[#F4F5F8] text-neutral-500"}`} style={selected.includes(ep.ep) ? { backgroundColor: "var(--t-primary)" } : {}}>
-                    {selected.includes(ep.ep) ? <Check className="w-3.5 h-3.5" /> : ep.ep}
+                  <div className={`w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-black flex-shrink-0 transition-colors duration-300 ${selected.includes(ep.ep) ? "text-white" : "bg-[#F4F5F8] text-neutral-500"}`} style={selected.includes(ep.ep) ? { backgroundColor: "var(--t-primary)" } : {}}>
+                    {selected.includes(ep.ep) ? <Check className="w-3.5 h-3.5" strokeWidth={2} /> : ep.ep}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-[13px] font-semibold text-[#111318] truncate">{ep.title}</p>
-                    <p className="text-[11px] text-neutral-400 mt-0.5 flex items-center gap-1"><Clock className="w-3 h-3" />{ep.duration}</p>
+                    <p className="text-[11px] text-neutral-400 mt-0.5 flex items-center gap-1"><Clock className="w-3 h-3" strokeWidth={1.5} />{ep.duration}</p>
                   </div>
                 </div>
               ))}
@@ -2065,10 +2160,10 @@ function AIEpisodeModal({ series, onClose }) {
           <div className="px-7 py-4 border-t border-[#F4F5F8] flex items-center justify-between gap-3">
             <span className="text-[12px] text-neutral-400">{selected.length} of {episodes.length} selected</span>
             <div className="flex gap-2">
-              <button onClick={copyToClipboard} className="flex items-center gap-1.5 px-4 py-2 rounded-xl border border-[#E2E4E9] text-[13px] font-semibold text-neutral-600 hover:bg-neutral-50 transition">
-                {copied ? <><Check className="w-3.5 h-3.5 text-emerald-500" /> Copied!</> : <><ClipboardList className="w-3.5 h-3.5" /> Copy</>}
+              <button onClick={copyToClipboard} className="flex items-center gap-1.5 px-4 py-2 rounded-full border border-[#E2E4E9] text-[13px] font-semibold text-neutral-600 hover:bg-neutral-50 transition-colors duration-300">
+                {copied ? <><Check className="w-3.5 h-3.5 text-emerald-500" strokeWidth={1.75} /> Copied!</> : <><ClipboardList className="w-3.5 h-3.5" strokeWidth={1.5} /> Copy</>}
               </button>
-              <button onClick={onClose} className="px-5 py-2 rounded-xl text-white text-[13px] font-semibold transition hover:brightness-110 btn-primary">Done</button>
+              <button onClick={onClose} className="px-5 py-2 rounded-full text-white text-[13px] font-semibold transition-all duration-300 hover:brightness-110 btn-primary">Done</button>
             </div>
           </div>
         )}
@@ -2091,11 +2186,11 @@ function SeriesCard({ series: s, onEdit, onDuplicate, onArchive, onDelete, onAIG
   ];
 
   return (
-    <div className={`group bg-white border border-[#E2E4E9] rounded-xl overflow-hidden transition-all duration-300 hover:shadow-lg ${s.archived ? "opacity-70 grayscale-[0.5]" : ""}`} style={{ borderWidth: "0.5px", borderRadius: "12px" }}>
+    <div className={`group bg-white border border-[#E2E4E9] rounded-[1.75rem] overflow-hidden transition-all duration-300 hover:shadow-[0_16px_40px_-12px_rgba(0,0,0,0.14)] ${s.archived ? "opacity-70 grayscale-[0.5]" : ""}`}>
       <Link href={`/series/${s.id}`} className="relative block aspect-video overflow-hidden">
         <EpisodeThumbnail title={s.name} size="full" rounded="rounded-none" epNumber={null} showPlay />
-        <div className="absolute top-2.5 right-2.5 px-2 py-1 bg-black/80 backdrop-blur rounded text-[10px] font-black text-white flex items-center gap-1.5 border border-white/10 z-10">
-          <ListVideo className="w-3.5 h-3.5" />
+        <div className="absolute top-2.5 right-2.5 px-2 py-1 bg-black/80 backdrop-blur rounded-full text-[10px] font-black text-white flex items-center gap-1.5 border border-white/10 z-10">
+          <ListVideo className="w-3.5 h-3.5" strokeWidth={1.5} />
           <span>{s.episodes} VIDEOS</span>
         </div>
       </Link>
@@ -2109,30 +2204,31 @@ function SeriesCard({ series: s, onEdit, onDuplicate, onArchive, onDelete, onAIG
           <div className="min-w-0">
             <div className="mb-2"><StatusBadge type={s.type} /></div>
             <Link href={`/series/${s.id}`}>
-              <h3 className="text-lg font-bold text-[#111318] leading-tight hover:text-indigo-600 transition-colors line-clamp-1">{s.name}</h3>
+              <h3 className="text-lg font-semibold text-[#111318] leading-tight hover:text-indigo-600 transition-colors duration-300 line-clamp-1" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{s.name}</h3>
             </Link>
             <p className="text-xs text-neutral-400 mt-0.5 line-clamp-1">{s.description || "No description provided."}</p>
           </div>
 
           <div className="relative shrink-0">
-            <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-1.5 text-neutral-400 hover:text-[#0F0F0F] hover:bg-[#F4F5F8] rounded-lg transition-all">
-              <MoreVertical className="w-5 h-5" />
+            <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-1.5 text-neutral-400 hover:text-[#0F0F0F] hover:bg-[#F4F5F8] rounded-full transition-colors duration-300">
+              <MoreVertical className="w-5 h-5" strokeWidth={1.5} />
             </button>
             <AnimatePresence>
               {isMenuOpen && (
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setIsMenuOpen(false)} />
                   <motion.div
-                    initial={{ opacity: 0, scale: 0.95, y: 10 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                    className="absolute right-0 top-full mt-2 w-48 bg-white border border-[#E2E4E9] rounded-xl shadow-xl z-50 p-1.5"
+                    initial={{ opacity: 0, scale: 0.96, y: 10, filter: "blur(4px)" }}
+                    animate={{ opacity: 1, scale: 1, y: 0, filter: "blur(0px)" }}
+                    exit={{ opacity: 0, scale: 0.96, y: 10, filter: "blur(4px)" }}
+                    transition={{ duration: 0.35, ease: [0.32, 0.72, 0, 1] }}
+                    className="absolute right-0 top-full mt-2 w-48 bg-white border border-[#E2E4E9] rounded-2xl shadow-[0_20px_60px_-12px_rgba(0,0,0,0.18)] z-50 p-1.5"
                   >
-                    <button onClick={() => { onEdit(); setIsMenuOpen(false); }} className="w-full flex items-center gap-2.5 px-3 py-2 text-[11px] font-bold text-neutral-600 hover:bg-neutral-50 hover:text-indigo-600 rounded-lg transition-all uppercase tracking-wider"><Edit2 className="w-3.5 h-3.5" /> Edit</button>
-                    <button onClick={() => { onDuplicate(); setIsMenuOpen(false); }} className="w-full flex items-center gap-2.5 px-3 py-2 text-[11px] font-bold text-neutral-600 hover:bg-neutral-50 hover:text-blue-600 rounded-lg transition-all uppercase tracking-wider"><Copy className="w-3.5 h-3.5" /> Duplicate</button>
-                    <button onClick={() => { onArchive(); setIsMenuOpen(false); }} className="w-full flex items-center gap-2.5 px-3 py-2 text-[11px] font-bold text-neutral-600 hover:bg-neutral-50 hover:text-amber-600 rounded-lg transition-all uppercase tracking-wider"><Archive className="w-3.5 h-3.5" /> {s.archived ? "Restore" : "Archive"}</button>
+                    <button onClick={() => { onEdit(); setIsMenuOpen(false); }} className="w-full flex items-center gap-2.5 px-3 py-2 text-[11px] font-bold text-neutral-600 hover:bg-neutral-50 hover:text-indigo-600 rounded-full transition-colors duration-300 uppercase tracking-wider"><Edit2 className="w-3.5 h-3.5" strokeWidth={1.5} /> Edit</button>
+                    <button onClick={() => { onDuplicate(); setIsMenuOpen(false); }} className="w-full flex items-center gap-2.5 px-3 py-2 text-[11px] font-bold text-neutral-600 hover:bg-neutral-50 hover:text-blue-600 rounded-full transition-colors duration-300 uppercase tracking-wider"><Copy className="w-3.5 h-3.5" strokeWidth={1.5} /> Duplicate</button>
+                    <button onClick={() => { onArchive(); setIsMenuOpen(false); }} className="w-full flex items-center gap-2.5 px-3 py-2 text-[11px] font-bold text-neutral-600 hover:bg-neutral-50 hover:text-amber-600 rounded-full transition-colors duration-300 uppercase tracking-wider"><Archive className="w-3.5 h-3.5" strokeWidth={1.5} /> {s.archived ? "Restore" : "Archive"}</button>
                     <div className="h-px bg-[#F4F5F8] my-1 mx-2" />
-                    <button onClick={() => { onDelete(); setIsMenuOpen(false); }} className="w-full flex items-center gap-2.5 px-3 py-2 text-[11px] font-bold text-red-500 hover:bg-red-50 rounded-lg transition-all uppercase tracking-wider"><Trash2 className="w-3.5 h-3.5" /> Delete</button>
+                    <button onClick={() => { onDelete(); setIsMenuOpen(false); }} className="w-full flex items-center gap-2.5 px-3 py-2 text-[11px] font-bold text-red-500 hover:bg-red-50 rounded-full transition-colors duration-300 uppercase tracking-wider"><Trash2 className="w-3.5 h-3.5" strokeWidth={1.5} /> Delete</button>
                   </motion.div>
                 </>
               )}
@@ -2146,7 +2242,7 @@ function SeriesCard({ series: s, onEdit, onDuplicate, onArchive, onDelete, onAIG
               <div className="w-5 h-5 rounded-full bg-[#F4F5F8] flex items-center justify-center border border-[#E2E4E9] shrink-0">
                 <span className="text-[9px] font-bold text-neutral-500">{i + 1}</span>
               </div>
-              <p className="text-[12px] font-medium text-neutral-500 group-hover:text-indigo-600 transition-colors truncate">{ep.title}</p>
+              <p className="text-[12px] font-medium text-neutral-500 group-hover:text-indigo-600 transition-colors duration-300 truncate">{ep.title}</p>
             </div>
           ))}
         </div>
@@ -2154,11 +2250,11 @@ function SeriesCard({ series: s, onEdit, onDuplicate, onArchive, onDelete, onAIG
         <div className="pt-4 border-t border-[#F4F5F8] flex items-center justify-between gap-2">
           <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">{s.completed}/{s.episodes} EP</span>
           <div className="flex items-center gap-2">
-            <button onClick={onAIGenerate} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all hover:brightness-110 text-white btn-primary">
-              <Sparkles className="w-3 h-3" /> AI Episodes
+            <button onClick={onAIGenerate} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold transition-all duration-300 hover:brightness-110 text-white btn-primary">
+              <Sparkles className="w-3 h-3" strokeWidth={1.5} /> AI Episodes
             </button>
-            <Link href={`/series/${s.id}`} className="text-[11px] font-bold text-neutral-400 hover:text-indigo-600 flex items-center gap-1 transition-colors uppercase tracking-wider">
-              View <ArrowRight className="w-3 h-3" />
+            <Link href={`/series/${s.id}`} className="text-[11px] font-bold text-neutral-400 hover:text-indigo-600 flex items-center gap-1 transition-colors duration-300 uppercase tracking-wider">
+              View <ArrowRight className="w-3 h-3" strokeWidth={1.5} />
             </Link>
           </div>
         </div>

@@ -439,23 +439,23 @@ export default function PublishPage() {
             initial={{ opacity: 0, y: -20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -20, scale: 0.95 }}
-            className={`fixed top-6 right-6 z-50 flex items-center gap-3 px-5 py-4 rounded-xl border shadow-lg max-w-md ${
-              notification.type === "success" 
-                ? "bg-white text-emerald-800 border-emerald-100 shadow-emerald-100/30" 
+            className={`fixed top-6 right-6 z-50 flex items-center gap-3 px-5 py-4 rounded-2xl border shadow-[0_20px_60px_-12px_rgba(0,0,0,0.18)] max-w-md ${
+              notification.type === "success"
+                ? "bg-white text-emerald-800 border-emerald-100 shadow-emerald-100/30"
                 : "bg-white text-red-800 border-red-100 shadow-red-100/30"
             }`}
           >
             {notification.type === "success" ? (
-              <CheckCircle className="w-5 h-5 text-emerald-600 shrink-0" />
+              <CheckCircle className="w-5 h-5 text-emerald-600 shrink-0" strokeWidth={1.5} />
             ) : (
-              <AlertCircle className="w-5 h-5 text-red-600 shrink-0" />
+              <AlertCircle className="w-5 h-5 text-red-600 shrink-0" strokeWidth={1.5} />
             )}
             <p className="text-sm font-semibold leading-relaxed">{notification.message}</p>
-            <button 
+            <button
               onClick={() => setNotification(null)}
-              className="p-1 hover:bg-neutral-100 rounded-lg text-neutral-400 hover:text-neutral-600 transition-colors ml-auto shrink-0"
+              className="p-1 hover:bg-neutral-100 rounded-full text-neutral-400 hover:text-neutral-600 transition-colors duration-300 ml-auto shrink-0"
             >
-              <X className="w-4 h-4" />
+              <X className="w-4 h-4" strokeWidth={1.5} />
             </button>
           </motion.div>
         )}
@@ -463,7 +463,7 @@ export default function PublishPage() {
 
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
-          <h2 className="text-[32px] font-bold tracking-tight mb-2 text-[#0A0A0F]">Upload & Publish</h2>
+          <h2 className="text-[32px] font-medium tracking-tight mb-2 text-[#0A0A0F]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Upload & Publish</h2>
           <p className="text-[#8A91A8] font-medium text-sm">Upload a video, draft your caption, and schedule or publish it across all social platforms at once.</p>
         </div>
       </div>
@@ -471,11 +471,11 @@ export default function PublishPage() {
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
         {/* Left Column: Form (8 cols on XL, else full) */}
         <div className="xl:col-span-7 space-y-6">
-          <form onSubmit={handleSubmit} className="card p-8 space-y-8 bg-white border border-[#E2E4E9] rounded-3xl shadow-sm">
+          <form onSubmit={handleSubmit} className="card p-8 space-y-8 bg-white border border-[#E2E4E9] rounded-[1.75rem] shadow-sm">
             {/* Step 1: Upload Video */}
             <div className="space-y-4">
               <div className="flex items-center gap-3">
-                <div className="w-7 h-7 rounded-lg bg-[#4F46E5]/10 flex items-center justify-center font-bold text-xs text-[#4F46E5]">1</div>
+                <div className="w-7 h-7 rounded-full bg-[#4F46E5]/10 flex items-center justify-center font-bold text-xs text-[#4F46E5]">1</div>
                 <h3 className="text-lg font-bold text-[#0A0A0F]">Upload Video File</h3>
               </div>
 
@@ -497,8 +497,8 @@ export default function PublishPage() {
                     onChange={handleFileChange}
                     className="hidden"
                   />
-                  <div className="w-12 h-12 rounded-full bg-white border border-neutral-100 shadow-sm flex items-center justify-center text-neutral-400 group-hover:text-[#4F46E5] transition-colors">
-                    <Upload className="w-6 h-6" />
+                  <div className="w-12 h-12 rounded-full bg-white border border-neutral-100 shadow-sm flex items-center justify-center text-neutral-400 group-hover:text-[#4F46E5] transition-colors duration-300">
+                    <Upload className="w-6 h-6" strokeWidth={1.5} />
                   </div>
                   <div className="text-center space-y-1">
                     <p className="text-sm font-bold text-neutral-800">Drag & drop your video here, or <span className="text-[#4F46E5] hover:underline">browse</span></p>
@@ -527,8 +527,8 @@ export default function PublishPage() {
               ) : (
                 <div className="border border-emerald-100 bg-emerald-50/20 rounded-2xl p-5 flex items-center justify-between">
                   <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-emerald-100/50 border border-emerald-200/30 flex items-center justify-center text-emerald-600">
-                      <Video className="w-5 h-5" />
+                    <div className="w-10 h-10 rounded-full bg-emerald-100/50 border border-emerald-200/30 flex items-center justify-center text-emerald-600">
+                      <Video className="w-5 h-5" strokeWidth={1.5} />
                     </div>
                     <div>
                       <p className="text-sm font-bold text-neutral-800 truncate max-w-md">{uploadedFile.originalName}</p>
@@ -538,10 +538,10 @@ export default function PublishPage() {
                   <button
                     type="button"
                     onClick={removeUploadedFile}
-                    className="p-2 hover:bg-neutral-100 rounded-xl text-neutral-400 hover:text-red-500 transition-colors"
+                    className="p-2 hover:bg-neutral-100 rounded-full text-neutral-400 hover:text-red-500 transition-colors duration-300"
                     title="Remove Video"
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 className="w-4 h-4" strokeWidth={1.5} />
                   </button>
                 </div>
               )}
@@ -551,7 +551,7 @@ export default function PublishPage() {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-7 h-7 rounded-lg bg-[#4F46E5]/10 flex items-center justify-center font-bold text-xs text-[#4F46E5]">2</div>
+                  <div className="w-7 h-7 rounded-full bg-[#4F46E5]/10 flex items-center justify-center font-bold text-xs text-[#4F46E5]">2</div>
                   <h3 className="text-lg font-bold text-[#0A0A0F]">Choose Target Platforms</h3>
                 </div>
                 <span className="text-xs font-semibold text-neutral-400">{selectedPlatforms.length} selected</span>
@@ -571,9 +571,9 @@ export default function PublishPage() {
                       key={plat.id}
                       type="button"
                       onClick={() => togglePlatform(plat.id)}
-                      className={`p-4 border rounded-xl flex flex-col items-center justify-center text-center gap-2 cursor-pointer transition-all duration-150 ${
-                        isSelected 
-                          ? plat.activeBg + " shadow-sm scale-[1.02]" 
+                      className={`p-4 border rounded-2xl flex flex-col items-center justify-center text-center gap-2 cursor-pointer transition-all duration-300 ${
+                        isSelected
+                          ? plat.activeBg + " shadow-sm scale-[1.02]"
                           : "border-neutral-200 bg-white text-neutral-500 " + plat.color
                       }`}
                     >
@@ -591,7 +591,7 @@ export default function PublishPage() {
             {/* Step 3: Enter Details */}
             <div className="space-y-4">
               <div className="flex items-center gap-3">
-                <div className="w-7 h-7 rounded-lg bg-[#4F46E5]/10 flex items-center justify-center font-bold text-xs text-[#4F46E5]">3</div>
+                <div className="w-7 h-7 rounded-full bg-[#4F46E5]/10 flex items-center justify-center font-bold text-xs text-[#4F46E5]">3</div>
                 <h3 className="text-lg font-bold text-[#0A0A0F]">Video Metadata</h3>
               </div>
 
@@ -608,9 +608,9 @@ export default function PublishPage() {
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
                         maxLength={100}
-                        className="w-full bg-[#F4F5F8] border border-[#E2E4E9] rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#4F46E5]/20 focus:border-[#4F46E5] transition-all text-[#0A0A0F] placeholder:text-[#8A91A8]"
+                        className="w-full bg-[#F4F5F8] border border-[#E2E4E9] rounded-full px-4 py-3 text-sm font-medium focus:outline-none focus:ring-[3px] focus:ring-[#4F46E5]/15 focus:border-[#4F46E5] transition-all duration-300 text-[#0A0A0F] placeholder:text-[#8A91A8]"
                       />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-neutral-400 font-bold bg-white px-1.5 py-0.5 rounded border border-neutral-100">
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-neutral-400 font-bold bg-white px-1.5 py-0.5 rounded-full border border-neutral-100">
                         {title.length}/100
                       </span>
                     </div>
@@ -626,9 +626,9 @@ export default function PublishPage() {
                         onChange={(e) => setDescription(e.target.value)}
                         maxLength={1000}
                         rows={4}
-                        className="w-full bg-[#F4F5F8] border border-[#E2E4E9] rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#4F46E5]/20 focus:border-[#4F46E5] transition-all text-[#0A0A0F] placeholder:text-[#8A91A8] resize-none"
+                        className="w-full bg-[#F4F5F8] border border-[#E2E4E9] rounded-2xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-[3px] focus:ring-[#4F46E5]/15 focus:border-[#4F46E5] transition-all duration-300 text-[#0A0A0F] placeholder:text-[#8A91A8] resize-none"
                       />
-                      <span className="absolute right-3 bottom-3 text-[10px] text-neutral-400 font-bold bg-white px-1.5 py-0.5 rounded border border-neutral-100">
+                      <span className="absolute right-3 bottom-3 text-[10px] text-neutral-400 font-bold bg-white px-1.5 py-0.5 rounded-full border border-neutral-100">
                         {description.length}/1000
                       </span>
                     </div>
@@ -659,7 +659,7 @@ export default function PublishPage() {
                           className="hidden"
                         />
                         <div className="w-8 h-8 rounded-full bg-white border border-neutral-100 flex items-center justify-center text-neutral-400">
-                          <Upload className="w-4 h-4" />
+                          <Upload className="w-4 h-4" strokeWidth={1.5} />
                         </div>
                         <div className="text-center">
                           <p className="text-xs font-bold text-neutral-855">Upload cover image</p>
@@ -693,10 +693,10 @@ export default function PublishPage() {
                         <button
                           type="button"
                           onClick={removeUploadedThumbnail}
-                          className="p-1.5 hover:bg-neutral-100 rounded-lg text-neutral-400 hover:text-red-500 transition-colors"
+                          className="p-1.5 hover:bg-neutral-100 rounded-full text-neutral-400 hover:text-red-500 transition-colors duration-300"
                           title="Remove cover"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Trash2 className="w-4 h-4" strokeWidth={1.5} />
                         </button>
                       </div>
                     )}
@@ -704,21 +704,21 @@ export default function PublishPage() {
 
                   <div className="space-y-1.5">
                     <label className="text-xs font-bold text-neutral-500 uppercase tracking-widest block flex items-center gap-2">
-                      <Tag className="w-3.5 h-3.5" /> Tags / Keywords
+                      <Tag className="w-3.5 h-3.5" strokeWidth={1.5} /> Tags / Keywords
                     </label>
-                    <div className="bg-[#F4F5F8] border border-[#E2E4E9] rounded-xl p-2.5 flex flex-wrap gap-2 items-center">
+                    <div className="bg-[#F4F5F8] border border-[#E2E4E9] rounded-2xl p-2.5 flex flex-wrap gap-2 items-center">
                       {tags.map((tag, idx) => (
                         <span
                           key={idx}
-                          className="bg-white border border-[#E2E4E9] px-2.5 py-1 rounded-lg text-xs font-bold text-neutral-700 flex items-center gap-1.5 shadow-sm"
+                          className="bg-white border border-[#E2E4E9] px-2.5 py-1 rounded-full text-xs font-bold text-neutral-700 flex items-center gap-1.5 shadow-sm"
                         >
                           {tag}
                           <button
                             type="button"
                             onClick={() => removeTag(idx)}
-                            className="text-neutral-400 hover:text-red-500 transition-colors"
+                            className="text-neutral-400 hover:text-red-500 transition-colors duration-300"
                           >
-                            <X className="w-3 h-3" />
+                            <X className="w-3 h-3" strokeWidth={1.5} />
                           </button>
                         </span>
                       ))}
@@ -739,7 +739,7 @@ export default function PublishPage() {
             {/* Step 4: Schedule Picker */}
             <div className="space-y-4">
               <div className="flex items-center gap-3">
-                <div className="w-7 h-7 rounded-lg bg-[#4F46E5]/10 flex items-center justify-center font-bold text-xs text-[#4F46E5]">4</div>
+                <div className="w-7 h-7 rounded-full bg-[#4F46E5]/10 flex items-center justify-center font-bold text-xs text-[#4F46E5]">4</div>
                 <h3 className="text-lg font-bold text-[#0A0A0F]">Publishing Schedule</h3>
               </div>
 
@@ -747,14 +747,14 @@ export default function PublishPage() {
                 <button
                   type="button"
                   onClick={() => setPublishType("now")}
-                  className={`p-4 border rounded-xl flex items-center gap-3.5 text-left cursor-pointer transition-all duration-150 ${
+                  className={`p-4 border rounded-2xl flex items-center gap-3.5 text-left cursor-pointer transition-all duration-300 ${
                     publishType === "now"
                       ? "border-[#4F46E5] bg-[#4F46E5]/5 text-[#4F46E5] shadow-sm font-bold"
                       : "border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50"
                   }`}
                 >
-                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${publishType === 'now' ? 'bg-[#4F46E5]/10' : 'bg-neutral-100'}`}>
-                    <Play className="w-4 h-4" />
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${publishType === 'now' ? 'bg-[#4F46E5]/10' : 'bg-neutral-100'}`}>
+                    <Play className="w-4 h-4" strokeWidth={1.5} />
                   </div>
                   <div>
                     <p className="text-sm font-bold">Publish Immediately</p>
@@ -765,14 +765,14 @@ export default function PublishPage() {
                 <button
                   type="button"
                   onClick={() => setPublishType("schedule")}
-                  className={`p-4 border rounded-xl flex items-center gap-3.5 text-left cursor-pointer transition-all duration-150 ${
+                  className={`p-4 border rounded-2xl flex items-center gap-3.5 text-left cursor-pointer transition-all duration-300 ${
                     publishType === "schedule"
                       ? "border-[#4F46E5] bg-[#4F46E5]/5 text-[#4F46E5] shadow-sm font-bold"
                       : "border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50"
                   }`}
                 >
-                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${publishType === 'schedule' ? 'bg-[#4F46E5]/10' : 'bg-neutral-100'}`}>
-                    <Clock className="w-4 h-4" />
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${publishType === 'schedule' ? 'bg-[#4F46E5]/10' : 'bg-neutral-100'}`}>
+                    <Clock className="w-4 h-4" strokeWidth={1.5} />
                   </div>
                   <div>
                     <p className="text-sm font-bold">Schedule for Later</p>
@@ -784,7 +784,7 @@ export default function PublishPage() {
               {publishType === "schedule" && (
                 <div className="p-4 bg-neutral-50 border border-neutral-150 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
-                    <Calendar className="w-5 h-5 text-neutral-400 shrink-0" />
+                    <Calendar className="w-5 h-5 text-neutral-400 shrink-0" strokeWidth={1.5} />
                     <div>
                       <label htmlFor="scheduleDate" className="text-xs font-bold text-neutral-500 uppercase tracking-widest block">Choose Date & Time</label>
                       <p className="text-[10px] text-neutral-400 font-medium">Runs check every 60s</p>
@@ -796,7 +796,7 @@ export default function PublishPage() {
                     value={scheduleDate}
                     onChange={(e) => setScheduleDate(e.target.value)}
                     min={new Date().toISOString().slice(0, 16)}
-                    className="bg-white border border-[#E2E4E9] rounded-xl px-4 py-2.5 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#4F46E5]/20 focus:border-[#4F46E5] transition-all text-[#0A0A0F]"
+                    className="bg-white border border-[#E2E4E9] rounded-full px-4 py-2.5 text-sm font-semibold focus:outline-none focus:ring-[3px] focus:ring-[#4F46E5]/15 focus:border-[#4F46E5] transition-all duration-300 text-[#0A0A0F]"
                   />
                 </div>
               )}
@@ -807,15 +807,15 @@ export default function PublishPage() {
               <button
                 type="submit"
                 disabled={isSubmitting || isUploading || !uploadedFile || selectedPlatforms.length === 0 || !title.trim()}
-                className={`px-8 py-3.5 text-sm font-bold text-white rounded-xl shadow-md transition-all flex items-center gap-2 ${
+                className={`px-8 py-3.5 text-sm font-bold text-white rounded-full shadow-md transition-all duration-300 flex items-center gap-2 ${
                   isSubmitting || isUploading || !uploadedFile || selectedPlatforms.length === 0 || !title.trim()
                     ? "bg-neutral-300 shadow-none cursor-not-allowed text-neutral-400"
-                    : "bg-[#4F46E5] hover:bg-[#4338CA] shadow-[0_2px_10px_rgba(79,70,229,0.25)] hover:scale-[1.01]"
+                    : "bg-[#4F46E5] hover:bg-[#4338CA] shadow-[0_4px_16px_-4px_rgba(79,70,229,0.4)] hover:scale-[1.01]"
                 }`}
               >
                 {isSubmitting ? (
                   <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <Loader2 className="w-4 h-4 animate-spin" strokeWidth={1.5} />
                     <span>Submitting Job...</span>
                   </>
                 ) : publishType === "now" ? (
@@ -830,24 +830,24 @@ export default function PublishPage() {
 
         {/* Right Column: History & Status (5 cols on XL, else full) */}
         <div className="xl:col-span-5 space-y-6">
-          <div className="card p-6 space-y-6 bg-white border border-[#E2E4E9] rounded-3xl shadow-sm h-full flex flex-col">
+          <div className="card p-6 space-y-6 bg-white border border-[#E2E4E9] rounded-[1.75rem] shadow-sm h-full flex flex-col">
             <div className="flex items-center justify-between pb-4 border-b border-neutral-100 shrink-0">
-              <h3 className="font-bold text-lg text-[#0A0A0F] flex items-center gap-2">
+              <h3 className="font-semibold text-lg text-[#0A0A0F] flex items-center gap-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
                 <span>Publish History</span>
                 <span className="text-xs font-semibold bg-[#F4F5F8] border border-[#E2E4E9] px-2 py-0.5 rounded-full text-[#8A91A8]">{filteredJobs.length}</span>
               </h3>
               <button
                 onClick={fetchJobs}
                 disabled={isLoadingJobs}
-                className="p-2 text-neutral-400 hover:text-[#4F46E5] hover:bg-blue-50 rounded-xl transition-all"
+                className="p-2 text-neutral-400 hover:text-[#4F46E5] hover:bg-blue-50 rounded-full transition-colors duration-300"
                 title="Refresh history"
               >
-                <RefreshCw className={`w-4 h-4 ${isLoadingJobs ? "animate-spin text-[#4F46E5]" : ""}`} />
+                <RefreshCw className={`w-4 h-4 ${isLoadingJobs ? "animate-spin text-[#4F46E5]" : ""}`} strokeWidth={1.5} />
               </button>
             </div>
 
             {/* Filter buttons */}
-            <div className="flex flex-wrap gap-1.5 bg-[#F4F5F8] p-1 rounded-xl border border-[#E2E4E9] shrink-0">
+            <div className="flex flex-wrap gap-1.5 bg-[#F4F5F8] p-1 rounded-full border border-[#E2E4E9] shrink-0">
               {[
                 { id: "all", label: "All" },
                 { id: "scheduled", label: "Scheduled" },
@@ -858,7 +858,7 @@ export default function PublishPage() {
                 <button
                   key={f.id}
                   onClick={() => setJobFilter(f.id)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all relative ${
+                  className={`px-3 py-1.5 rounded-full text-xs font-bold transition-colors duration-300 relative ${
                     jobFilter === f.id ? "text-[#4F46E5] bg-white border border-[#E2E4E9] shadow-sm" : "text-neutral-500 hover:text-neutral-900"
                   }`}
                 >
@@ -876,8 +876,8 @@ export default function PublishPage() {
                 </div>
               ) : filteredJobs.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-20 text-center text-neutral-400 gap-4 border border-dashed border-neutral-200 rounded-2xl bg-neutral-50/50">
-                  <div className="w-10 h-10 rounded-xl bg-white border border-neutral-100 flex items-center justify-center">
-                    <FileText className="w-5 h-5 text-neutral-400" />
+                  <div className="w-10 h-10 rounded-full bg-white border border-neutral-100 flex items-center justify-center">
+                    <FileText className="w-5 h-5 text-neutral-400" strokeWidth={1.5} />
                   </div>
                   <div className="space-y-1">
                     <p className="text-sm font-bold text-neutral-800">No publish jobs found</p>
@@ -888,23 +888,23 @@ export default function PublishPage() {
                 filteredJobs.map((job) => (
                   <div 
                     key={job._id || job.id} 
-                    className="p-5 border border-[#E2E4E9] rounded-2xl bg-white space-y-4 hover:shadow-md hover:border-neutral-300 transition-all duration-200"
+                    className="p-5 border border-[#E2E4E9] rounded-2xl bg-white space-y-4 hover:shadow-md hover:border-neutral-300 transition-all duration-300"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-start gap-3 flex-1 min-w-0">
                         {job.thumbnailUrl ? (
-                          <div className="w-14 h-10 rounded-lg overflow-hidden border border-neutral-100 bg-neutral-50 shrink-0 shadow-sm">
+                          <div className="w-14 h-10 rounded-xl overflow-hidden border border-neutral-100 bg-neutral-50 shrink-0 shadow-sm">
                             <img src={job.thumbnailUrl} alt="Thumbnail" className="w-full h-full object-cover" />
                           </div>
                         ) : (
-                          <div className="w-14 h-10 rounded-lg bg-neutral-50 flex items-center justify-center text-neutral-400 shrink-0 border border-neutral-100">
-                            <Video className="w-4 h-4" />
+                          <div className="w-14 h-10 rounded-xl bg-neutral-50 flex items-center justify-center text-neutral-400 shrink-0 border border-neutral-100">
+                            <Video className="w-4 h-4" strokeWidth={1.5} />
                           </div>
                         )}
                         <div className="space-y-1 flex-1 min-w-0">
                           <h4 className="font-bold text-sm text-[#0A0A0F] truncate leading-snug">{job.title}</h4>
                           <p className="text-[10px] text-neutral-400 font-semibold flex items-center gap-1">
-                            <Calendar className="w-3 h-3" />
+                            <Calendar className="w-3 h-3" strokeWidth={1.5} />
                             <span className="truncate">
                               {job.status === "scheduled" ? "Scheduled: " : "Published: "}
                               {new Date(job.scheduledAt).toLocaleString()}
@@ -914,23 +914,23 @@ export default function PublishPage() {
                       </div>
                       
                       <div className="flex items-center gap-1.5 shrink-0">
-                        <span className={`px-2 py-0.5 border rounded-md text-[9px] font-extrabold uppercase tracking-widest ${getStatusBadgeClass(job.status)}`}>
+                        <span className={`px-2 py-0.5 border rounded-full text-[9px] font-extrabold uppercase tracking-widest ${getStatusBadgeClass(job.status)}`}>
                           {job.status}
                         </span>
                         {job.status === "scheduled" && (
                           <button
                             onClick={() => handleCancelJob(job._id || job.id)}
-                            className="p-1.5 hover:bg-red-50 text-neutral-400 hover:text-red-600 rounded-lg border border-neutral-100 hover:border-red-100 transition-colors"
+                            className="p-1.5 hover:bg-red-50 text-neutral-400 hover:text-red-600 rounded-full border border-neutral-100 hover:border-red-100 transition-colors duration-300"
                             title="Cancel publication"
                           >
-                            <Trash2 className="w-3.5 h-3.5" />
+                            <Trash2 className="w-3.5 h-3.5" strokeWidth={1.5} />
                           </button>
                         )}
                       </div>
                     </div>
 
                     {/* Platforms Results status */}
-                    <div className="p-3 bg-neutral-50 rounded-xl space-y-2.5">
+                    <div className="p-3 bg-neutral-50 rounded-2xl space-y-2.5">
                       <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">Platform Status</p>
                       
                       <div className="divide-y divide-neutral-200/50">
